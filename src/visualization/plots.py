@@ -13,9 +13,9 @@ from src.data import ucr
 from src.evaluation import aggregate as ag
 
 F = os.path.join(ucr.ROOT, "figures")
-COL = {"ridge_std": "#7f7f7f", "ridge_wide": "#1f77b4", "loo_em": "#d62728", "conf_learning": "#2ca02c",
+COL = {"ridge_std": "#7f7f7f", "ridge_wide": "#1f77b4", "loo_em": "#ff9896", "loo_em_bic": "#d62728", "conf_learning": "#2ca02c",
        "kfold_relabel": "#9467bd", "enn": "#8c564b", "loo_relabel": "#e377c2", "loo_remove": "#17becf"}
-MK = {"ridge_std": "o", "ridge_wide": "s", "loo_em": "D", "conf_learning": "^", "kfold_relabel": "v", "enn": "P",
+MK = {"ridge_std": "o", "ridge_wide": "s", "loo_em": "d", "loo_em_bic": "D", "conf_learning": "^", "kfold_relabel": "v", "enn": "P",
       "loo_relabel": "X", "loo_remove": "*"}
 plt.rcParams.update({"font.size": 9, "axes.spines.top": False, "axes.spines.right": False, "figure.dpi": 150,
                      "savefig.dpi": 300, "savefig.bbox": "tight", "font.family": "DejaVu Sans"})
@@ -33,7 +33,7 @@ def _complete(pdt, cond, methods):
     return pdt[cond][[m for m in methods if m in pdt[cond]]].dropna()
 
 
-def fig_accuracy_curves(df, methods=("ridge_std", "ridge_wide", "loo_em", "conf_learning", "enn"), name="fig_accuracy_vs_noise", metric="acc"):
+def fig_accuracy_curves(df, methods=("ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning", "enn"), name="fig_accuracy_vs_noise", metric="acc"):
     pdt = ag.per_dataset(df, metric)
     clean = _complete(pdt, "sym 0%", methods)
     fig, axes = plt.subplots(1, 3, figsize=(10.5, 3.2), sharey=True)
@@ -53,7 +53,7 @@ def fig_accuracy_curves(df, methods=("ridge_std", "ridge_wide", "loo_em", "conf_
     save(fig, name)
 
 
-def fig_scatter(df, conds=("sym 40%", "asym 40%", "boundary 30%"), a="loo_em", b="ridge_wide", name="fig_scatter_em_vs_ridge"):
+def fig_scatter(df, conds=("sym 40%", "asym 40%", "boundary 30%"), a="loo_em_bic", b="ridge_wide", name="fig_scatter_em_vs_ridge"):
     pdt = ag.per_dataset(df)
     size = df.drop_duplicates("dataset").set_index("dataset").n_train
     fig, axes = plt.subplots(1, len(conds), figsize=(3.4 * len(conds), 3.4))
@@ -95,12 +95,12 @@ def fig_bars(table, name, ylabel, ref=None):
 
 def fig_ablation(df):
     t = ag.mean_table(df, ag.ABL)
-    d = (t - t.loc["loo_em"]).drop(index="loo_em") * 100
-    fig_bars(d, "fig_ablation", "Accuracy change vs LOO-EM (points)")
+    d = (t - t.loc["loo_em_bic"]).drop(index="loo_em_bic") * 100
+    fig_bars(d, "fig_ablation", "Accuracy change vs LOO-EM (BIC), points")
 
 
 def fig_detection(df):
-    t = ag.mean_table(df[df.rate > 0], ["loo_em", "conf_learning", "kfold_relabel", "enn", "loo_relabel", "em_in_sample"], metric="det_auroc")
+    t = ag.mean_table(df[df.rate > 0], ["loo_em_bic", "bic_in_sample", "conf_learning", "kfold_relabel", "enn", "loo_relabel"], metric="det_auroc")
     fig_bars(t, "fig_detection_auroc", "Label-error detection AUROC")
     fig, ax = plt.subplots(figsize=(4, 3.2))
     em = df[(df.method == "em_no_gate") & (df.rate > 0)]
@@ -119,7 +119,7 @@ def fig_runtime(df):
     one = df[(df.noise == "asym") & (df.rate == 0.3)]
     base = one.drop_duplicates(["dataset", "seed"])
     ax.scatter(base.n_train, base.t_eig, s=6, color="k", alpha=.4, label="Shared eigendecomposition")
-    for m in ("loo_em", "conf_learning", "enn"):
+    for m in ("loo_em_bic", "conf_learning", "enn"):
         s = one[one.method == m]
         ax.scatter(s.n_train, s.time_s, s=6, alpha=.4, color=COL[m], label=ag.LABEL[m])
     ax.set_xscale("log"); ax.set_yscale("log"); ax.set_xlabel("Training-set size n"); ax.set_ylabel("Wall-clock time (s), 1 CPU thread")
@@ -132,11 +132,11 @@ def fig_gain_vs_size(df, cond="asym 40%"):
     size = df.drop_duplicates("dataset").set_index("dataset").n_train
     fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.2))
     for ax, c in zip(axes, (cond, "sym 0%")):
-        sub = _complete(pdt, c, ["loo_em", "ridge_wide"])
-        d = (sub.loo_em - sub.ridge_wide) * 100
+        sub = _complete(pdt, c, ["loo_em_bic", "ridge_wide"])
+        d = (sub.loo_em_bic - sub.ridge_wide) * 100
         ax.scatter(size.loc[sub.index], d, s=10, color="#d62728", alpha=.7)
         ax.axhline(0, color="k", lw=.7); ax.set_xscale("log"); ax.set_title(c)
-        ax.set_xlabel("Training-set size n"); ax.set_ylabel("LOO-EM − Ridge (wide), points"); ax.grid(alpha=.3)
+        ax.set_xlabel("Training-set size n"); ax.set_ylabel("LOO-EM (BIC) − Ridge (wide), points"); ax.grid(alpha=.3)
     save(fig, "fig_gain_vs_train_size")
 
 
@@ -157,7 +157,7 @@ def fig_method_diagram():
     boxes = [("Time series +\nnoisy labels", .01), ("Random conv. kernels\n(MiniRocket), frozen", .18),
              ("ONE eigendecomposition\nof the centred Gram matrix\n(label-independent)", .37),
              ("LOO-EM loop (matrix products only)\nE: q ∝ p_LOO(z|x)·T[z, y]\nM: ridge on soft targets, β, T", .59),
-             ("Likelihood gate →\nfinal ridge on\nposterior targets", .84)]
+             ("BIC choice: none /\nsymmetric / full T →\nfinal ridge", .84)]
     for (t, x), wd in zip(boxes, (.14, .16, .19, .22, .15)):
         ax.add_patch(matplotlib.patches.FancyBboxPatch((x, .25), wd, .5, boxstyle="round,pad=0.01", fc="#eef3fb", ec="#1f3b73"))
         ax.text(x + wd / 2, .5, t, ha="center", va="center", fontsize=7.5)

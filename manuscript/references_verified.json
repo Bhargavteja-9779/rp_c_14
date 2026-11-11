@@ -129,7 +129,15 @@
   "pages": "469-484",
   "n_authors": 3
  },
- "10.1109/IJCNN.2017.7966039": null,
+ "10.1109/IJCNN.2017.7966039": {
+  "authors": "Wang, Zhiguang; Yan, Weizhong; Oates, Tim",
+  "year": 2017,
+  "title": "Time series classification from scratch with deep neural networks: A strong baseline",
+  "venue": "2017 International Joint Conference on Neural Networks (IJCNN)",
+  "volume": null,
+  "issue": null,
+  "pages": "1578-1585"
+ },
  "10.1080/00401706.1979.10489751": {
   "authors": "Golub, Gene H.; Heath, Michael; Wahba, Grace",
   "year": 1979,
@@ -220,7 +228,15 @@
   "pages": null,
   "n_authors": 3
  },
- "10.1609/aaai.v35i13.17364": null,
+ "10.1609/aaai.v35i13.17364": {
+  "authors": "Chen, Pengfei; Ye, Junjie; Chen, Guangyong; Zhao, Jingwei; Heng, Pheng-Ann",
+  "year": 2021,
+  "title": "Robustness of Accuracy Metric and its Inspirations in Learning with Noisy Labels",
+  "venue": "Proceedings of the AAAI Conference on Artificial Intelligence",
+  "volume": "35",
+  "issue": "13",
+  "pages": "11451-11461"
+ },
  "10.2307/3001968": {
   "authors": "Wilcoxon, Frank",
   "year": 1945,
@@ -308,5 +324,41 @@
   "year": 2024,
   "title": "TS-ACL: Closed-Form Solution for Time Series-oriented Continual Learning",
   "venue": "arXiv preprint"
+ },
+ "10.1214/aos/1176344136": {
+  "authors": "Schwarz, Gideon",
+  "year": 1978,
+  "title": "Estimating the Dimension of a Model",
+  "venue": "The Annals of Statistics",
+  "volume": "6",
+  "issue": "2",
+  "pages": "461-464"
+ },
+ "10.1007/s10618-020-00710-y": {
+  "authors": "Ismail Fawaz, Hassan; Lucas, Benjamin; Forestier, Germain; Pelletier, Charlotte; Schmidt, Daniel F.; Weber, Jonathan; Webb, Geoffrey I.; Idoumghar, Lhassane; Muller, Pierre-Alain; Petitjean, Fran\u00e7ois",
+  "year": 2020,
+  "title": "InceptionTime: Finding AlexNet for time series classification",
+  "venue": "Data Mining and Knowledge Discovery",
+  "volume": "34",
+  "issue": "6",
+  "pages": "1936-1962"
+ },
+ "arXiv:1804.06872v3": {
+  "authors": "Bo Han; Quanming Yao; Xingrui Yu; Gang Niu; Miao Xu; Weihua Hu; Ivor Tsang; Masashi Sugiyama",
+  "year": 2018,
+  "title": "Co-teaching: Robust Training of Deep Neural Networks with Extremely Noisy Labels",
+  "venue": "arXiv"
+ },
+ "arXiv:1805.07836v4": {
+  "authors": "Zhilu Zhang; Mert R. Sabuncu",
+  "year": 2018,
+  "title": "Generalized Cross Entropy Loss for Training Deep Neural Networks with Noisy Labels",
+  "venue": "arXiv"
+ },
+ "arXiv:2406.14231v1": {
+  "authors": "Matthew Middlehurst; Ali Ismail-Fawaz; Antoine Guillaume; Christopher Holder; David Guijo Rubio; Guzal Bulatova; Leonidas Tsaprounis; Lukasz Mentel; Martin Walter; Patrick Sch\u00e4fer; Anthony Bagnall",
+  "year": 2024,
+  "title": "aeon: a Python toolkit for learning from time series",
+  "venue": "arXiv"
  }
 }

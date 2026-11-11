@@ -99,7 +99,7 @@ def run_dataset(dataset, cfg, transform=None, methods=None, seeds=None, out_dir=
                         info = res.get("info", {})
                         row.update(est_noise=info.get("noise_rate", np.nan),
                                    rounds=info.get("rounds", np.nan),
-                                   accepted=info.get("accepted", np.nan))
+                                   accepted=info.get("accepted", np.nan), model=info.get("model", ""))
                     rows.append(row)
         del g, gstd, K_te, f
     pd.DataFrame(rows).to_csv(out, index=False)
