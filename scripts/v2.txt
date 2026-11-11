@@ -1,0 +1,2 @@
+{"ridge_wide":(cl.none,{},"wide"),"em":(cl.loo_em,{},"wide"),"em_g1":(cl.loo_em,dict(gate=1.0),"wide"),"em_g3":(cl.loo_em,dict(gate=3.0),"wide"),
+"em_sym_g1":(cl.loo_em,dict(gate=1.0,transition="sym"),"wide"),"em_hard_g1":(cl.loo_em,dict(gate=1.0,soft_targets=False),"wide"),"em_m5C":(cl.loo_em,dict(gate=1.0,prior_strength=50),"wide")}

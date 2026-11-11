@@ -102,7 +102,7 @@ def _fit_beta(F, lik_fn, lo=-4.0, hi=6.0):
 def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
            transition: str = "full", prior_strength: float | None = None,
            soft_targets: bool = True, in_sample: bool = False, reselect: bool = True,
-           use_noise_model: bool = True, **kw):
+           use_noise_model: bool = True, gate: float | None = None, **kw):
     """LOO-EM (proposed): expectation-maximisation for class-conditional label
     noise in which the classifier's predictive distribution is always the
     closed-form leave-one-out one.
@@ -143,6 +143,8 @@ def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
             F = fit if in_sample else loo
         if first_score is None:
             first_score = -margins(F, y)[0]
+            b0 = _fit_beta(F, lambda P: np.sum(np.log(P[np.arange(n), y] + 1e-12)))
+            ll_clean = float(np.sum(np.log(_softmax(b0 * F)[np.arange(n), y] + 1e-12)))
         if not use_noise_model:
             beta = _fit_beta(F, lambda P: np.sum(np.log(P[np.arange(n), y] + 1e-12)))
             Qn = _softmax(beta * F)
@@ -167,11 +169,16 @@ def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
             P = _softmax(beta * F)
             Qn = P * T[:, y].T
             Qn /= Qn.sum(1, keepdims=True) + 1e-12
+        ll_noise = float(np.sum(np.log((P * T[:, y].T).sum(1) + 1e-12))) if use_noise_model else 0.0
         delta = float(np.abs(Qn - Q).max())
         Q = Qn
         hist.append(delta)
         if delta < tol:
             break
+    accepted = True
+    if gate is not None and use_noise_model and ll_noise - ll_clean <= gate * 0.5 * np.log(n):
+        accepted = False  # the noise model does not explain the labels better
+        Q = onehot.copy()
     y_new = Q.argmax(1)
     for c in np.unique(y):  # never empty a class
         if not (y_new == c).any():
@@ -180,7 +187,7 @@ def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
     return dict(y_clean=y_new, keep=np.ones(n, bool), flagged=y_new != y,
                 score=1.0 - Q[np.arange(n), y] if use_noise_model else first_score,
                 soft=Q if soft_targets else None,
-                info=dict(rounds=len(hist), beta=beta, noise_rate=float(1 - np.trace(T) / C),
+                info=dict(rounds=len(hist), beta=beta, accepted=accepted, noise_rate=float(1 - np.trace(T) / C),
                           T=T, alpha=alpha))
 
 

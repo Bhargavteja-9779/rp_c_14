@@ -1,0 +1,30 @@
+# Experimental protocol (fixed before the full run; see supplementary/protocol.md)
+seeds: [0, 1, 2, 3, 4]            # resample seeds (0 = archive default split)
+transform: minirocket
+alphas_std: [-3, 3, 10]           # numpy.logspace args: default grid of ROCKET pipelines
+alphas_wide: [-3, 9, 25]          # widened grid
+noise:
+  sym: [0.0, 0.1, 0.2, 0.3, 0.4]
+  asym: [0.1, 0.2, 0.3, 0.4]
+  boundary: [0.1, 0.2, 0.3]
+dev_seed: 2026                    # RandomState used to draw the 12 development datasets
+n_dev: 12
+methods:                          # name: [function, grid, kwargs]
+  ridge_std:      [ridge, std, {}]
+  ridge_wide:     [ridge, wide, {}]
+  loo_em:         [loo_em, wide, {gate: 1.0}]
+  em_std_grid:    [loo_em, std, {gate: 1.0}]
+  em_no_gate:     [loo_em, wide, {}]
+  em_sym_T:       [loo_em, wide, {gate: 1.0, transition: sym}]
+  em_hard:        [loo_em, wide, {gate: 1.0, soft_targets: false}]
+  em_in_sample:   [loo_em, wide, {gate: 1.0, in_sample: true}]
+  em_no_T:        [loo_em, wide, {use_noise_model: false}]
+  loo_relabel:    [loo_relabel, wide, {max_iter: 1}]
+  loo_relabel_it: [loo_relabel, wide, {}]
+  loo_remove:     [loo_relabel, wide, {action: remove}]
+  conf_learning:  [confident_learning, wide, {}]
+  kfold_relabel:  [kfold_relabel, wide, {}]
+  enn:            [enn, wide, {}]
+quick:
+  datasets: [GunPoint, ItalyPowerDemand, ECG200, Coffee, SyntheticControl, CBF]
+  seeds: [0, 1]
