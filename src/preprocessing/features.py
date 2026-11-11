@@ -10,6 +10,9 @@ CACHE = os.path.join(ucr.ROOT, "data", "cache")
 
 
 def _transformer(kind: str, seed: int, n_jobs: int):
+    if kind.startswith("minirocket@"):  # e.g. minirocket@2000 : kernel-count sensitivity
+        from aeon.transformations.collection.convolution_based import MiniRocket
+        return MiniRocket(n_kernels=int(kind.split("@")[1]), random_state=seed, n_jobs=n_jobs)
     if kind == "minirocket":
         from aeon.transformations.collection.convolution_based import MiniRocket
         return MiniRocket(n_kernels=10000, random_state=seed, n_jobs=n_jobs)

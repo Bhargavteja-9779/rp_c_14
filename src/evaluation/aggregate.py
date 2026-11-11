@@ -14,6 +14,7 @@ from src.statistics import tests as st
 
 R = os.path.join(ucr.ROOT, "results")
 T = os.path.join(ucr.ROOT, "tables")
+RAW_SUB = "raw/minirocket"
 KEY = ["ridge_std", "ridge_wide", "loo_em", "conf_learning", "kfold_relabel", "enn", "loo_relabel", "loo_remove"]
 ABL = ["loo_em", "em_no_gate", "em_sym_T", "em_hard", "em_in_sample", "em_no_T", "em_std_grid",
        "loo_relabel", "loo_relabel_it", "loo_remove", "ridge_wide"]
@@ -30,7 +31,8 @@ def cond_label(kind, rate):
     return f"{kind} {int(round(rate * 100))}%"
 
 
-def load_raw(sub="raw/minirocket"):
+def load_raw(sub=None):
+    sub = sub or RAW_SUB
     files = sorted(glob.glob(os.path.join(R, sub, "*.csv")))
     df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
     df["cond"] = [cond_label(k, r) for k, r in zip(df.noise, df.rate)]

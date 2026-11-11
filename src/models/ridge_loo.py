@@ -62,7 +62,11 @@ class GramRidge:
 
     # ------------------------------------------------------- label-dependent
     def hat_diag(self, alpha: float) -> np.ndarray:
-        return self.U2_ @ (self.s_ / (self.s_ + alpha)) + 1.0 / self.n_
+        cache = self.__dict__.setdefault("_hcache", {})  # label-independent, so cached per penalty
+        key = float(alpha)
+        if key not in cache:
+            cache[key] = self.U2_ @ (self.s_ / (self.s_ + alpha)) + 1.0 / self.n_
+        return cache[key]
 
     def loo(self, Y: np.ndarray, alpha: float, UtY: np.ndarray | None = None):
         """Return (LOO decision values, in-sample fitted values, hat diagonal)."""
@@ -74,19 +78,41 @@ class GramRidge:
         loo = (fit - h[:, None] * Y) / (1.0 - h[:, None])
         return loo, fit, h
 
-    def select_alpha(self, Y: np.ndarray, criterion: str = "mse"):
-        """LOO model selection over the alpha grid (as RidgeClassifierCV)."""
+    def _score(self, Y, UtY, a, criterion):
+        loo, _, _ = self.loo(Y, a, UtY)
+        if criterion == "mse":
+            return float(np.mean((loo - Y) ** 2)), loo
+        return float(np.mean(loo.argmax(1) != Y.argmax(1))), loo
+
+    def select_alpha(self, Y: np.ndarray, criterion: str = "mse", around: float | None = None, width: int = 2):
+        """LOO model selection over the alpha grid (as RidgeClassifierCV).
+
+        ``around``: warm start.  Only grid points within ``width`` steps of the previous
+        optimum are scored; the window is extended while the best point lies on its edge.
+        This equals the exhaustive search whenever the criterion is unimodal on the grid."""
         UtY = self.U_.T @ Y
-        best = (np.inf, None, None)
-        for a in self.alphas:
-            loo, _, _ = self.loo(Y, a, UtY)
-            if criterion == "mse":
-                score = np.mean((loo - Y) ** 2)
-            else:  # LOO 0-1 error
-                score = np.mean(loo.argmax(1) != Y.argmax(1))
-            if score < best[0] - 1e-15:
-                best = (score, a, loo)
-        return best[1], best[2], best[0]
+        if around is None:
+            best = (np.inf, None, None)
+            for a in self.alphas:
+                score, loo = self._score(Y, UtY, a, criterion)
+                if score < best[0] - 1e-15:
+                    best = (score, a, loo)
+            return best[1], best[2], best[0]
+        m = len(self.alphas)
+        c = int(np.argmin(np.abs(np.log(self.alphas) - np.log(around))))
+        lo, hi = max(0, c - width), min(m - 1, c + width)
+        done = {}
+        while True:
+            for k in range(lo, hi + 1):
+                if k not in done:
+                    done[k] = self._score(Y, UtY, self.alphas[k], criterion)
+            kb = min(done, key=lambda k: (done[k][0], k))
+            if kb == lo and lo > 0:
+                lo -= 1
+            elif kb == hi and hi < m - 1:
+                hi += 1
+            else:
+                return self.alphas[kb], done[kb][1], done[kb][0]
 
     def dual_coef(self, Y: np.ndarray, alpha: float) -> tuple[np.ndarray, np.ndarray]:
         ybar = Y.mean(0, keepdims=True)
