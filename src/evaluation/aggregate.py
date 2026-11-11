@@ -156,7 +156,8 @@ def run(dev=None):
     # detection quality
     det = {}
     for metric in ("det_auroc", "det_f1", "det_prec", "det_rec", "label_acc"):
-        t = mean_table(df[df.rate > 0], [m for m in KEY + ["bic_in_sample", "em_no_gate"] if m not in ("ridge_std", "ridge_wide")] + ["ridge_wide"], metric=metric)
+        dm = [m for m in KEY + ["bic_in_sample", "em_no_gate"] if m not in ("ridge_std", "ridge_wide")]
+        t = mean_table(df[df.rate > 0], dm + (["ridge_wide"] if metric == "label_acc" else []), metric=metric)
         write(t.rename(index=LABEL), f"table_{metric}")
         det[metric] = t.to_dict()
     metrics["detection"] = det

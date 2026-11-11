@@ -30,6 +30,7 @@ def _transformer(kind: str, seed: int, n_jobs: int):
 
 def get_features(dataset: str, seed: int, kind: str = "minirocket", n_jobs: int = 4, cache: bool = True):
     """Return dict(Ftr, ytr, Fte, yte, Xtr, Xte) for a (dataset, resample-seed, transform)."""
+    cache = cache and kind in ("minirocket", "hydra")  # other transforms are too large to cache
     path = os.path.join(CACHE, kind, f"{dataset}_{seed}.npz")
     Xtr, ytr, Xte, yte = ucr.resample(*ucr.load(dataset), seed)
     if cache and os.path.exists(path):

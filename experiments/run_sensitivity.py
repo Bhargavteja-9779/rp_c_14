@@ -21,9 +21,11 @@ def one(args):
     import threadpoolctl; threadpoolctl.threadpool_limits(1)
     from src.training import runner
     cfg = runner.load_config()
-    m = {k: cfg["methods"][k] for k in ("ridge_std", "ridge_wide", "loo_em", "em_no_gate")}
+    allm = {**cfg["methods"], **cfg["methods_v2"]}
+    m = {k: allm[k] for k in ("ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "em_no_gate", "bic_pen_0.5", "bic_pen_2", "bic_iter_5")}
     if transform == "minirocket":
-        m.update(cfg["sensitivity_methods"])
+        m.update({"bic_prior_1": ["loo_em_bic", "wide", {"prior_strength": 1}], "bic_prior_50": ["loo_em_bic", "wide", {"prior_strength": 50}],
+                  "bic_iter_50": ["loo_em_bic", "wide", {"max_iter": 50}], "bic_pen_4": ["loo_em_bic", "wide", {"penalty": 4.0}]})
     runner.run_dataset(d, cfg, transform=transform, methods=m, seeds=[0, 1, 2], noise=NOISE, n_jobs=1,
                        out_dir=os.path.join(runner.ucr.ROOT, "results", "raw", "sensitivity", transform))
     return d, transform

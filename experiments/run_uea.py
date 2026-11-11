@@ -13,7 +13,8 @@ def one(d):
     import threadpoolctl; threadpoolctl.threadpool_limits(1)
     from src.training import runner
     cfg = runner.load_config()
-    m = {k: cfg["methods"][k] for k in ("ridge_std", "ridge_wide", "loo_em", "em_sym_T", "conf_learning", "enn")}
+    allm = {**cfg["methods"], **cfg["methods_v2"]}
+    m = {k: allm[k] for k in ("ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "em_sym_T", "conf_learning", "enn")}
     try:
         runner.run_dataset(d, cfg, methods=m, seeds=[0, 1, 2], noise=NOISE, n_jobs=1,
                            out_dir=os.path.join(runner.ucr.ROOT, "results", "raw", "uea"))

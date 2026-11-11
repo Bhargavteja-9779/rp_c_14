@@ -51,7 +51,13 @@ if __name__ == "__main__":
     methods = a.methods.split(",") if a.methods else None
     seeds = [int(x) for x in a.seeds.split(',')] if a.seeds else None
     jobs = [(d, a.transform, a.quick, a.threads, methods, seeds, a.sub) for d in names]
-    from multiprocessing import Pool
-    with Pool(a.workers) as p:
-        for d, t, err in p.imap_unordered(_one, jobs):
-            print(f"{d:35s} {t:8.1f}s {err}", flush=True)
+    from concurrent.futures import ProcessPoolExecutor, as_completed
+    from concurrent.futures.process import BrokenProcessPool
+    try:  # a worker killed by the OS (e.g. out of memory) raises instead of hanging; the run is resumable
+        with ProcessPoolExecutor(a.workers) as ex:
+            for fut in as_completed([ex.submit(_one, j) for j in jobs]):
+                d, t, err = fut.result()
+                print(f"{d:35s} {t:8.1f}s {err}", flush=True)
+    except BrokenProcessPool:
+        print("WORKER_KILLED: rerun the same command to resume", flush=True)
+        sys.exit(3)

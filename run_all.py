@@ -68,8 +68,9 @@ if __name__ == "__main__":
         sh(f"{PY} scripts/dataset_summary.py", "dataset_summary.log")
         sh(f"{PY} scripts/leakage_audit.py", "leakage_audit.log")
         sh(f"{PY} experiments/run_main.py --workers {w} --max-n 3000", "main_minirocket.log")           # 108 datasets
-        sh(f"{PY} experiments/run_main.py --workers 1 --threads {w} --datasets {BIG}", "main_minirocket.log")  # 4 large
-        core = "ridge_std,ridge_wide,loo_em,conf_learning"
+        sh(f"{PY} experiments/run_main.py --workers 1 --threads {w} --sub large --seeds 0,1,2 --methods ridge_std,ridge_wide,loo_em_bic,loo_em,em_sym_T,enn,loo_relabel --datasets {BIG}", "large.log")  # 4 largest: scalability study
+        sh(f"{PY} experiments/run_main.py --workers {w} --max-n 3000 --sub minirocket_v2 --methods loo_em_bic,bic_hard,bic_in_sample,bic_std_grid,bic_pen_0.5,bic_pen_2,bic_iter_5", "main_v2.log")
+        core = "ridge_std,ridge_wide,loo_em_bic,loo_em,conf_learning"
         for tr in ("multirocket", "hydra"):                                                                # other transforms
             sh(f"{PY} experiments/run_main.py --transform {tr} --methods {core} --seeds 0,1,2 --workers {w} --max-n 3000", f"main_{tr}.log")
         sh(f"{PY} experiments/run_other.py --methods quant,nn_ed --seeds 0,1,2 --workers {w}", "other.log")  # other families
