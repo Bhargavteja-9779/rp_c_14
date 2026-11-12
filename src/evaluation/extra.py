@@ -35,8 +35,40 @@ def _restrict(main, other):
     return main.merge(key, on=["dataset", "seed", "cond"])
 
 
+def error_analysis(main_df):
+    """Where does LOO-EM (BIC) win / lose against wide-grid ridge, and what predicts it?"""
+    pdt = ag.per_dataset(main_df)
+    meta = main_df.drop_duplicates("dataset").set_index("dataset")[["n_train", "n_classes"]]
+    rows, corr = [], {}
+    for c in ("sym 0%", "sym 30%", "asym 40%", "boundary 30%"):
+        sub = pdt[c][["ridge_wide", "loo_em_bic", "loo_em"]].dropna()
+        d = (sub.loo_em_bic - sub.ridge_wide).sort_values()
+        for name, sel in (("largest losses", d.index[:5]), ("largest wins", d.index[::-1][:5])):
+            for ds in sel:
+                rows.append(dict(cond=c, group=name, dataset=ds, n_train=int(meta.n_train[ds]), n_classes=int(meta.n_classes[ds]),
+                                 ridge_wide=sub.ridge_wide[ds], loo_em_bic=sub.loo_em_bic[ds], diff=d[ds]))
+        from scipy.stats import spearmanr
+        clean = pdt["sym 0%"]["ridge_wide"].reindex(d.index)
+        corr[c] = dict(spearman_diff_vs_log_n=float(spearmanr(d, np.log(meta.n_train.reindex(d.index))).statistic),
+                       spearman_diff_vs_n_classes=float(spearmanr(d, meta.n_classes.reindex(d.index)).statistic),
+                       spearman_diff_vs_clean_accuracy=float(spearmanr(d, clean).statistic),
+                       frac_datasets_changed=float((d != 0).mean()))
+    t = pd.DataFrame(rows)
+    ag.write(t, "table_error_analysis", index=False)
+    ag.write(pd.DataFrame(corr).T, "table_error_correlates")
+    return dict(extremes=rows, correlates=corr)
+
+
 def run(main_df):
     out, stats_rows = {}, []
+    out["error_analysis"] = error_analysis(main_df)
+    d = _load("large")
+    if d is not None:
+        t = ag.mean_table(d, ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "em_sym_T", "enn", "loo_relabel"])
+        ag.write(t.rename(index=ag.LABEL), "table_large")
+        per = d.groupby(["dataset", "method"]).agg(time_s=("time_s", "mean"), t_eig=("t_eig", "mean"), t_feat=("t_feat", "mean"), n_train=("n_train", "first")).reset_index()
+        ag.write(per, "table_large_timing", index=False)
+        out["large"] = dict(datasets=sorted(d.dataset.unique()), mean_accuracy=t.to_dict(), timing=per.to_dict(orient="records"))
     core = ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning"]
 
     # ---- other random-kernel transforms -------------------------------------------------

@@ -33,7 +33,7 @@ def one(args):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--workers", type=int, default=4); a = ap.parse_args()
-    jobs = [(d, t) for t in ("minirocket", "minirocket@1000", "minirocket@2500", "minirocket@5000", "minirocket@20000") for d in subset()]
+    jobs = [(d, t) for t in ("minirocket", "minirocket@1000", "minirocket@2500", "minirocket@5000") for d in subset()]
     from multiprocessing import Pool
     with Pool(a.workers) as p:
         for r in p.imap_unordered(one, jobs): print(*r, flush=True)

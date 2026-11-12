@@ -14,7 +14,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 PY = sys.executable
 BIG = "ElectricDevices,Crop,FordA,FordB"
-DEEP = "ECG200,Wine,Plane,Trace,SyntheticControl,MoteStrain,TwoLeadECG,SonyAIBORobotSurface2"
+DEEP = "ECG200,Plane,SyntheticControl,MoteStrain,TwoLeadECG,SonyAIBORobotSurface2"
 
 
 def device():
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         core = "ridge_std,ridge_wide,loo_em_bic,loo_em,conf_learning"
         for tr in ("multirocket", "hydra"):                                                                # other transforms
             sh(f"{PY} experiments/run_main.py --transform {tr} --methods {core} --seeds 0,1,2 --workers {w} --max-n 3000", f"main_{tr}.log")
-        sh(f"{PY} experiments/run_other.py --methods quant,nn_ed --seeds 0,1,2 --workers {w}", "other.log")  # other families
+        sh(f"{PY} experiments/run_other.py --methods quant,nn_ed --seeds 0,1,2 --workers {w} --datasets $(tail -1 scripts/main108.txt)", "other.log")  # other families
         sh(f"{PY} experiments/run_sensitivity.py --workers {w}", "sensitivity.log")
         sh(f"{PY} experiments/run_uea.py --workers {w}", "uea.log")
         sh(f"{PY} experiments/run_deep.py --datasets {DEEP} --seeds 0,1,2 --conds sym:0,sym:0.3,asym:0.3 --workers {w}", "deep.log")

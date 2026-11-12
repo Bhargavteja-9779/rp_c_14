@@ -2642,6 +2642,666 @@
   }
  ],
  "extra": {
+  "error_analysis": {
+   "extremes": [
+    {
+     "cond": "sym 0%",
+     "group": "largest losses",
+     "dataset": "Beef",
+     "n_train": 30,
+     "n_classes": 5,
+     "ridge_wide": 0.7733333333333333,
+     "loo_em_bic": 0.7066666666666667,
+     "diff": -0.06666666666666665
+    },
+    {
+     "cond": "sym 0%",
+     "group": "largest losses",
+     "dataset": "PigCVP",
+     "n_train": 104,
+     "n_classes": 52,
+     "ridge_wide": 0.9288461538461539,
+     "loo_em_bic": 0.889423076923077,
+     "diff": -0.039423076923076894
+    },
+    {
+     "cond": "sym 0%",
+     "group": "largest losses",
+     "dataset": "EthanolLevel",
+     "n_train": 504,
+     "n_classes": 4,
+     "ridge_wide": 0.6456000000000001,
+     "loo_em_bic": 0.61,
+     "diff": -0.035600000000000076
+    },
+    {
+     "cond": "sym 0%",
+     "group": "largest losses",
+     "dataset": "ScreenType",
+     "n_train": 375,
+     "n_classes": 3,
+     "ridge_wide": 0.5344,
+     "loo_em_bic": 0.5055999999999999,
+     "diff": -0.028800000000000048
+    },
+    {
+     "cond": "sym 0%",
+     "group": "largest losses",
+     "dataset": "Worms",
+     "n_train": 181,
+     "n_classes": 5,
+     "ridge_wide": 0.7688311688311689,
+     "loo_em_bic": 0.7402597402597403,
+     "diff": -0.02857142857142858
+    },
+    {
+     "cond": "sym 0%",
+     "group": "largest wins",
+     "dataset": "Lightning2",
+     "n_train": 60,
+     "n_classes": 2,
+     "ridge_wide": 0.7180327868852459,
+     "loo_em_bic": 0.740983606557377,
+     "diff": 0.022950819672131195
+    },
+    {
+     "cond": "sym 0%",
+     "group": "largest wins",
+     "dataset": "Herring",
+     "n_train": 64,
+     "n_classes": 2,
+     "ridge_wide": 0.590625,
+     "loo_em_bic": 0.60625,
+     "diff": 0.015625
+    },
+    {
+     "cond": "sym 0%",
+     "group": "largest wins",
+     "dataset": "LargeKitchenAppliances",
+     "n_train": 375,
+     "n_classes": 3,
+     "ridge_wide": 0.8976,
+     "loo_em_bic": 0.9039999999999999,
+     "diff": 0.006399999999999961
+    },
+    {
+     "cond": "sym 0%",
+     "group": "largest wins",
+     "dataset": "MiddlePhalanxOutlineCorrect",
+     "n_train": 600,
+     "n_classes": 2,
+     "ridge_wide": 0.8405498281786942,
+     "loo_em_bic": 0.8446735395189003,
+     "diff": 0.004123711340206171
+    },
+    {
+     "cond": "sym 0%",
+     "group": "largest wins",
+     "dataset": "Rock",
+     "n_train": 20,
+     "n_classes": 4,
+     "ridge_wide": 0.8160000000000001,
+     "loo_em_bic": 0.82,
+     "diff": 0.0039999999999998925
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest losses",
+     "dataset": "WormsTwoClass",
+     "n_train": 181,
+     "n_classes": 2,
+     "ridge_wide": 0.6779220779220779,
+     "loo_em_bic": 0.6363636363636364,
+     "diff": -0.04155844155844157
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest losses",
+     "dataset": "PowerCons",
+     "n_train": 180,
+     "n_classes": 2,
+     "ridge_wide": 0.8788888888888888,
+     "loo_em_bic": 0.8422222222222222,
+     "diff": -0.036666666666666625
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest losses",
+     "dataset": "MiddlePhalanxOutlineAgeGroup",
+     "n_train": 400,
+     "n_classes": 3,
+     "ridge_wide": 0.6597402597402597,
+     "loo_em_bic": 0.6337662337662338,
+     "diff": -0.025974025974025983
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest losses",
+     "dataset": "GunPointOldVersusYoung",
+     "n_train": 136,
+     "n_classes": 2,
+     "ridge_wide": 0.9968253968253968,
+     "loo_em_bic": 0.9746031746031745,
+     "diff": -0.022222222222222365
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest losses",
+     "dataset": "ChlorineConcentration",
+     "n_train": 467,
+     "n_classes": 3,
+     "ridge_wide": 0.5484375,
+     "loo_em_bic": 0.5271354166666666,
+     "diff": -0.021302083333333388
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest wins",
+     "dataset": "ToeSegmentation2",
+     "n_train": 36,
+     "n_classes": 2,
+     "ridge_wide": 0.6353846153846154,
+     "loo_em_bic": 0.7523076923076923,
+     "diff": 0.11692307692307691
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest wins",
+     "dataset": "BME",
+     "n_train": 30,
+     "n_classes": 3,
+     "ridge_wide": 0.7733333333333333,
+     "loo_em_bic": 0.8706666666666667,
+     "diff": 0.09733333333333338
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest wins",
+     "dataset": "Car",
+     "n_train": 60,
+     "n_classes": 4,
+     "ridge_wide": 0.7366666666666667,
+     "loo_em_bic": 0.8300000000000001,
+     "diff": 0.09333333333333338
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest wins",
+     "dataset": "OSULeaf",
+     "n_train": 200,
+     "n_classes": 6,
+     "ridge_wide": 0.8429752066115702,
+     "loo_em_bic": 0.9223140495867769,
+     "diff": 0.07933884297520666
+    },
+    {
+     "cond": "sym 30%",
+     "group": "largest wins",
+     "dataset": "Mallat",
+     "n_train": 55,
+     "n_classes": 8,
+     "ridge_wide": 0.7483155650319829,
+     "loo_em_bic": 0.8158635394456291,
+     "diff": 0.06754797441364613
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest losses",
+     "dataset": "FaceFour",
+     "n_train": 24,
+     "n_classes": 4,
+     "ridge_wide": 0.5363636363636364,
+     "loo_em_bic": 0.5045454545454545,
+     "diff": -0.03181818181818186
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest losses",
+     "dataset": "FreezerSmallTrain",
+     "n_train": 28,
+     "n_classes": 2,
+     "ridge_wide": 0.6729824561403509,
+     "loo_em_bic": 0.6451228070175439,
+     "diff": -0.02785964912280703
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest losses",
+     "dataset": "Wine",
+     "n_train": 57,
+     "n_classes": 2,
+     "ridge_wide": 0.5296296296296296,
+     "loo_em_bic": 0.5074074074074074,
+     "diff": -0.022222222222222143
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest losses",
+     "dataset": "MiddlePhalanxOutlineCorrect",
+     "n_train": 600,
+     "n_classes": 2,
+     "ridge_wide": 0.6309278350515464,
+     "loo_em_bic": 0.6130584192439862,
+     "diff": -0.017869415807560185
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest losses",
+     "dataset": "SemgHandGenderCh2",
+     "n_train": 300,
+     "n_classes": 2,
+     "ridge_wide": 0.5903333333333334,
+     "loo_em_bic": 0.5793333333333333,
+     "diff": -0.01100000000000012
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest wins",
+     "dataset": "TwoPatterns",
+     "n_train": 1000,
+     "n_classes": 4,
+     "ridge_wide": 0.7253499999999999,
+     "loo_em_bic": 0.9194000000000001,
+     "diff": 0.19405000000000017
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest wins",
+     "dataset": "LargeKitchenAppliances",
+     "n_train": 375,
+     "n_classes": 3,
+     "ridge_wide": 0.6693333333333333,
+     "loo_em_bic": 0.8528,
+     "diff": 0.18346666666666667
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest wins",
+     "dataset": "SmoothSubspace",
+     "n_train": 150,
+     "n_classes": 3,
+     "ridge_wide": 0.6679999999999999,
+     "loo_em_bic": 0.828,
+     "diff": 0.16000000000000003
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest wins",
+     "dataset": "UWaveGestureLibraryAll",
+     "n_train": 896,
+     "n_classes": 8,
+     "ridge_wide": 0.7946957007258515,
+     "loo_em_bic": 0.9542713567839197,
+     "diff": 0.15957565605806823
+    },
+    {
+     "cond": "asym 40%",
+     "group": "largest wins",
+     "dataset": "OSULeaf",
+     "n_train": 200,
+     "n_classes": 6,
+     "ridge_wide": 0.6933884297520662,
+     "loo_em_bic": 0.8479338842975206,
+     "diff": 0.15454545454545443
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest losses",
+     "dataset": "Chinatown",
+     "n_train": 20,
+     "n_classes": 2,
+     "ridge_wide": 0.8419825072886298,
+     "loo_em_bic": 0.7790087463556852,
+     "diff": -0.0629737609329446
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest losses",
+     "dataset": "StarLightCurves",
+     "n_train": 1000,
+     "n_classes": 3,
+     "ridge_wide": 0.9556823700825644,
+     "loo_em_bic": 0.91056338028169,
+     "diff": -0.045118989800874365
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest losses",
+     "dataset": "PowerCons",
+     "n_train": 180,
+     "n_classes": 2,
+     "ridge_wide": 0.8844444444444445,
+     "loo_em_bic": 0.8511111111111112,
+     "diff": -0.033333333333333326
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest losses",
+     "dataset": "TwoLeadECG",
+     "n_train": 23,
+     "n_classes": 2,
+     "ridge_wide": 0.8458296751536436,
+     "loo_em_bic": 0.8172080772607551,
+     "diff": -0.02862159789288854
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest losses",
+     "dataset": "CBF",
+     "n_train": 30,
+     "n_classes": 3,
+     "ridge_wide": 0.8959999999999999,
+     "loo_em_bic": 0.8817777777777778,
+     "diff": -0.014222222222222136
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest wins",
+     "dataset": "ECGFiveDays",
+     "n_train": 23,
+     "n_classes": 2,
+     "ridge_wide": 0.645760743321719,
+     "loo_em_bic": 0.7240418118466898,
+     "diff": 0.07828106852497085
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest wins",
+     "dataset": "DiatomSizeReduction",
+     "n_train": 16,
+     "n_classes": 4,
+     "ridge_wide": 0.7352941176470589,
+     "loo_em_bic": 0.7745098039215687,
+     "diff": 0.039215686274509776
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest wins",
+     "dataset": "ArrowHead",
+     "n_train": 36,
+     "n_classes": 3,
+     "ridge_wide": 0.6971428571428572,
+     "loo_em_bic": 0.7222857142857143,
+     "diff": 0.025142857142857133
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest wins",
+     "dataset": "Wine",
+     "n_train": 57,
+     "n_classes": 2,
+     "ridge_wide": 0.6370370370370371,
+     "loo_em_bic": 0.6592592592592592,
+     "diff": 0.022222222222222143
+    },
+    {
+     "cond": "boundary 30%",
+     "group": "largest wins",
+     "dataset": "Lightning2",
+     "n_train": 60,
+     "n_classes": 2,
+     "ridge_wide": 0.6852459016393443,
+     "loo_em_bic": 0.7049180327868853,
+     "diff": 0.01967213114754096
+    }
+   ],
+   "correlates": {
+    "sym 0%": {
+     "spearman_diff_vs_log_n": 0.0013455157952541954,
+     "spearman_diff_vs_n_classes": -0.30366262535753924,
+     "spearman_diff_vs_clean_accuracy": 0.2938174072321585,
+     "frac_datasets_changed": 0.4444444444444444
+    },
+    "sym 30%": {
+     "spearman_diff_vs_log_n": -0.05777360232507234,
+     "spearman_diff_vs_n_classes": 0.3028525647516881,
+     "spearman_diff_vs_clean_accuracy": 0.18587141399310625,
+     "frac_datasets_changed": 0.9339622641509434
+    },
+    "asym 40%": {
+     "spearman_diff_vs_log_n": 0.1974860830885956,
+     "spearman_diff_vs_n_classes": 0.2676284488991141,
+     "spearman_diff_vs_clean_accuracy": -0.1480781095838077,
+     "frac_datasets_changed": 0.6203703703703703
+    },
+    "boundary 30%": {
+     "spearman_diff_vs_log_n": 0.07317671718797475,
+     "spearman_diff_vs_n_classes": 0.04331145497985983,
+     "spearman_diff_vs_clean_accuracy": -0.11637969600480241,
+     "frac_datasets_changed": 0.5882352941176471
+    }
+   }
+  },
+  "large": {
+   "datasets": [
+    "FordA",
+    "FordB"
+   ],
+   "mean_accuracy": {
+    "sym 0%": {
+     "ridge_std": 0.9189768050879161,
+     "ridge_wide": 0.9224046015712681,
+     "loo_em_bic": 0.9221988402543957,
+     "loo_em": 0.9222783389450055,
+     "em_sym_T": 0.9221988402543957,
+     "enn": 0.9174102132435467,
+     "loo_relabel": 0.9135147774036663
+    },
+    "sym 10%": {
+     "ridge_std": 0.8703002244668911,
+     "ridge_wide": 0.9094884025439581,
+     "loo_em_bic": 0.917316685372241,
+     "loo_em": 0.9171904227459783,
+     "em_sym_T": 0.917316685372241,
+     "enn": 0.9117985409652076,
+     "loo_relabel": 0.9110362888140665
+    },
+    "sym 20%": {
+     "ridge_std": 0.8063692480359146,
+     "ridge_wide": 0.9065516273849608,
+     "loo_em_bic": 0.9125561167227834,
+     "loo_em": 0.9125093527871306,
+     "em_sym_T": 0.9125561167227834,
+     "enn": 0.904952300785634,
+     "loo_relabel": 0.903610175832398
+    },
+    "sym 30%": {
+     "ridge_std": 0.7210671530115975,
+     "ridge_wide": 0.8856060606060606,
+     "loo_em_bic": 0.8911803217358774,
+     "loo_em": 0.8911008230452675,
+     "em_sym_T": 0.8909745604190049,
+     "enn": 0.8876075570520015,
+     "loo_relabel": 0.8981528245417134
+    },
+    "sym 40%": {
+     "ridge_std": 0.6187570145903478,
+     "ridge_wide": 0.8397961092405536,
+     "loo_em_bic": 0.8308314627759072,
+     "loo_em": 0.8318742985409652,
+     "em_sym_T": 0.8308314627759072,
+     "enn": 0.8086793864571642,
+     "loo_relabel": 0.8589833520389076
+    },
+    "asym 10%": {
+     "ridge_std": 0.8764450056116724,
+     "ridge_wide": 0.911938832772166,
+     "loo_em_bic": 0.9170594837261503,
+     "loo_em": 0.9170594837261503,
+     "em_sym_T": 0.9170594837261503,
+     "enn": 0.911952861952862,
+     "loo_relabel": 0.911620838009727
+    },
+    "asym 20%": {
+     "ridge_std": 0.8023288439955107,
+     "ridge_wide": 0.9062336326225215,
+     "loo_em_bic": 0.9127759072203516,
+     "loo_em": 0.9124438832772166,
+     "em_sym_T": 0.9127759072203516,
+     "enn": 0.9064534231200898,
+     "loo_relabel": 0.9083660680882903
+    },
+    "asym 30%": {
+     "ridge_std": 0.7189113355780022,
+     "ridge_wide": 0.8969322858211748,
+     "loo_em_bic": 0.8787364384586607,
+     "loo_em": 0.875860456416012,
+     "em_sym_T": 0.8787364384586607,
+     "enn": 0.8949869060980171,
+     "loo_relabel": 0.8993733632622521
+    },
+    "asym 40%": {
+     "ridge_std": 0.6172231575009353,
+     "ridge_wide": 0.8601010101010101,
+     "loo_em_bic": 0.8549569771791994,
+     "loo_em": 0.8313786008230453,
+     "em_sym_T": 0.8549569771791994,
+     "enn": 0.8323793490460157,
+     "loo_relabel": 0.8735877291432848
+    },
+    "boundary 10%": {
+     "ridge_std": 0.9060746352413018,
+     "ridge_wide": 0.9120183314627759,
+     "loo_em_bic": 0.9120183314627759,
+     "loo_em": 0.9120183314627759,
+     "em_sym_T": 0.9120183314627759,
+     "enn": 0.9094276094276095,
+     "loo_relabel": 0.9096941638608306
+    },
+    "boundary 20%": {
+     "ridge_std": 0.8817667414889636,
+     "ridge_wide": 0.9022961092405537,
+     "loo_em_bic": 0.9022961092405537,
+     "loo_em": 0.9022961092405537,
+     "em_sym_T": 0.9022961092405537,
+     "enn": 0.901257949869061,
+     "loo_relabel": 0.9047792742237186
+    },
+    "boundary 30%": {
+     "ridge_std": 0.8474233071455293,
+     "ridge_wide": 0.897399925177703,
+     "loo_em_bic": 0.897399925177703,
+     "loo_em": 0.897399925177703,
+     "em_sym_T": 0.897399925177703,
+     "enn": 0.8955854844743734,
+     "loo_relabel": 0.9008744855967077
+    }
+   },
+   "timing": [
+    {
+     "dataset": "FordA",
+     "method": "em_sym_T",
+     "time_s": 4.955889019701216,
+     "t_eig": 8.590867439905802,
+     "t_feat": 3.7677489121754966,
+     "n_train": 3601
+    },
+    {
+     "dataset": "FordA",
+     "method": "enn",
+     "time_s": 7.1292042467329235,
+     "t_eig": 8.590867439905802,
+     "t_feat": 3.7677489121754966,
+     "n_train": 3601
+    },
+    {
+     "dataset": "FordA",
+     "method": "loo_em",
+     "time_s": 4.998197972774506,
+     "t_eig": 8.590867439905802,
+     "t_feat": 3.7677489121754966,
+     "n_train": 3601
+    },
+    {
+     "dataset": "FordA",
+     "method": "loo_em_bic",
+     "time_s": 3.517058173815409,
+     "t_eig": 8.590867439905802,
+     "t_feat": 3.7677489121754966,
+     "n_train": 3601
+    },
+    {
+     "dataset": "FordA",
+     "method": "loo_relabel",
+     "time_s": 0.6675385104285346,
+     "t_eig": 8.590867439905802,
+     "t_feat": 3.7677489121754966,
+     "n_train": 3601
+    },
+    {
+     "dataset": "FordA",
+     "method": "ridge_std",
+     "time_s": 0.16053276591830778,
+     "t_eig": 8.590867439905802,
+     "t_feat": 3.7677489121754966,
+     "n_train": 3601
+    },
+    {
+     "dataset": "FordA",
+     "method": "ridge_wide",
+     "time_s": 0.3470053209198845,
+     "t_eig": 8.590867439905802,
+     "t_feat": 3.7677489121754966,
+     "n_train": 3601
+    },
+    {
+     "dataset": "FordB",
+     "method": "em_sym_T",
+     "time_s": 5.105476763513353,
+     "t_eig": 9.597508351008097,
+     "t_feat": 3.1095884641011557,
+     "n_train": 3636
+    },
+    {
+     "dataset": "FordB",
+     "method": "enn",
+     "time_s": 7.5809946987364025,
+     "t_eig": 9.597508351008097,
+     "t_feat": 3.1095884641011557,
+     "n_train": 3636
+    },
+    {
+     "dataset": "FordB",
+     "method": "loo_em",
+     "time_s": 5.968642738130358,
+     "t_eig": 9.597508351008097,
+     "t_feat": 3.1095884641011557,
+     "n_train": 3636
+    },
+    {
+     "dataset": "FordB",
+     "method": "loo_em_bic",
+     "time_s": 3.7867878211869135,
+     "t_eig": 9.597508351008097,
+     "t_feat": 3.1095884641011557,
+     "n_train": 3636
+    },
+    {
+     "dataset": "FordB",
+     "method": "loo_relabel",
+     "time_s": 0.699603259563446,
+     "t_eig": 9.597508351008097,
+     "t_feat": 3.1095884641011557,
+     "n_train": 3636
+    },
+    {
+     "dataset": "FordB",
+     "method": "ridge_std",
+     "time_s": 0.16539415385988018,
+     "t_eig": 9.597508351008097,
+     "t_feat": 3.1095884641011557,
+     "n_train": 3636
+    },
+    {
+     "dataset": "FordB",
+     "method": "ridge_wide",
+     "time_s": 0.36193350950876874,
+     "t_eig": 9.597508351008097,
+     "t_feat": 3.1095884641011557,
+     "n_train": 3636
+    }
+   ]
+  },
   "transform_hydra": {
    "n_datasets": 5,
    "mean_accuracy": {
@@ -2729,6 +3389,68 @@
      "loo_em": 0.7615873015873016,
      "conf_learning": 0.806126984126984
     }
+   }
+  },
+  "families": {
+   "n_datasets": 19,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "mean_accuracy": {
+    "sym 0%": {
+     "ridge_std": 0.8722938758921136,
+     "ridge_wide": 0.8718832008681371,
+     "loo_em_bic": 0.8635739217950693,
+     "loo_em": 0.8392344994407365,
+     "nn_ed": 0.7117196660086916,
+     "quant": 0.866636810025302
+    },
+    "sym 20%": {
+     "ridge_std": 0.7616587245579914,
+     "ridge_wide": 0.7718793827167876,
+     "loo_em_bic": 0.78095202600979,
+     "loo_em": 0.7663129955276804,
+     "nn_ed": 0.5998478468053311,
+     "quant": 0.7781618017656772
+    },
+    "sym 40%": {
+     "ridge_std": 0.6066512743588665,
+     "ridge_wide": 0.587717747563427,
+     "loo_em_bic": 0.6042558312898577,
+     "loo_em": 0.5875226031238331,
+     "nn_ed": 0.46612827950891517,
+     "quant": 0.6044874688727478
+    },
+    "asym 20%": {
+     "ridge_std": 0.7593051779608438,
+     "ridge_wide": 0.7686465697283303,
+     "loo_em_bic": 0.783864734746993,
+     "loo_em": 0.7629190563304343,
+     "nn_ed": 0.5882201624916308,
+     "quant": 0.7817531224251992
+    },
+    "asym 40%": {
+     "ridge_std": 0.5728532166295861,
+     "ridge_wide": 0.5934165125847922,
+     "loo_em_bic": 0.6080374450112558,
+     "loo_em": 0.6125880453957503,
+     "nn_ed": 0.4815778162958109,
+     "quant": 0.5951129216103389
+    },
+    "boundary 20%": {
+     "ridge_std": 0.7583997729162301,
+     "ridge_wide": 0.7643615361212053,
+     "loo_em_bic": 0.7653455383209642,
+     "loo_em": 0.7632749087620317,
+     "nn_ed": 0.6375394407075065,
+     "quant": 0.768380492349164
+    }
+   },
+   "mean_time_s": {
+    "nn_ed": 0.49125394242755055,
+    "quant": 1.87829783541211
    }
   }
  }
