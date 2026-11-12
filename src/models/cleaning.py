@@ -253,12 +253,17 @@ def kfold_scores(g: GramRidge, y, C, k: int = 5, seed: int = 0):
     return F
 
 
-def confident_learning(g: GramRidge, y, C, k: int = 5, seed: int = 0, **kw):
+def confident_learning(g: GramRidge, y, C, k: int = 5, seed: int = 0, calibrate: bool = False, **kw):
     """Confident learning (Northcutt et al., 2021) with k-fold out-of-sample
     probabilities (softmax of ridge decision values); flagged samples are removed."""
     from cleanlab.filter import find_label_issues
     F = kfold_scores(g, y, C, k, seed)
-    P = _softmax(F)
+    if calibrate:  # temperature fitted on the out-of-fold scores (maximum likelihood of the given labels)
+        n = len(y)
+        beta = _fit_beta(F, lambda P: np.sum(np.log(P[np.arange(n), y] + 1e-12)))
+        P = _softmax(beta * F)
+    else:
+        P = _softmax(F)
     present = np.unique(y)
     try:
         if len(present) < C:  # cleanlab needs every class present

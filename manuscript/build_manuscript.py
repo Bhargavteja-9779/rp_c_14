@@ -73,11 +73,27 @@ class Ctx:
     def DSTAT(self, cand, ref, cond, subset="all"):
         r = self._st(cand, ref, cond, subset)
         return (f"{100 * r['mean_diff']:+.1f} points (95% CI {100 * r['ci_lo']:+.1f} to {100 * r['ci_hi']:+.1f}; "
-                f"Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, {r['losses']} losses)").replace("-", "−")
+                f"Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, {r['losses']} losses)").replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4").replace("-5", "−5").replace("-6", "−6").replace("-7", "−7").replace("-8", "−8").replace("-9", "−9")
 
     def WL(self, cand, ref, cond, subset="all"):
         r = self._st(cand, ref, cond, subset)
         return f"{r['wins']} wins, {r['losses']} losses"
+
+    def MD(self, metric, cand, ref, cond):
+        """Mean paired difference (points) for balanced accuracy / macro-F1, all datasets."""
+        r = next(r for r in self.stats[f"{metric}__{cand}__vs__{ref}__all"] if r["cond"] == cond)
+        return f"{100 * r['mean_diff']:+.1f}".replace("-", "−")
+
+    def MDP(self, metric, cand, ref, cond):
+        r = next(r for r in self.stats[f"{metric}__{cand}__vs__{ref}__all"] if r["cond"] == cond)
+        return f"{100 * r['mean_diff']:+.1f} points (Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, {r['losses']} losses)".replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4")
+
+    def IMB(self, metric, b, cond, m):
+        r = next(r for r in self.metrics["by_imbalance"] if r["metric"] == metric and r["imbalance_bin"].startswith(b) and r["cond"] == cond)
+        return f"{100 * r[m]:.1f}"
+
+    def NIMB(self, b):
+        return next(r for r in self.metrics["by_imbalance"] if r["imbalance_bin"].startswith(b))["n_datasets"]
 
     # ---- penalty ----------------------------------------------------------------------------------
     def PCT_SAT(self, cond):
@@ -118,7 +134,7 @@ class Ctx:
     def FRAC_CHANGED(self, cond): return f"{100 * self.metrics['extra']['error_analysis']['correlates'][cond]['frac_datasets_changed']:.0f}"
 
     def namespace(self):
-        ns = {k: getattr(self, k) for k in dir(self) if k.isupper() or k in ("A",)}
+        ns = {k: getattr(self, k) for k in dir(self) if k.isupper()}
         summ = pd.read_csv(os.path.join(ROOT, "data", "dataset_summary.csv")).set_index("dataset")
         leak = pd.read_csv(os.path.join(T, "table_leakage_audit.csv"))
         ex = self.metrics.get("extra", {})
@@ -130,8 +146,13 @@ class Ctx:
 
 
 # ------------------------------------------------------------------------------------------------ tables
+SHORT = "S, A and B denote symmetric, asymmetric and boundary noise at the given rate (%)"
+
+
 def pct(df, dec=1):
-    return (100 * df).round(dec).map(lambda v: "–" if pd.isna(v) else f"{v:.{dec}f}")
+    out = (100 * df).round(dec).map(lambda v: "–" if pd.isna(v) else f"{v:.{dec}f}")
+    out.columns = [c.replace("sym ", "S ").replace("asym ", "A ").replace("boundary ", "B ").replace("aS ", "A ").replace("%", "") for c in out.columns]
+    return out
 
 
 def md_table(df, caption, index_name=""):
@@ -142,10 +163,10 @@ def md_table(df, caption, index_name=""):
 
 def stats_md(ctx, cand, ref, subset):
     rows = ctx.stats[f"{cand}__vs__{ref}__{subset}"]
-    out = pd.DataFrame([{"Noise": r["cond"], "n": r["n"], "Mean diff. (points)": f"{100 * r['mean_diff']:+.2f}",
-                         "95% CI": f"[{100 * r['ci_lo']:+.2f}, {100 * r['ci_hi']:+.2f}]",
-                         "p (Wilcoxon)": f"{r['p']:.4f}", "p (Holm)": f"{r['p_holm']:.4f}",
-                         "Effect (r)": f"{r['effect_rank_biserial']:+.2f}", "W / T / L": f"{r['wins']} / {r['ties']} / {r['losses']}"} for r in rows])
+    out = pd.DataFrame([{"Noise": r["cond"], "n": r["n"], "Mean diff.": f"{100 * r['mean_diff']:+.2f}",
+                         "95% CI": f"{100 * r['ci_lo']:+.2f} to {100 * r['ci_hi']:+.2f}",
+                         "p (Wilcoxon)": "<0.0001" if r['p'] < 1e-4 else f"{r['p']:.4f}", "p (Holm)": "<0.0001" if r['p_holm'] < 1e-4 else f"{r['p_holm']:.4f}",
+                         "Effect (r)": f"{r['effect_rank_biserial']:+.2f}", "W/T/L": f"{r['wins']}/{r['ties']}/{r['losses']}"} for r in rows])
     return out
 
 
@@ -153,22 +174,23 @@ def build_tables(ctx):
     t = {}
     main = ctx.mt().loc[[m for m in ag.KEY]].rename(index=ag.LABEL)
     t["main"] = md_table(pct(main), f"Mean test accuracy (%) over {len(ctx.all_ds)} UCR datasets (five resamples each) on MiniRocket features. "
-                         "For each column only datasets on which the condition is defined for all methods are averaged", "Method")
+                         "For each column only datasets on which the condition is defined for all methods are averaged. " + SHORT, "Method")
     t["stats_wide"] = stats_md(ctx, "ridge_wide", "ridge_std", "all").to_markdown(index=False, disable_numparse=True) + \
         f"\n\n: Wide versus default penalty grid, all {len(ctx.all_ds)} datasets: paired differences in accuracy points, two-sided Wilcoxon signed-rank test, Holm correction over the twelve conditions, matched-pairs rank-biserial effect size, and wins/ties/losses over datasets\n"
     t["stats_em"] = stats_md(ctx, "loo_em_bic", "ridge_wide", "confirm").to_markdown(index=False, disable_numparse=True) + \
         f"\n\n: LOO-EM (BIC) versus wide-grid ridge on the {len(ctx.subs['confirm'])} confirmation datasets (columns as in Table 2)\n"
     abl = ctx.mt().loc[[m for m in ag.ABL if m in ctx.mt().index]].rename(index=ag.LABEL)
-    t["ablation"] = md_table(pct(abl), "Ablation and variants: mean test accuracy (%) over all datasets", "Variant")
+    t["ablation"] = md_table(pct(abl), "Ablation and variants: mean test accuracy (%) over all datasets. " + SHORT, "Variant")
     conds = ["sym 0%", "sym 30%", "asym 40%", "boundary 20%"]
     rows = []
     for key, col in (("by_train_size", "size_bin"), ("by_n_classes", "class_bin")):
         for r in ctx.metrics[key]:
             if r["cond"] in conds:
                 rows.append({"Stratum": r[col].replace("<=", "≤").replace(">=", "≥"), "Noise": r["cond"], "Datasets": r["n_datasets"],
-                             **{ag.LABEL[m].split(" (")[0] if m != "loo_em" else "LOO-EM v1": f"{100 * r[m]:.1f}" for m in ("ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning")}})
-    s = pd.DataFrame(rows).rename(columns={"Ridge": "Ridge (default)"})
-    s.columns = ["Stratum", "Noise", "Datasets", "Ridge (default)", "Ridge (wide)", "LOO-EM (BIC)", "LOO-EM v1", "Confident learning"]
+                             "Ridge (default)": f"{100 * r['ridge_std']:.1f}", "Ridge (wide)": f"{100 * r['ridge_wide']:.1f}",
+                             "LOO-EM (BIC)": f"{100 * r['loo_em_bic']:.1f}", "LOO-EM v1": f"{100 * r['loo_em']:.1f}",
+                             "Confident learning": f"{100 * r['conf_learning']:.1f}"})
+    s = pd.DataFrame(rows)
     t["strata"] = s.to_markdown(index=False, disable_numparse=True) + "\n\n: Mean test accuracy (%) by training-set size and by number of classes\n"
     e = pd.read_csv(os.path.join(T, "table_error_analysis.csv"))
     e = e[e.cond.isin(["sym 0%", "asym 40%"])]
@@ -197,15 +219,20 @@ def render(ctx):
             missing.append((m.group(1), repr(e)))
             return "??"
     src = re.sub(r"<<(.+?)>>", ev, src)
+    src = re.sub(r"\\tag\{(\d+)\}", r"\\qquad\\text{(\1)}", src)          # pandoc's docx writer drops \tag
+    src = re.sub(r"\\mathrm\{(diag|softmax|loo)\}", r"\\text{\1}", src)
     # tables, numbered in order of appearance
     n = 0
+    tabno = {}
     def tab(m):
         nonlocal n
         n += 1
+        tabno[m.group(1)] = n
         body = tables[m.group(1)]
         return re.sub(r"\n: ", f"\n: **Table {n}** ", body, count=1)
     src = re.sub(r"^TABLE:(\w+)$", tab, src, flags=re.M)
     n_tab = n
+    src = re.sub(r"TABREF:(\w+)", lambda m: f"Table {tabno[m.group(1)]}", src)
     # figures
     k = 0
     def fig(m):

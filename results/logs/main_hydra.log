@@ -1,0 +1,23 @@
+ArrowHead                                0.0s 
+BME                                      0.0s 
+Beef                                     0.0s 
+BeetleFly                                0.0s 
+BirdChicken                              0.0s 
+CBF                                      1.2s BadZipFile("Overlapped entries: 'Fte.npy' (possible zip bomb)")
+Car                                      0.1s BadZipFile("Overlapped entries: 'Ftr.npy' (possible zip bomb)")
+Chinatown                                0.0s BadZipFile("Overlapped entries: 'Ftr.npy' (possible zip bomb)")
+ACSF1                                    9.3s EOFError('No data left in file')
+Adiac                                   33.1s EOFError('No data left in file')
+Coffee                                   0.0s EOFError('No data left in file')
+Computers                               47.2s 
+ChlorineConcentration                  108.9s 
+CricketX                                53.7s 
+CricketY                                62.2s 
+DiatomSizeReduction                     15.2s 
+CricketZ                                62.4s 
+DistalPhalanxOutlineAgeGroup            24.7s 
+DistalPhalanxOutlineCorrect             36.1s 
+DistalPhalanxTW                         24.0s 
+ECG200                                   8.8s 
+ECGFiveDays                             18.3s 
+ECG5000                                135.4s 

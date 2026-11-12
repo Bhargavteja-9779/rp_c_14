@@ -90,6 +90,18 @@ def polish(path):
     for t in d.tables:
         t.alignment = WD_TABLE_ALIGNMENT.CENTER
         t.autofit = True
+        tblPr = t._tbl.tblPr
+        for tag in ("w:tblW", "w:tblLayout"):
+            for e in tblPr.findall(qn(tag)): tblPr.remove(e)
+        w = OxmlElement("w:tblW"); w.set(qn("w:w"), "5000"); w.set(qn("w:type"), "pct"); tblPr.append(w)
+        lay = OxmlElement("w:tblLayout"); lay.set(qn("w:type"), "autofit"); tblPr.append(lay)
+        for g in t._tbl.findall(qn("w:tblGrid")):
+            for gc in g.findall(qn("w:gridCol")): gc.attrib.pop(qn("w:w"), None)
+        for row in t.rows:
+            for c in row.cells:
+                tcPr = c._tc.get_or_add_tcPr()
+                for e in tcPr.findall(qn("w:tcW")): tcPr.remove(e)
+                e = OxmlElement("w:tcW"); e.set(qn("w:w"), "0"); e.set(qn("w:type"), "auto"); tcPr.append(e)
         _borders(t)
         wide = len(t.columns) > 8
         for i, row in enumerate(t.rows):

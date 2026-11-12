@@ -45,3 +45,5 @@ methods_v2:                       # frozen after the design-set analysis (supple
   bic_pen_0.5:   [loo_em_bic, wide, {penalty: 0.5}]
   bic_pen_2:     [loo_em_bic, wide, {penalty: 2.0}]
   bic_iter_5:    [loo_em_bic, wide, {max_iter: 5}]
+methods_v3:                       # added in review round 3/8: fairness check for the confident-learning baseline
+  conf_learning_cal: [confident_learning, wide, {calibrate: true}]

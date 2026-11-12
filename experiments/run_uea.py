@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 warnings.filterwarnings("ignore")
 NOISE = {"sym": [0.0, 0.2, 0.4], "asym": [0.2, 0.4], "boundary": [0.2]}
 SKIP = {"InsectWingbeat", "FaceDetection", "PenDigits", "EigenWorms", "MotorImagery", "DuckDuckGeese", "PEMS-SF",
-        "SpokenArabicDigits", "Phoneme", "LSST"}  # too large for a 15 GB / 4-core machine, or n_train > 3000
+        "SpokenArabicDigits", "PhonemeSpectra", "LSST"}  # too large for a 15 GB / 4-core machine, or n_train > 3000
 
 
 def one(d):

@@ -18,15 +18,15 @@ RAW_SUB = "raw/minirocket"
 KEY = ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning", "kfold_relabel", "enn", "loo_relabel", "loo_remove"]
 ABL = ["loo_em_bic", "bic_hard", "bic_in_sample", "bic_std_grid", "bic_iter_5", "bic_pen_0.5", "bic_pen_2", "em_sym_T", "loo_em",
        "em_no_gate", "em_no_T", "loo_relabel", "loo_relabel_it", "loo_remove", "ridge_wide"]
-LABEL = {"ridge_std": "Ridge (default grid)", "ridge_wide": "Ridge (wide grid)", "loo_em": "LOO-EM v1 (full T, 1-param gate)",
-         "loo_em_bic": "LOO-EM (proposed, BIC)", "bic_hard": "BIC: hard targets", "bic_in_sample": "BIC: in-sample scores (no LOO)",
+LABEL = {"ridge_std": "Ridge (default grid)", "ridge_wide": "Ridge (wide grid)", "loo_em": "LOO-EM v1 (full T)",
+         "loo_em_bic": "LOO-EM (BIC, proposed)", "bic_hard": "BIC: hard targets", "bic_in_sample": "BIC: in-sample scores",
          "bic_std_grid": "BIC: default grid", "bic_iter_5": "BIC: 5 EM iterations", "bic_pen_0.5": "BIC: penalty x0.5",
          "bic_pen_2": "BIC: penalty x2",
-         "conf_learning": "Confident learning (5-fold)", "kfold_relabel": "5-fold relabel", "enn": "ENN",
+         "conf_learning": "Confident learning", "conf_learning_cal": "Confident learning (calibrated)", "kfold_relabel": "5-fold relabel", "enn": "ENN",
          "loo_relabel": "LOO relabel (1 round)", "loo_relabel_it": "LOO relabel (iterated)",
-         "loo_remove": "LOO remove", "em_no_gate": "v1 without gate (full T always)", "em_sym_T": "Symmetric T only (1-param gate)",
+         "loo_remove": "LOO remove", "em_no_gate": "v1 without gate", "em_sym_T": "Symmetric T only",
          "em_hard": "v1: hard targets", "em_in_sample": "v1: in-sample scores",
-         "em_no_T": "No noise model (LOO self-training)", "em_std_grid": "v1: default grid",
+         "em_no_T": "LOO self-training (no T)", "em_std_grid": "v1: default grid",
          "quant": "QUANT", "nn_ed": "1-NN Euclidean", "nn_dtw": "1-NN DTW"}
 
 
@@ -36,7 +36,7 @@ def cond_label(kind, rate):
 
 def load_raw(sub=None):
     sub = sub or RAW_SUB
-    files = sorted(glob.glob(os.path.join(R, sub, "*.csv"))) + sorted(glob.glob(os.path.join(R, sub + "_v2", "*.csv")))
+    files = sorted(glob.glob(os.path.join(R, sub, "*.csv"))) + sorted(glob.glob(os.path.join(R, sub + "_v[0-9]", "*.csv")))
     df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
     done = df.groupby("dataset").method.nunique()
     df = df[df.dataset.isin(done.index[done == done.max()])]  # datasets with every method (both passes) only
@@ -139,7 +139,7 @@ def run(dev=None):
     pairs = [("loo_em_bic", "ridge_wide"), ("loo_em_bic", "ridge_std"), ("ridge_wide", "ridge_std"),
              ("loo_em", "ridge_wide"), ("loo_em_bic", "loo_em"), ("loo_em_bic", "conf_learning"),
              ("loo_em_bic", "kfold_relabel"), ("loo_em_bic", "enn"), ("conf_learning", "ridge_wide"),
-             ("enn", "ridge_wide"), ("loo_relabel", "ridge_wide"), ("loo_remove", "ridge_wide"),
+             ("enn", "ridge_wide"), ("conf_learning_cal", "ridge_wide"), ("conf_learning_cal", "conf_learning"), ("loo_em_bic", "conf_learning_cal"), ("loo_relabel", "ridge_wide"), ("loo_remove", "ridge_wide"),
              ("kfold_relabel", "ridge_wide"), ("loo_em_bic", "bic_hard"), ("loo_em_bic", "bic_in_sample"),
              ("loo_em_bic", "bic_std_grid"), ("loo_em_bic", "em_sym_T"), ("loo_em_bic", "em_no_T")]
     have = set(df.method.unique())
@@ -196,6 +196,26 @@ def run(dev=None):
             rows.append(dict(class_bin=b, cond=c, n_datasets=len(sub), **sub.mean().to_dict()))
     write(pd.DataFrame(rows), "table_by_n_classes", index=False)
     metrics["by_n_classes"] = rows
+
+    try:
+        summ = pd.read_csv(os.path.join(ucr.ROOT, "data", "dataset_summary.csv")).set_index("dataset").imbalance_ratio
+        ib = pd.cut(summ.reindex(pd_.index), [0, 1.5, 3, 1e9], labels=["balanced (ratio<1.5)", "moderate (1.5-3)", "imbalanced (>=3)"], right=False)
+        rows = []
+        for metric_ in ("acc", "bal_acc"):
+            pm = per_dataset(df, metric_)
+            for b in ib.cat.categories:
+                ds = ib.index[ib == b]
+                for c in cond_order(df):
+                    sub = pm.loc[pm.index.intersection(ds), c][["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning"]].dropna()
+                    rows.append(dict(metric=metric_, imbalance_bin=b, cond=c, n_datasets=len(sub), **sub.mean().to_dict()))
+        write(pd.DataFrame(rows), "table_by_imbalance", index=False)
+        metrics["by_imbalance"] = rows
+    except FileNotFoundError:
+        pass
+    for metric_ in ("bal_acc", "macro_f1"):
+        for cand, ref in (("loo_em_bic", "ridge_wide"), ("ridge_wide", "ridge_std"), ("conf_learning", "ridge_wide")):
+            s_ = stats_table(df, cand, ref, None, metric_)
+            stats[f"{metric_}__{cand}__vs__{ref}__all"] = s_.to_dict(orient="records")
 
     # gate / noise-rate estimation diagnostics
     diag = []

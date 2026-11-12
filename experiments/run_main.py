@@ -15,7 +15,7 @@ def _one(args):
     if quick:
         kw = dict(seeds=cfg["quick"]["seeds"], out_dir=os.path.join(runner.ucr.ROOT, "results", "quick", transform))
     if methods:
-        allm = dict(cfg["methods"]); allm.update(cfg.get("sensitivity_methods", {})); allm.update(cfg.get("methods_v2", {}))
+        allm = dict(cfg["methods"]); allm.update(cfg.get("sensitivity_methods", {})); allm.update(cfg.get("methods_v2", {})); allm.update(cfg.get("methods_v3", {}))
         kw["methods"] = {m: allm[m] for m in methods}
     if seeds:
         kw["seeds"] = seeds
