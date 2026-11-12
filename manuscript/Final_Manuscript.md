@@ -9,7 +9,7 @@ author: "[Author One]^1\\*^, [Author Two]^2^"
 
 ## Abstract
 
-Random convolutional kernel transforms followed by a ridge classifier (ROCKET, MiniRocket and their successors) are among the fastest accurate time series classifiers, but their behaviour when training labels are wrong has not been studied systematically. We evaluate MiniRocket with ridge regression on 108 UCR datasets, five resamples each, under symmetric, asymmetric and instance-dependent (boundary) label noise of up to 40%. Three findings emerge. First, part of the fragility is an artefact of the customary penalty grid: the leave-one-out-selected penalty sits on the upper end of the default grid in 98% of runs at 30% symmetric noise, and merely widening the grid raises mean accuracy by up to 4.2 points (40% asymmetric noise) with no loss on clean labels. We show why: for a ridge classifier symmetric noise leaves the expected decision function order-preserving and only inflates its variance. The gain is metric-dependent, however: under symmetric noise it does not carry over to balanced accuracy or macro-F1, because strong shrinkage favours majority classes. Second, standard cleaning pipelines built on the same features (confident learning, edited nearest neighbours, hard relabelling) detect mislabelled series well (AUROC above 0.9 at 10–20% noise) yet lower accuracy on clean data by 3.4–6.7 points. Third, we propose LOO-EM, an expectation–maximisation procedure for class-conditional noise whose predictive distribution is always the closed-form leave-one-out one, so that every iteration is a matrix product on a single eigendecomposition, with the noise model chosen by BIC. On 60 confirmation datasets it improves on wide-grid ridge by 1.3 points at 30% symmetric and 2.2 points at 40% asymmetric noise, at a cost of 0.3 points on clean labels, and unlike the grid its gains hold for balanced accuracy and macro-F1. We also report what did not work, including an earlier variant that failed on many-class data.
+Random convolutional kernel transforms followed by a ridge classifier (ROCKET, MiniRocket and successors) are fast and accurate time series classifiers, but their behaviour under wrong training labels has not been studied systematically. We evaluate MiniRocket with ridge regression on 108 UCR datasets, five resamples each, under symmetric, asymmetric and instance-dependent label noise of up to 40%. First, part of the fragility is an artefact of the customary penalty grid: at 30% symmetric noise the selected penalty sits on the grid's upper end in 98% of runs, and widening the grid raises mean accuracy by up to 4.2 points with no loss on clean labels. We prove that symmetric noise leaves the expected ridge decision function order-preserving and only inflates its variance. The gain is metric-dependent: under symmetric noise it does not extend to balanced accuracy or macro-F1. Second, cleaning pipelines on the same features (confident learning, edited nearest neighbours, hard relabelling) detect mislabelled series well yet lower clean-data accuracy by 2.1–6.7 points; calibrated confident learning pays off only at 30–40% symmetric noise. Third, we propose LOO-EM, an expectation–maximisation procedure for class-conditional noise that always predicts with closed-form leave-one-out scores, reuses a single eigendecomposition and selects the noise model by BIC. On 60 confirmation datasets it improves on wide-grid ridge by 1.3 points at 30% symmetric and 2.2 points at 40% asymmetric noise, costs 0.3 points on clean labels, and gains nothing under instance-dependent noise. An earlier variant that failed on many-class data is reported.
 
 **Keywords** Time series classification · Label noise · Random convolutional kernels · Ridge regression · Leave-one-out cross-validation · Expectation–maximisation
 
@@ -31,9 +31,9 @@ This paper asks four questions, each tied to an experiment.
 
 Our contributions are the following.
 
-1. *A large-scale characterisation.* MiniRocket with ridge regression is evaluated on 108 UCR datasets with five resamples and twelve noise conditions (138,490 recorded runs for 22 method variants), with secondary experiments on Hydra and MultiRocket features, 18 multivariate UEA datasets, the four largest UCR datasets, and non-kernel and deep baselines.
+1. *A large-scale characterisation.* MiniRocket with ridge regression is evaluated on 108 UCR datasets with five resamples and twelve noise conditions (144,785 recorded runs for 23 method variants), with secondary experiments on Hydra and MultiRocket features, 18 multivariate UEA datasets, the four largest UCR datasets, and non-kernel and deep baselines.
 2. *An explanation and a one-line fix.* We prove that for ridge classification symmetric label noise scales the expected decision function without changing its arg-max and adds variance that only the penalty can control, whereas asymmetric noise shifts the arg-max itself. Empirically the default penalty grid of ROCKET pipelines is too narrow under noise; widening it is the largest single improvement in accuracy that we observed, with the qualification that under symmetric noise the improvement is confined to accuracy and is absent or negative for class-balanced metrics.
-3. *A negative result on cleaning.* Detection of mislabelled series from closed-form LOO scores is as accurate as from explicit 5-fold cross-validation, but acting on the detections by removal or hard relabelling costs more accuracy on clean and mildly noisy data than it recovers.
+3. *A mostly negative result on cleaning.* Detection of mislabelled series from closed-form LOO scores is as accurate as from explicit 5-fold cross-validation, but acting on the detections by removal or hard relabelling costs accuracy on clean and mildly noisy data; confident learning helps only at 30–40% symmetric noise, and only when its probabilities are calibrated.
 4. *LOO-EM.* An EM algorithm for class-conditional noise in which the E-step uses closed-form LOO predictive probabilities and the M-step is a ridge refit on soft targets. Because the hat matrix does not depend on the labels, the whole procedure reuses one eigendecomposition. The noise model (none, symmetric or full) is selected by BIC.
 5. *A documented failure and a trade-off.* The first frozen version of LOO-EM, which always used a full transition matrix, lost accuracy on held-out many-class data. We report it, explain it, and show that its remaining advantage under heavy asymmetric noise cannot be had without the corresponding risk on clean data.
 
@@ -73,7 +73,7 @@ Suppose the observed labels $\tilde y_i$ are drawn from the true labels by a tra
 
 $$\mathbb{E}\big[\tilde f(x)\mid Y\big]=a\,f(x)+b\,\mathbf 1,\qquad a=1-\frac{\rho C}{C-1}>0,\quad b=\frac{\rho(2-C)}{C-1}, \qquad\text{(4)}$$
 
-*so the arg-max of the expected decision function equals that of the clean one. Moreover $\tilde f_c(x)-\mathbb{E}[\tilde f_c(x)\mid Y]=\sum_i w_i(x;\alpha)\,\varepsilon_{ic}$ with $w(x;\alpha)^\top=\tfrac1n\mathbf 1^\top+k(x)^\top(K+\alpha I)^{-1}(I-\tfrac1n\mathbf 1\mathbf 1^\top)$ and independent zero-mean $\varepsilon_{ic}$ of variance at most 1; the non-constant part of $w$ shrinks monotonically to zero as $\alpha$ grows.*
+*so the arg-max of the expected decision function equals that of the clean one. Moreover $\tilde f_c(x)-\mathbb{E}[\tilde f_c(x)\mid Y]=\sum_i w_i(x;\alpha)\,\varepsilon_{ic}$ with $w(x;\alpha)^\top=\tfrac1n\mathbf 1^\top+k(x)^\top(K+\alpha I)^{-1}(I-\tfrac1n\mathbf 1\mathbf 1^\top)$ and zero-mean $\varepsilon_{ic}$, independent across samples $i$, of variance at most 1; the non-constant part of $w$ shrinks monotonically to zero as $\alpha$ grows.*
 
 *Proof.* Entry-wise, $\mathbb{E}[\tilde Y_{ic}\mid Y]$ equals $1-2\rho$ if $Y_{ic}=1$ and $-1+2\rho/(C-1)$ otherwise, i.e. $\mathbb{E}[\tilde Y\mid Y]=aY+b\mathbf 1\mathbf 1^\top$. Equation (1) is linear in the targets and reproduces constants through the intercept, which gives Eq. (4). The second statement is Eq. (1) applied to $\tilde Y-\mathbb{E}[\tilde Y\mid Y]$, whose rows are independent with bounded entries; the eigenvalues of $(K+\alpha I)^{-1}$ decrease in $\alpha$. $\square$
 
@@ -129,7 +129,7 @@ Equation (5) cannot by itself distinguish heavy class-conditional noise from gen
 
 **Features and classifier.** MiniRocket with 10,000 kernels as implemented in aeon, fitted on training series only; columns standardised with training statistics; ridge classifier as in Sect. 3.1. Our implementation reproduces scikit-learn's `RidgeClassifierCV` (identical selected penalty and predictions in a unit test). The *default grid* is ten log-spaced penalties in [10^−3^, 10^3^]; the *wide grid* is 25 log-spaced penalties in [10^−3^, 10^9^].
 
-**Methods compared on identical features and noise.** (i) Ridge with the default grid; (ii) ridge with the wide grid; (iii) LOO-EM with BIC selection (proposed); (iv) LOO-EM v1, the earlier frozen variant with a full transition matrix accepted through a one-parameter gate; (v) confident learning (Northcutt et al. 2021) using the `cleanlab` implementation with 5-fold out-of-sample ridge scores passed through a softmax, flagged series removed; (vi) relabelling from the same 5-fold predictions; (vii) edited nearest neighbours with $k=3$ in the standardised feature space (Wilson 1972); (viii) one-round relabelling and (ix) removal of series whose LOO prediction disagrees with their label. Methods (iii)–(ix) use the wide grid. Other classifier families trained on the same noisy labels: QUANT (Dempster et al. 2024a) and 1-nearest-neighbour with Euclidean distance, and, on eight small datasets, a fully convolutional network (Wang et al. 2017) trained with cross-entropy, with the generalised cross-entropy loss (Zhang and Sabuncu 2018) and with Co-teaching (Han et al. 2018) given the true noise rate. Deviations from original implementations: the deep baselines are trained for 100 epochs with Adam (learning rate 10^−3^, batch size up to 32) without early stopping, since no clean validation labels exist.
+**Methods compared on identical features and noise.** (i) Ridge with the default grid; (ii) ridge with the wide grid; (iii) LOO-EM with BIC selection (proposed); (iv) LOO-EM v1, the earlier frozen variant with a full transition matrix accepted through a one-parameter gate; (v) confident learning (Northcutt et al. 2021) using the `cleanlab` implementation with 5-fold out-of-sample ridge scores passed through a softmax whose temperature is fitted by maximum likelihood on those scores, flagged series removed (the uncalibrated variant with unit temperature, which we ran first, is kept in the tables because the difference is instructive); (vi) relabelling from the same 5-fold predictions; (vii) edited nearest neighbours with $k=3$ in the standardised feature space (Wilson 1972); (viii) one-round relabelling and (ix) removal of series whose LOO prediction disagrees with their label. Methods (iii)–(ix) use the wide grid. Other classifier families trained on the same noisy labels: QUANT (Dempster et al. 2024a) and 1-nearest-neighbour with Euclidean distance, and, on eight small datasets, a fully convolutional network (Wang et al. 2017) trained with cross-entropy, with the generalised cross-entropy loss (Zhang and Sabuncu 2018) and with Co-teaching (Han et al. 2018) given the true noise rate. Deviations from original implementations: the deep baselines are trained for 100 epochs with Adam (learning rate 10^−3^, batch size up to 32) without early stopping, since no clean validation labels exist.
 
 **Protocol and the two design stages.** Method design used 12 development datasets drawn at random. The resulting configuration (v1) was frozen and run on all datasets. An interim inspection of the first completed datasets showed that v1 lost accuracy on clean, many-class data (Sect. 6.4). We then designed the BIC variant on a *design set* of 39 datasets and froze it before any other result was inspected. The 60 datasets that belong to neither the development nor the design set form the *confirmation set* on which the primary comparison is made. An anchor-point variant (Patrini et al. 2017) tried at the same stage was worse than wide-grid ridge on the design set and was dropped. The full history is in the supplementary protocol.
 
@@ -145,17 +145,18 @@ Equation (5) cannot by itself distinguish heavy class-conditional noise from gen
 
 Table 1 and Fig. 3 give mean test accuracy over the 108 datasets. With the default grid, accuracy falls from 87.1% on clean labels to 79.1% at 20% and 64.1% at 40% symmetric noise, and to 59.6% at 40% asymmetric noise.
 
-| Method                 | S 0   | S 10   | S 20   | S 30   | S 40   | A 10   | A 20   | A 30   | A 40   | B 10   | B 20   | B 30   |
-|:-----------------------|:------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|
-| Ridge (default grid)   | 87.1  | 83.6   | 79.1   | 72.2   | 64.1   | 84.1   | 79.6   | 70.4   | 59.6   | 83.0   | 79.2   | 74.7   |
-| Ridge (wide grid)      | 87.2  | 83.9   | 79.6   | 73.6   | 65.8   | 84.5   | 81.3   | 73.5   | 63.8   | 83.2   | 80.1   | 76.9   |
-| LOO-EM (BIC, proposed) | 86.8  | 84.1   | 80.2   | 74.8   | 66.8   | 84.7   | 81.9   | 74.1   | 65.8   | 83.1   | 80.0   | 76.9   |
-| LOO-EM v1 (full T)     | 85.4  | 82.4   | 78.6   | 73.5   | 65.8   | 82.7   | 80.2   | 74.0   | 67.4   | 82.8   | 79.9   | 76.4   |
-| Confident learning     | 83.7  | 82.0   | 78.0   | 72.6   | 64.8   | 82.0   | 79.4   | 72.8   | 63.7   | 82.5   | 80.5   | 77.4   |
-| 5-fold relabel         | 83.2  | 80.6   | 76.3   | 70.8   | 63.8   | 80.8   | 78.0   | 71.4   | 63.1   | 82.1   | 80.1   | 77.4   |
-| ENN                    | 80.5  | 78.9   | 76.8   | 72.6   | 64.9   | 79.1   | 76.9   | 70.8   | 60.4   | 79.4   | 79.5   | 76.3   |
-| LOO relabel (1 round)  | 82.6  | 80.4   | 77.0   | 71.3   | 64.2   | 80.7   | 78.4   | 71.2   | 62.3   | 82.1   | 80.7   | 78.3   |
-| LOO remove             | 84.1  | 82.2   | 79.1   | 73.5   | 66.2   | 82.5   | 80.7   | 73.9   | 65.5   | 82.8   | 80.7   | 78.1   |
+| Method                            | S 0   | S 10   | S 20   | S 30   | S 40   | A 10   | A 20   | A 30   | A 40   | B 10   | B 20   | B 30   |
+|:----------------------------------|:------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|
+| Ridge (default grid)              | 87.1  | 83.6   | 79.1   | 72.2   | 64.1   | 84.1   | 79.6   | 70.4   | 59.6   | 83.0   | 79.2   | 74.7   |
+| Ridge (wide grid)                 | 87.2  | 83.9   | 79.6   | 73.6   | 65.8   | 84.5   | 81.3   | 73.5   | 63.8   | 83.2   | 80.1   | 76.9   |
+| LOO-EM (BIC, proposed)            | 86.8  | 84.1   | 80.2   | 74.8   | 66.8   | 84.7   | 81.9   | 74.1   | 65.8   | 83.1   | 80.0   | 76.9   |
+| LOO-EM v1 (full T)                | 85.4  | 82.4   | 78.6   | 73.5   | 65.8   | 82.7   | 80.2   | 74.0   | 67.4   | 82.8   | 79.9   | 76.4   |
+| Confident learning (calibrated)   | 85.0  | 83.0   | 79.9   | 75.1   | 67.1   | 83.4   | 81.1   | 74.0   | 64.5   | 82.9   | 80.7   | 77.7   |
+| Confident learning (uncalibrated) | 83.7  | 82.0   | 78.0   | 72.6   | 64.8   | 82.0   | 79.4   | 72.8   | 63.7   | 82.5   | 80.5   | 77.4   |
+| 5-fold relabel                    | 83.2  | 80.6   | 76.3   | 70.8   | 63.8   | 80.8   | 78.0   | 71.4   | 63.1   | 82.1   | 80.1   | 77.4   |
+| ENN                               | 80.5  | 78.9   | 76.8   | 72.6   | 64.9   | 79.1   | 76.9   | 70.8   | 60.4   | 79.4   | 79.5   | 76.3   |
+| LOO relabel (1 round)             | 82.6  | 80.4   | 77.0   | 71.3   | 64.2   | 80.7   | 78.4   | 71.2   | 62.3   | 82.1   | 80.7   | 78.3   |
+| LOO remove                        | 84.1  | 82.2   | 79.1   | 73.5   | 66.2   | 82.5   | 80.7   | 73.9   | 65.5   | 82.8   | 80.7   | 78.1   |
 
 : **Table 1** Mean test accuracy (%) over 108 UCR datasets (five resamples each) on MiniRocket features. For each column only datasets on which the condition is defined for all methods are averaged. S, A and B denote symmetric, asymmetric and boundary noise at the given rate (%)
 
@@ -190,7 +191,9 @@ Widening the grid leaves clean accuracy unchanged (+0.1 points (95% CI −0.1 to
 
 ## 6.2 RQ2: cleaning detects mislabelled series but lowers accuracy
 
-Every cleaning baseline is worse than wide-grid ridge on clean labels (Table 1): confident learning by 3.4 points (7 wins, 92 losses), 5-fold relabelling by 4.0, LOO relabelling by 4.6, LOO removal by 3.1 and edited nearest neighbours by 6.7 points. At 10–20% symmetric or asymmetric noise all of them remain below wide-grid ridge on average; only LOO removal reaches parity at 30–40% noise. The exception is boundary noise, where one-round LOO relabelling gains 1.4 points at the 30% rate.
+Every cleaning baseline is worse than wide-grid ridge on clean labels (Table 1): calibrated confident learning by 2.1 points (11 wins, 74 losses), 5-fold relabelling by 4.0, LOO relabelling by 4.6, LOO removal by 3.1 and edited nearest neighbours by 6.7 points. At 10% symmetric or asymmetric noise all of them remain below wide-grid ridge on average. Calibrated confident learning becomes useful at high symmetric noise, +1.5 points (95% CI +0.7 to +2.3; Holm-adjusted p = 0.001; 68 wins, 37 losses) at 30% and +1.4 points (95% CI +0.7 to +2.0; Holm-adjusted p < 0.001; 72 wins, 32 losses) at 40%, but not significantly so under asymmetric noise (+0.6 points (95% CI −0.4 to +1.6; Holm-adjusted p = 0.299; 65 wins, 43 losses) at 40%). Under boundary noise one-round LOO relabelling is the best method and gains 1.4 points at the 30% rate.
+
+How the baseline is fed matters. Our first implementation passed raw ridge scores through a unit-temperature softmax, which yields nearly flat probabilities; fitting a single temperature improves confident learning at every symmetric and asymmetric rate, by 1.3 points on clean labels and 2.5 points at 30% symmetric noise (both Holm-adjusted p < 0.001). The uncalibrated variant would have understated the baseline, and all comparisons below use the calibrated one.
 
 The reason is not poor detection. The AUROC of the LOO suspicion score is 0.94 at 10% and 0.91 at 20% symmetric noise, the same as for 5-fold scores (0.94 and 0.91) at a fraction of the cost (Fig. 5). But every clean series that a classifier cannot predict from the others is also flagged, and on a dataset with clean LOO error $e$ a disagreement rule removes or flips roughly a fraction $e$ of correct labels. A regularised ridge classifier tolerates a noisy label better than it tolerates the loss, or the inversion, of a hard but correct one.
 
@@ -219,6 +222,8 @@ On the confirmation set (Table 3) LOO-EM changes clean accuracy by −0.3 points
 
 
 ![**Fig. 6** Per-dataset accuracy of LOO-EM against wide-grid ridge; colour encodes training-set size](/home/user/rp_c_14/figures/fig_scatter_em_vs_ridge.png){width=6.3in}
+
+Against calibrated confident learning, the strongest cleaning baseline, LOO-EM is better on clean labels (+2.0 points (95% CI +0.9 to +3.7; Holm-adjusted p < 0.001; 39 wins, 7 losses) on the confirmation set) and at 10% asymmetric noise (+1.5 points (95% CI +0.4 to +3.3; Holm-adjusted p = 0.017; 36 wins, 23 losses)), and statistically indistinguishable from it at noise rates of 20% and above (−0.5 points (95% CI −1.6 to +0.6; Holm-adjusted p = 1.000; 26 wins, 29 losses) at 40% symmetric and +1.6 points (95% CI +0.2 to +3.0; Holm-adjusted p = 0.353; 35 wins, 25 losses) at 40% asymmetric noise). What separates the two is therefore not accuracy under heavy noise but the price paid when the noise is light or absent, and the computational cost (Sect. 6.7).
 
 LOO-EM also yields cleaner training labels: after correction 87.3% of labels are correct at 20% symmetric noise (80% before) and 87.0% at 20% asymmetric noise. The cost on clean data is real: BIC accepts a noise model in 28% of clean runs, and LOO-EM is then slightly worse than leaving the labels alone (13 wins, 35 losses over all datasets). The estimated noise rate is conservative (mean 0.15 at a true rate of 0.20; Fig. 7).
 
@@ -257,32 +262,32 @@ The first version (v1) used the full matrix whenever a one-parameter likelihood 
 
 Table 5 stratifies the main comparison. LOO-EM's gain over wide-grid ridge at 40% asymmetric noise grows with the training-set size: +0.8 points below 100 series, +2.1 between 100 and 500, and +3.8 for 500 or more. With fewer than 100 training series no method is reliably better than another under symmetric noise, and all methods lose more than 20 points at 30% noise. By number of classes, LOO-EM helps most for 3–9 classes (+4.4 points at 40% asymmetric noise), is neutral for two classes, where pair-flip noise is a single flip probability that the symmetric model already represents, and does not help with ten or more classes at that noise level.
 
-| Stratum   | Noise        | Datasets   | Ridge (default)   | Ridge (wide)   | LOO-EM (BIC)   | LOO-EM v1   | Confident learning   |
-|:----------|:-------------|:-----------|:------------------|:---------------|:---------------|:------------|:---------------------|
-| n<100     | sym 0%       | 36         | 92.4              | 92.4           | 92.2           | 91.0        | 89.0                 |
-| n<100     | sym 30%      | 36         | 70.5              | 68.5           | 70.4           | 70.0        | 66.8                 |
-| n<100     | asym 40%     | 36         | 61.3              | 64.8           | 65.6           | 65.7        | 63.8                 |
-| n<100     | boundary 20% | 35         | 79.5              | 80.3           | 80.2           | 80.4        | 81.8                 |
-| 100≤n<500 | sym 0%       | 51         | 81.9              | 82.1           | 81.5           | 79.6        | 77.8                 |
-| 100≤n<500 | sym 30%      | 49         | 69.3              | 72.3           | 73.2           | 71.5        | 71.4                 |
-| 100≤n<500 | asym 40%     | 51         | 55.6              | 58.8           | 60.9           | 63.3        | 58.4                 |
-| 100≤n<500 | boundary 20% | 45         | 76.5              | 77.4           | 77.4           | 77.3        | 77.3                 |
-| n≥500     | sym 0%       | 21         | 90.7              | 90.7           | 90.6           | 89.7        | 89.2                 |
-| n≥500     | sym 30%      | 21         | 81.8              | 85.4           | 86.3           | 84.2        | 85.3                 |
-| n≥500     | asym 40%     | 21         | 66.2              | 74.5           | 78.2           | 80.4        | 76.5                 |
-| n≥500     | boundary 20% | 21         | 84.7              | 85.4           | 85.4           | 84.7        | 85.3                 |
-| C=2       | sym 0%       | 38         | 91.3              | 91.3           | 91.3           | 91.1        | 89.8                 |
-| C=2       | sym 30%      | 38         | 72.1              | 73.9           | 74.4           | 74.4        | 73.8                 |
-| C=2       | asym 40%     | 38         | 62.6              | 67.7           | 67.6           | 67.5        | 68.4                 |
-| C=2       | boundary 20% | 38         | 83.1              | 84.3           | 84.4           | 84.4        | 85.0                 |
-| 3≤C<10    | sym 0%       | 49         | 85.5              | 85.7           | 85.2           | 83.5        | 82.2                 |
-| 3≤C<10    | sym 30%      | 49         | 72.3              | 73.7           | 75.2           | 74.0        | 72.6                 |
-| 3≤C<10    | asym 40%     | 49         | 59.3              | 65.2           | 69.6           | 71.1        | 64.7                 |
-| 3≤C<10    | boundary 20% | 48         | 76.8              | 77.6           | 77.5           | 77.5        | 78.0                 |
-| C≥10      | sym 0%       | 21         | 83.3              | 83.1           | 82.7           | 79.2        | 76.4                 |
-| C≥10      | sym 30%      | 19         | 72.1              | 72.8           | 74.8           | 70.6        | 70.2                 |
-| C≥10      | asym 40%     | 21         | 54.9              | 53.8           | 54.0           | 58.8        | 52.8                 |
-| C≥10      | boundary 20% | 15         | 77.1              | 77.3           | 77.3           | 76.1        | 77.1                 |
+| Stratum   | Noise        | Datasets   | Ridge (default)   | Ridge (wide)   | LOO-EM (BIC)   | LOO-EM v1   | Confident learning (cal.)   |
+|:----------|:-------------|:-----------|:------------------|:---------------|:---------------|:------------|:----------------------------|
+| n<100     | sym 0%       | 36         | 92.4              | 92.4           | 92.2           | 91.0        | 90.6                        |
+| n<100     | sym 30%      | 36         | 70.5              | 68.5           | 70.4           | 70.0        | 71.7                        |
+| n<100     | asym 40%     | 36         | 61.3              | 64.8           | 65.6           | 65.7        | 63.9                        |
+| n<100     | boundary 20% | 35         | 79.5              | 80.3           | 80.2           | 80.4        | 82.3                        |
+| 100≤n<500 | sym 0%       | 51         | 81.9              | 82.1           | 81.5           | 79.6        | 79.1                        |
+| 100≤n<500 | sym 30%      | 49         | 69.3              | 72.3           | 73.2           | 71.5        | 73.0                        |
+| 100≤n<500 | asym 40%     | 51         | 55.6              | 58.8           | 60.9           | 63.3        | 59.6                        |
+| 100≤n<500 | boundary 20% | 45         | 76.5              | 77.4           | 77.4           | 77.3        | 77.2                        |
+| n≥500     | sym 0%       | 21         | 90.7              | 90.7           | 90.6           | 89.7        | 90.2                        |
+| n≥500     | sym 30%      | 21         | 81.8              | 85.4           | 86.3           | 84.2        | 86.0                        |
+| n≥500     | asym 40%     | 21         | 66.2              | 74.5           | 78.2           | 80.4        | 77.2                        |
+| n≥500     | boundary 20% | 21         | 84.7              | 85.4           | 85.4           | 84.7        | 85.3                        |
+| C=2       | sym 0%       | 38         | 91.3              | 91.3           | 91.3           | 91.1        | 90.6                        |
+| C=2       | sym 30%      | 38         | 72.1              | 73.9           | 74.4           | 74.4        | 76.4                        |
+| C=2       | asym 40%     | 38         | 62.6              | 67.7           | 67.6           | 67.5        | 68.0                        |
+| C=2       | boundary 20% | 38         | 83.1              | 84.3           | 84.4           | 84.4        | 85.3                        |
+| 3≤C<10    | sym 0%       | 49         | 85.5              | 85.7           | 85.2           | 83.5        | 83.5                        |
+| 3≤C<10    | sym 30%      | 49         | 72.3              | 73.7           | 75.2           | 74.0        | 75.1                        |
+| 3≤C<10    | asym 40%     | 49         | 59.3              | 65.2           | 69.6           | 71.1        | 66.0                        |
+| 3≤C<10    | boundary 20% | 48         | 76.8              | 77.6           | 77.5           | 77.5        | 78.1                        |
+| C≥10      | sym 0%       | 21         | 83.3              | 83.1           | 82.7           | 79.2        | 78.6                        |
+| C≥10      | sym 30%      | 19         | 72.1              | 72.8           | 74.8           | 70.6        | 72.4                        |
+| C≥10      | asym 40%     | 21         | 54.9              | 53.8           | 54.0           | 58.8        | 54.5                        |
+| C≥10      | boundary 20% | 15         | 77.1              | 77.3           | 77.3           | 76.1        | 77.2                        |
 
 : **Table 5** Mean test accuracy (%) by training-set size and by number of classes
 
@@ -293,29 +298,29 @@ Boundary noise is the hardest case for every label-based remedy. The mislabelled
 
 Table 6 summarises three checks of external validity for the kernel-transform pipeline.
 
-*Hydra features* (5 datasets, seeds 0–2). The wide grid changes accuracy relative to the default grid by +0.0 points (Holm-adjusted p = 1.000; 0 wins, 0 losses) on clean labels, −6.5 points (Holm-adjusted p = 1.000; 1 wins, 3 losses) at 40% symmetric and +4.5 points (Holm-adjusted p = 1.000; 4 wins, 1 losses) at 40% asymmetric noise. LOO-EM relative to wide-grid ridge: −0.6 points (Holm-adjusted p = 1.000; 1 wins, 1 losses) on clean labels, −1.1 points (Holm-adjusted p = 1.000; 2 wins, 3 losses) at 40% symmetric and −0.2 points (Holm-adjusted p = 1.000; 0 wins, 1 losses) at 40% asymmetric noise.
+*Hydra features* (19 datasets, seeds 0–2). Hydra counts are square-rooted and standardised here rather than passed through the sparse scaler of the original pipeline. The wide grid changes accuracy relative to the default grid by +0.2 points (Holm-adjusted p = 0.240; 8 wins, 2 losses) on clean labels, +0.2 points (Holm-adjusted p = 1.000; 12 wins, 6 losses) at 40% symmetric and +5.5 points (Holm-adjusted p = 0.006; 16 wins, 3 losses) at 40% asymmetric noise. LOO-EM relative to wide-grid ridge: −0.2 points (Holm-adjusted p = 1.000; 3 wins, 8 losses) on clean labels, +0.2 points (Holm-adjusted p = 1.000; 7 wins, 4 losses) at 40% symmetric and +0.7 points (Holm-adjusted p = 1.000; 6 wins, 2 losses) at 40% asymmetric noise.
 
 *Multivariate series* (18 UEA datasets, seeds 0–2). Wide versus default grid: +2.4 points (Holm-adjusted p = 0.907; 13 wins, 5 losses) at 40% symmetric and +3.9 points (Holm-adjusted p = 0.182; 13 wins, 5 losses) at 40% asymmetric noise. LOO-EM versus wide-grid ridge: −0.9 points (Holm-adjusted p = 0.252; 1 wins, 6 losses) on clean labels and +1.4 points (Holm-adjusted p = 0.261; 8 wins, 4 losses) at 40% asymmetric noise. With this few datasets the tests have little power and the table should be read descriptively.
 
 *Larger training sets* (Crop, FordA, FordB; 3,601–8,926 training series, seeds 0–2; no significance tests with 3 datasets). At 40% asymmetric noise the default grid gives 60.1%, the wide grid 78.2%, LOO-EM 77.8% and v1 76.7%; at 40% symmetric noise 64.4%, 79.9%, 78.7% and 77.1%; on clean labels 86.8%, 86.6%, 86.6% and 86.6%.
 
-| Experiment                                 | Method               | sym 0%   | sym 20%   | sym 40%   | asym 20%   | asym 40%   | boundary 20%   |
-|:-------------------------------------------|:---------------------|:---------|:----------|:----------|:-----------|:-----------|:---------------|
-| Hydra (5 UCR datasets)                     | Ridge (default grid) | 89.0     | 73.4      | 58.5      | 77.4       | 56.1       | 82.7           |
-| Hydra (5 UCR datasets)                     | Ridge (wide grid)    | 89.0     | 74.6      | 52.0      | 77.3       | 60.6       | 82.8           |
-| Hydra (5 UCR datasets)                     | LOO-EM (BIC)         | 88.5     | 75.1      | 50.8      | 77.6       | 60.4       | 82.5           |
-| Hydra (5 UCR datasets)                     | LOO-EM v1            | 84.9     | 75.2      | 51.1      | 74.8       | 59.1       | 81.3           |
-| Hydra (5 UCR datasets)                     | Confident learning   | 83.6     | 72.8      | 51.9      | 74.1       | 59.5       | 84.4           |
-| MiniRocket, multivariate (18 UEA datasets) | Ridge (default grid) | 74.3     | 69.8      | 57.8      | 69.5       | 54.1       | 70.5           |
-| MiniRocket, multivariate (18 UEA datasets) | Ridge (wide grid)    | 74.2     | 69.6      | 60.2      | 69.9       | 58.0       | 70.6           |
-| MiniRocket, multivariate (18 UEA datasets) | LOO-EM (BIC)         | 73.3     | 70.4      | 62.0      | 70.8       | 59.4       | 70.4           |
-| MiniRocket, multivariate (18 UEA datasets) | LOO-EM v1            | 72.9     | 68.1      | 61.4      | 69.1       | 62.1       | 69.7           |
-| MiniRocket, multivariate (18 UEA datasets) | Confident learning   | 71.1     | 68.1      | 59.6      | 68.6       | 59.4       | 70.9           |
-| MiniRocket, largest UCR datasets (3)       | Ridge (default grid) | 86.8     | 78.6      | 64.4      | 77.9       | 60.1       | 83.1           |
-| MiniRocket, largest UCR datasets (3)       | Ridge (wide grid)    | 86.6     | 84.9      | 79.9      | 85.0       | 78.2       | 84.4           |
-| MiniRocket, largest UCR datasets (3)       | LOO-EM (BIC)         | 86.6     | 85.6      | 78.7      | 85.4       | 77.8       | 84.4           |
-| MiniRocket, largest UCR datasets (3)       | LOO-EM v1            | 86.6     | 83.3      | 77.1      | 83.8       | 76.7       | 84.4           |
-| MiniRocket, largest UCR datasets (3)       | ENN                  | 85.3     | 83.9      | 76.6      | 83.9       | 75.7       | 83.7           |
+| Experiment                                 | Method                            | sym 0%   | sym 20%   | sym 40%   | asym 20%   | asym 40%   | boundary 20%   |
+|:-------------------------------------------|:----------------------------------|:---------|:----------|:----------|:-----------|:-----------|:---------------|
+| Hydra (19 UCR datasets)                    | Ridge (default grid)              | 84.3     | 75.8      | 61.8      | 76.3       | 57.4       | 77.9           |
+| Hydra (19 UCR datasets)                    | Ridge (wide grid)                 | 84.4     | 76.4      | 62.0      | 77.2       | 62.9       | 77.9           |
+| Hydra (19 UCR datasets)                    | LOO-EM (BIC)                      | 84.2     | 76.5      | 62.1      | 77.3       | 63.6       | 78.1           |
+| Hydra (19 UCR datasets)                    | LOO-EM v1                         | 81.6     | 75.0      | 62.7      | 75.3       | 64.0       | 77.1           |
+| Hydra (19 UCR datasets)                    | Confident learning (uncalibrated) | 81.7     | 76.0      | 63.1      | 76.1       | 61.6       | 79.1           |
+| MiniRocket, multivariate (18 UEA datasets) | Ridge (default grid)              | 74.3     | 69.8      | 57.8      | 69.5       | 54.1       | 70.5           |
+| MiniRocket, multivariate (18 UEA datasets) | Ridge (wide grid)                 | 74.2     | 69.6      | 60.2      | 69.9       | 58.0       | 70.6           |
+| MiniRocket, multivariate (18 UEA datasets) | LOO-EM (BIC)                      | 73.3     | 70.4      | 62.0      | 70.8       | 59.4       | 70.4           |
+| MiniRocket, multivariate (18 UEA datasets) | LOO-EM v1                         | 72.9     | 68.1      | 61.4      | 69.1       | 62.1       | 69.7           |
+| MiniRocket, multivariate (18 UEA datasets) | Confident learning (uncalibrated) | 71.1     | 68.1      | 59.6      | 68.6       | 59.4       | 70.9           |
+| MiniRocket, largest UCR datasets (3)       | Ridge (default grid)              | 86.8     | 78.6      | 64.4      | 77.9       | 60.1       | 83.1           |
+| MiniRocket, largest UCR datasets (3)       | Ridge (wide grid)                 | 86.6     | 84.9      | 79.9      | 85.0       | 78.2       | 84.4           |
+| MiniRocket, largest UCR datasets (3)       | LOO-EM (BIC)                      | 86.6     | 85.6      | 78.7      | 85.4       | 77.8       | 84.4           |
+| MiniRocket, largest UCR datasets (3)       | LOO-EM v1                         | 86.6     | 83.3      | 77.1      | 83.8       | 76.7       | 84.4           |
+| MiniRocket, largest UCR datasets (3)       | ENN                               | 85.3     | 83.9      | 76.6      | 83.9       | 75.7       | 83.7           |
 
 : **Table 6** Generalisation: mean test accuracy (%) with other random-kernel transforms, on multivariate UEA datasets and on the largest UCR datasets (seeds 0–2)
 
@@ -335,19 +340,19 @@ Table 6 summarises three checks of external validity for the kernel-transform pi
 
 ## 6.7 Computational cost
 
-Table 8 and Fig. 9 report the time each method adds to the shared work, which is the MiniRocket transform (median 0.52 s per dataset) and one eigendecomposition (median 0.028 s). Selecting the penalty on the wide instead of the default grid costs 1 ms at the median. LOO-EM takes a median of 0.11 s (mean 0.28 s), 2.6 times the eigendecomposition; 5-fold confident learning takes 0.31 s (mean 1.14 s), 7.1 times. LOO-EM is therefore not free, as a single LOO relabelling round is (4 ms), but it is about 4 times cheaper on average than the cross-validated alternative and never refits a model. Memory is dominated by the $n\times n$ eigenvector matrix and its element-wise square. On the largest dataset processed (Crop, 7,200 training series, two to four threads) the eigendecomposition takes 47 s and LOO-EM 27 s per noise condition.
+Table 8 and Fig. 9 report the time each method adds to the shared work, which is the MiniRocket transform (median 0.52 s per dataset) and one eigendecomposition (median 0.028 s). Selecting the penalty on the wide instead of the default grid costs 1 ms at the median. LOO-EM takes a median of 0.11 s (mean 0.28 s), 2.6 times the eigendecomposition; 5-fold confident learning takes 0.39 s (mean 1.04 s), 8.8 times. LOO-EM is therefore not free, as a single LOO relabelling round is (4 ms), but it is about 4 times cheaper on average than the cross-validated alternative and never refits a model. Memory is dominated by the $n\times n$ eigenvector matrix and its element-wise square. All ridge variants deploy the same linear classifier, so model size and inference cost are identical; energy use was not measured. On the largest dataset processed (Crop, 7,200 training series, two BLAS threads) the eigendecomposition takes 47 s and LOO-EM 27 s per noise condition.
 
-| Method                 | Median time (s)   | Mean time (s)   | Median ratio to eigendecomposition   |
-|:-----------------------|:------------------|:----------------|:-------------------------------------|
-| Ridge (default grid)   | 0.001             | 0.010           | 0.05                                 |
-| Ridge (wide grid)      | 0.002             | 0.019           | 0.09                                 |
-| LOO-EM (BIC, proposed) | 0.108             | 0.278           | 2.56                                 |
-| LOO-EM v1 (full T)     | 0.097             | 0.439           | 3.01                                 |
-| Confident learning     | 0.309             | 1.143           | 7.15                                 |
-| 5-fold relabel         | 0.145             | 0.757           | 4.87                                 |
-| ENN                    | 0.116             | 0.442           | 2.20                                 |
-| LOO relabel (1 round)  | 0.004             | 0.035           | 0.18                                 |
-| LOO remove             | 0.101             | 0.458           | 2.07                                 |
+| Method                          | Median time (s)   | Mean time (s)   | Median ratio to eigendecomposition   |
+|:--------------------------------|:------------------|:----------------|:-------------------------------------|
+| Ridge (default grid)            | 0.001             | 0.010           | 0.05                                 |
+| Ridge (wide grid)               | 0.002             | 0.019           | 0.09                                 |
+| LOO-EM (BIC, proposed)          | 0.108             | 0.278           | 2.56                                 |
+| LOO-EM v1 (full T)              | 0.097             | 0.439           | 3.01                                 |
+| Confident learning (calibrated) | 0.388             | 1.043           | 8.84                                 |
+| 5-fold relabel                  | 0.145             | 0.757           | 4.87                                 |
+| ENN                             | 0.116             | 0.442           | 2.20                                 |
+| LOO relabel (1 round)           | 0.004             | 0.035           | 0.18                                 |
+| LOO remove                      | 0.101             | 0.458           | 2.07                                 |
 
 : **Table 8** Wall-clock cost per run of each method beyond the shared feature transform and eigendecomposition (single CPU thread, all datasets and conditions)
 
@@ -392,7 +397,7 @@ Table 9 lists the datasets with the largest losses and gains of LOO-EM relative 
 
 # 7 Discussion
 
-**Practical recommendations.** (1) When labels may be noisy, widen the ridge penalty grid of random-kernel classifiers. It costs nothing, does not change clean accuracy, and gave the largest accuracy improvement in this study; on imbalanced problems under symmetric noise, check a class-balanced metric, because there the improvement in accuracy was bought with minority-class recall. (2) Do not remove or hard-relabel training series on the strength of out-of-sample disagreement alone; on these features that lowered accuracy at every noise rate up to 20% and on clean data. (3) If substantial class-conditional noise is plausible, and in particular systematic confusion between specific classes, LOO-EM with BIC adds a further gain at the cost of a few tenths of a point when the labels are in fact clean. (4) If heavy asymmetric noise is known to be present, forcing the full transition matrix (the v1 behaviour) is worth considering; without that knowledge it is not safe.
+**Practical recommendations.** (1) When labels may be noisy, widen the ridge penalty grid of random-kernel classifiers. It costs nothing, does not change clean accuracy, and gave the largest accuracy improvement in this study; on imbalanced problems under symmetric noise, check a class-balanced metric, because there the improvement in accuracy was bought with minority-class recall. (2) Do not remove or hard-relabel training series on the strength of out-of-sample disagreement alone; on these features that lowered accuracy on clean data and at 10% noise for every cleaning method, and confident learning repaid its cost only from about 30% symmetric noise. (3) If substantial class-conditional noise is plausible, and in particular systematic confusion between specific classes, LOO-EM with BIC adds a further gain at the cost of a few tenths of a point when the labels are in fact clean. (4) If heavy asymmetric noise is known to be present, forcing the full transition matrix (the v1 behaviour) is worth considering; without that knowledge it is not safe.
 
 **Why regularisation goes so far.** Proposition 1 implies that under symmetric noise the ridge classifier needs no correction in expectation, only more averaging. The interpolating regime created by ten thousand features and a few hundred series is exactly where a narrow penalty grid prevents that averaging. That the same change helps under asymmetric and boundary noise shows that a large part of the damage in those settings is also variance.
 
@@ -406,7 +411,7 @@ Table 9 lists the datasets with the largest losses and gains of LOO-EM relative 
 
 # 9 Conclusion
 
-For ridge classifiers on random convolutional kernel features, the first response to suspected label noise should be regularisation, not cleaning. Symmetric noise leaves the expected decision function order-preserving and inflates its variance, the default penalty grid is too narrow to counter that, and widening it recovers up to 4.2 accuracy points over 108 datasets at no cost on clean labels, although under symmetric noise the gain does not extend to class-balanced metrics. Generic cleaning pipelines detect mislabelled series accurately but reduce accuracy when their detections are acted upon. An EM procedure built on closed-form leave-one-out predictions with BIC model selection is the only correction we tested that improves on a well-regularised ridge classifier under moderate to heavy class-conditional noise, on accuracy, balanced accuracy and macro-F1 alike, while staying within a few tenths of a point on clean data, and its limits are set by an identifiability problem rather than by computation. Future work should test these conclusions on data with verified real-world label errors and extend the leave-one-out machinery to instance-dependent noise.
+For ridge classifiers on random convolutional kernel features, the first response to suspected label noise should be regularisation, not cleaning. Symmetric noise leaves the expected decision function order-preserving and inflates its variance, the default penalty grid is too narrow to counter that, and widening it recovers up to 4.2 accuracy points over 108 datasets at no cost on clean labels, although under symmetric noise the gain does not extend to class-balanced metrics. Generic cleaning pipelines detect mislabelled series accurately but reduce accuracy on clean and lightly corrupted data when their detections are acted upon. An EM procedure built on closed-form leave-one-out predictions with BIC model selection is the only correction we tested that improves on a well-regularised ridge classifier under moderate to heavy class-conditional noise while staying within a few tenths of a point on clean data (calibrated confident learning matches it under heavy noise but loses about two points on clean labels), and its gains hold on accuracy, balanced accuracy and macro-F1 alike; and its limits are set by an identifiability problem rather than by computation. Future work should test these conclusions on data with verified real-world label errors and extend the leave-one-out machinery to instance-dependent noise.
 
 # Declarations
 

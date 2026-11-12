@@ -7,7 +7,7 @@ from src.evaluation import aggregate as ag
 TABLES = {}
 CONDS = ["sym 0%", "sym 20%", "sym 40%", "asym 20%", "asym 40%", "boundary 20%"]
 NAMES = {"ridge_std": "Ridge (default grid)", "ridge_wide": "Ridge (wide grid)", "loo_em_bic": "LOO-EM (BIC)", "loo_em": "LOO-EM v1",
-         "conf_learning": "Confident learning", "em_sym_T": "Symmetric T only", "enn": "ENN", "loo_relabel": "LOO relabel",
+         "conf_learning": "Confident learning (uncalibrated)", "conf_learning_cal": "Confident learning (calibrated)", "em_sym_T": "Symmetric T only", "enn": "ENN", "loo_relabel": "LOO relabel",
          "quant": "QUANT", "nn_ed": "1-NN Euclidean", "fcn_ce": "FCN, cross-entropy", "fcn_gce": "FCN, GCE loss",
          "fcn_coteach": "FCN, Co-teaching (true rate given)"}
 
@@ -45,7 +45,8 @@ def build(ctx, md_table, pct):
         if key in ex:
             e = key.split("_")[1]
             rows += _rows(f"{tag} ({ex[key]['n_datasets']} UCR datasets)", ex[key]["mean_accuracy"], ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning"])
-            parts.append(f"*{tag} features* ({ex[key]['n_datasets']} datasets, seeds 0–2). The wide grid changes accuracy relative to the default grid by "
+            note = " Hydra counts are square-rooted and standardised here rather than passed through the sparse scaler of the original pipeline." if tag == "Hydra" else ""
+            parts.append(f"*{tag} features* ({ex[key]['n_datasets']} datasets, seeds 0–2).{note} The wide grid changes accuracy relative to the default grid by "
                          f"{_d(ctx, e, 'ridge_wide', 'ridge_std', 'sym 0%')} on clean labels, {_d(ctx, e, 'ridge_wide', 'ridge_std', 'sym 40%')} at 40% symmetric and "
                          f"{_d(ctx, e, 'ridge_wide', 'ridge_std', 'asym 40%')} at 40% asymmetric noise. LOO-EM relative to wide-grid ridge: "
                          f"{_d(ctx, e, 'loo_em_bic', 'ridge_wide', 'sym 0%')} on clean labels, {_d(ctx, e, 'loo_em_bic', 'ridge_wide', 'sym 40%')} at 40% symmetric and "
@@ -116,23 +117,23 @@ def build(ctx, md_table, pct):
     f3 = lambda v: f"{v:.3f}"
     cost_rows = [{"Method": ag.LABEL[m], "Median time (s)": f3(e["median_time_s"][m]), "Mean time (s)": f3(e["mean_time_s"][m]),
                   "Median ratio to eigendecomposition": f"{e['time_over_eig_median'][m]:.2f}"}
-                 for m in ("ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning", "kfold_relabel", "enn", "loo_relabel", "loo_remove")]
+                 for m in ("ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning_cal", "kfold_relabel", "enn", "loo_relabel", "loo_remove")]
     cap = "Wall-clock cost per run of each method beyond the shared feature transform and eigendecomposition (single CPU thread, all datasets and conditions)"
     key = "cost"
     TABLES[key] = pd.DataFrame(cost_rows).to_markdown(index=False, disable_numparse=True) + f"\n\n: {cap}\n"
     text = (f"TABREF:cost and Fig. 9 report the time each method adds to the shared work, which is the MiniRocket transform (median {b['median_t_feat']:.2f} s per dataset) and one eigendecomposition "
             f"(median {b['median_t_eig']:.3f} s). Selecting the penalty on the wide instead of the default grid costs {1000 * (e['median_time_s']['ridge_wide'] - e['median_time_s']['ridge_std']):.0f} ms at the median. "
             f"LOO-EM takes a median of {e['median_time_s']['loo_em_bic']:.2f} s (mean {e['mean_time_s']['loo_em_bic']:.2f} s), {e['time_over_eig_median']['loo_em_bic']:.1f} times the eigendecomposition; "
-            f"5-fold confident learning takes {e['median_time_s']['conf_learning']:.2f} s (mean {e['mean_time_s']['conf_learning']:.2f} s), {e['time_over_eig_median']['conf_learning']:.1f} times. "
+            f"5-fold confident learning takes {e['median_time_s']['conf_learning_cal']:.2f} s (mean {e['mean_time_s']['conf_learning_cal']:.2f} s), {e['time_over_eig_median']['conf_learning_cal']:.1f} times. "
             f"LOO-EM is therefore not free, as a single LOO relabelling round is ({e['median_time_s']['loo_relabel'] * 1000:.0f} ms), but it is about "
-            f"{e['mean_time_s']['conf_learning'] / e['mean_time_s']['loo_em_bic']:.0f} times cheaper on average than the cross-validated alternative and never refits a model. "
-            f"Memory is dominated by the $n\\times n$ eigenvector matrix and its element-wise square.")
+            f"{e['mean_time_s']['conf_learning_cal'] / e['mean_time_s']['loo_em_bic']:.0f} times cheaper on average than the cross-validated alternative and never refits a model. "
+            f"Memory is dominated by the $n\\times n$ eigenvector matrix and its element-wise square. All ridge variants deploy the same linear classifier, so model size and inference cost are identical; energy use was not measured.")
     if "large" in ex:
         tm = pd.DataFrame(ex["large"]["timing"])
         big = tm[tm.n_train == tm.n_train.max()]
         if len(big):
             r = big.set_index("method")
-            text += (f" On the largest dataset processed ({big.dataset.iloc[0]}, {int(big.n_train.iloc[0]):,} training series, {'two' if True else ''} to four threads) the eigendecomposition takes "
+            text += (f" On the largest dataset processed ({big.dataset.iloc[0]}, {int(big.n_train.iloc[0]):,} training series, two BLAS threads) the eigendecomposition takes "
                      f"{r.t_eig.iloc[0]:.0f} s and LOO-EM {r.time_s['loo_em_bic']:.0f} s per noise condition.")
     text += f"\n\nTABLE:{key}"
     sec["cost"] = text

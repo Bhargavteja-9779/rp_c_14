@@ -189,7 +189,7 @@ def build_tables(ctx):
                 rows.append({"Stratum": r[col].replace("<=", "≤").replace(">=", "≥"), "Noise": r["cond"], "Datasets": r["n_datasets"],
                              "Ridge (default)": f"{100 * r['ridge_std']:.1f}", "Ridge (wide)": f"{100 * r['ridge_wide']:.1f}",
                              "LOO-EM (BIC)": f"{100 * r['loo_em_bic']:.1f}", "LOO-EM v1": f"{100 * r['loo_em']:.1f}",
-                             "Confident learning": f"{100 * r['conf_learning']:.1f}"})
+                             "Confident learning (cal.)": f"{100 * r['conf_learning_cal']:.1f}"})
     s = pd.DataFrame(rows)
     t["strata"] = s.to_markdown(index=False, disable_numparse=True) + "\n\n: Mean test accuracy (%) by training-set size and by number of classes\n"
     e = pd.read_csv(os.path.join(T, "table_error_analysis.csv"))

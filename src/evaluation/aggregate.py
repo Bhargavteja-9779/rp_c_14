@@ -15,14 +15,14 @@ from src.statistics import tests as st
 R = os.path.join(ucr.ROOT, "results")
 T = os.path.join(ucr.ROOT, "tables")
 RAW_SUB = "raw/minirocket"
-KEY = ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning", "kfold_relabel", "enn", "loo_relabel", "loo_remove"]
+KEY = ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning_cal", "conf_learning", "kfold_relabel", "enn", "loo_relabel", "loo_remove"]
 ABL = ["loo_em_bic", "bic_hard", "bic_in_sample", "bic_std_grid", "bic_iter_5", "bic_pen_0.5", "bic_pen_2", "em_sym_T", "loo_em",
        "em_no_gate", "em_no_T", "loo_relabel", "loo_relabel_it", "loo_remove", "ridge_wide"]
 LABEL = {"ridge_std": "Ridge (default grid)", "ridge_wide": "Ridge (wide grid)", "loo_em": "LOO-EM v1 (full T)",
          "loo_em_bic": "LOO-EM (BIC, proposed)", "bic_hard": "BIC: hard targets", "bic_in_sample": "BIC: in-sample scores",
          "bic_std_grid": "BIC: default grid", "bic_iter_5": "BIC: 5 EM iterations", "bic_pen_0.5": "BIC: penalty x0.5",
          "bic_pen_2": "BIC: penalty x2",
-         "conf_learning": "Confident learning", "conf_learning_cal": "Confident learning (calibrated)", "kfold_relabel": "5-fold relabel", "enn": "ENN",
+         "conf_learning": "Confident learning (uncalibrated)", "conf_learning_cal": "Confident learning (calibrated)", "kfold_relabel": "5-fold relabel", "enn": "ENN",
          "loo_relabel": "LOO relabel (1 round)", "loo_relabel_it": "LOO relabel (iterated)",
          "loo_remove": "LOO remove", "em_no_gate": "v1 without gate", "em_sym_T": "Symmetric T only",
          "em_hard": "v1: hard targets", "em_in_sample": "v1: in-sample scores",
@@ -180,7 +180,7 @@ def run(dev=None):
     for b in bins.cat.categories:
         ds = bins.index[bins == b]
         for c in cond_order(df):
-            sub = pd_.loc[pd_.index.intersection(ds), c][["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning"]].dropna()
+            sub = pd_.loc[pd_.index.intersection(ds), c][["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning_cal"]].dropna()
             rows.append(dict(size_bin=b, cond=c, n_datasets=len(sub), **sub.mean().to_dict()))
     strat = pd.DataFrame(rows)
     write(strat, "table_by_train_size", index=False)
@@ -192,7 +192,7 @@ def run(dev=None):
     for b in cb.cat.categories:
         ds = cb.index[cb == b]
         for c in cond_order(df):
-            sub = pd_.loc[pd_.index.intersection(ds), c][["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning"]].dropna()
+            sub = pd_.loc[pd_.index.intersection(ds), c][["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning_cal"]].dropna()
             rows.append(dict(class_bin=b, cond=c, n_datasets=len(sub), **sub.mean().to_dict()))
     write(pd.DataFrame(rows), "table_by_n_classes", index=False)
     metrics["by_n_classes"] = rows
@@ -206,14 +206,14 @@ def run(dev=None):
             for b in ib.cat.categories:
                 ds = ib.index[ib == b]
                 for c in cond_order(df):
-                    sub = pm.loc[pm.index.intersection(ds), c][["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning"]].dropna()
+                    sub = pm.loc[pm.index.intersection(ds), c][["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning_cal"]].dropna()
                     rows.append(dict(metric=metric_, imbalance_bin=b, cond=c, n_datasets=len(sub), **sub.mean().to_dict()))
         write(pd.DataFrame(rows), "table_by_imbalance", index=False)
         metrics["by_imbalance"] = rows
     except FileNotFoundError:
         pass
     for metric_ in ("bal_acc", "macro_f1"):
-        for cand, ref in (("loo_em_bic", "ridge_wide"), ("ridge_wide", "ridge_std"), ("conf_learning", "ridge_wide")):
+        for cand, ref in (("loo_em_bic", "ridge_wide"), ("ridge_wide", "ridge_std"), ("conf_learning_cal", "ridge_wide")):
             s_ = stats_table(df, cand, ref, None, metric_)
             stats[f"{metric_}__{cand}__vs__{ref}__all"] = s_.to_dict(orient="records")
 

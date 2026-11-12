@@ -13,9 +13,9 @@ from src.data import ucr
 from src.evaluation import aggregate as ag
 
 F = os.path.join(ucr.ROOT, "figures")
-COL = {"ridge_std": "#7f7f7f", "ridge_wide": "#1f77b4", "loo_em": "#ff9896", "loo_em_bic": "#d62728", "conf_learning": "#2ca02c",
+COL = {"ridge_std": "#7f7f7f", "ridge_wide": "#1f77b4", "loo_em": "#ff9896", "loo_em_bic": "#d62728", "conf_learning": "#98df8a", "conf_learning_cal": "#2ca02c",
        "kfold_relabel": "#9467bd", "enn": "#8c564b", "loo_relabel": "#e377c2", "loo_remove": "#17becf"}
-MK = {"ridge_std": "o", "ridge_wide": "s", "loo_em": "d", "loo_em_bic": "D", "conf_learning": "^", "kfold_relabel": "v", "enn": "P",
+MK = {"ridge_std": "o", "ridge_wide": "s", "loo_em": "d", "loo_em_bic": "D", "conf_learning": "^", "conf_learning_cal": "^", "kfold_relabel": "v", "enn": "P",
       "loo_relabel": "X", "loo_remove": "*"}
 plt.rcParams.update({"font.size": 9, "axes.spines.top": False, "axes.spines.right": False, "figure.dpi": 150,
                      "savefig.dpi": 300, "savefig.bbox": "tight", "font.family": "DejaVu Sans"})
@@ -33,7 +33,7 @@ def _complete(pdt, cond, methods):
     return pdt[cond][[m for m in methods if m in pdt[cond]]].dropna()
 
 
-def fig_accuracy_curves(df, methods=("ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning", "enn"), name="fig_accuracy_vs_noise", metric="acc"):
+def fig_accuracy_curves(df, methods=("ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning_cal", "enn"), name="fig_accuracy_vs_noise", metric="acc"):
     pdt = ag.per_dataset(df, metric)
     clean = _complete(pdt, "sym 0%", methods)
     fig, axes = plt.subplots(1, 3, figsize=(10.5, 3.2), sharey=True)
@@ -100,7 +100,7 @@ def fig_ablation(df):
 
 
 def fig_detection(df):
-    t = ag.mean_table(df[df.rate > 0], ["loo_em_bic", "bic_in_sample", "conf_learning", "kfold_relabel", "enn", "loo_relabel"], metric="det_auroc")
+    t = ag.mean_table(df[df.rate > 0], ["loo_em_bic", "bic_in_sample", "conf_learning_cal", "kfold_relabel", "enn", "loo_relabel"], metric="det_auroc")
     fig_bars(t, "fig_detection_auroc", "Label-error detection AUROC")
     fig, ax = plt.subplots(figsize=(4, 3.2))
     em = df[(df.method == "em_no_gate") & (df.rate > 0)]
@@ -119,7 +119,7 @@ def fig_runtime(df):
     one = df[(df.noise == "asym") & (df.rate == 0.3)]
     base = one.drop_duplicates(["dataset", "seed"])
     ax.scatter(base.n_train, base.t_eig, s=6, color="k", alpha=.4, label="Shared eigendecomposition")
-    for m in ("loo_em_bic", "conf_learning", "enn"):
+    for m in ("loo_em_bic", "conf_learning_cal", "enn"):
         s = one[one.method == m]
         ax.scatter(s.n_train, s.time_s, s=6, alpha=.4, color=COL[m], label=ag.LABEL[m])
     ax.set_xscale("log"); ax.set_yscale("log"); ax.set_xlabel("Training-set size n"); ax.set_ylabel("Wall-clock time (s), 1 CPU thread")
