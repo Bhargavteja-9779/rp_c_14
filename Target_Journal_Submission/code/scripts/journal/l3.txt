@@ -1,0 +1,40 @@
+2640-4567 Advanced Intelligent Systems (Wiley)
+1468-0394 Expert Systems (Wiley)
+1098-111X Int J Intelligent Systems (Wiley)
+1467-8667 Comput-Aided Civil Infra Eng (Wiley)
+2577-8196 Engineering Reports (Wiley)
+1751-9578 IET Intelligent Transport Systems
+1751-9683 IET Signal Processing
+1751-9667 IET Image Processing
+2632-2153 Mach Learn Sci Technol (IOP)
+1748-9326 Environ Res Lett (IOP)
+1741-2552 J Neural Eng (IOP)
+1361-6579 Physiol Meas (IOP)
+1994-2060 Eng Appl Comput Fluid Mech (T&F)
+1753-8955 Int J Digital Earth (T&F)
+1548-1603 GIScience Remote Sensing (T&F)
+1360-0494 Connection Science (T&F)
+1087-6545 Applied Artificial Intelligence (T&F)
+2213-1248 J King Saud Univ CIS (Springer)
+1573-7462 Artificial Intelligence Review
+2198-4018 Financial Innovation
+2662-9992 Humanit Soc Sci Commun
+2193-1127 EPJ Data Science
+2632-6736 Data-Centric Engineering (CUP)
+1875-6883 Int J Comput Intell Syst
+2731-3395 Communications Engineering
+2520-8756 Energy Informatics
+2047-2501 Health Inf Sci Syst
+2198-4026 Brain Informatics
+2055-2076 Digital Health (SAGE)
+2052-4463 Scientific Data
+1687-6180 EURASIP J Adv Signal Process
+1471-2105 BMC Bioinformatics
+1472-6947 BMC Med Inform Decis Mak
+2054-5703 Royal Society Open Science
+1742-5662 J R Soc Interface
+2190-8567 EPJ Quantum
+2057-3960 npj Computational Materials
+2731-0574 Nature Computational Science?
+1936-9743 Cognitive Computation? 
+2364-8228 Asian J Civ Eng?

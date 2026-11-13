@@ -13,7 +13,7 @@ import argparse, json, os, platform, subprocess, sys, time
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 PY = sys.executable
-BIG = "ElectricDevices,Crop,FordA,FordB"
+BIG = "FordA,FordB,Crop"  # ElectricDevices (8,926 series) did not fit the 15 GB machine
 DEEP = "ECG200,Plane,SyntheticControl,MoteStrain,TwoLeadECG,SonyAIBORobotSurface2"
 
 
@@ -44,7 +44,7 @@ def report(quick=False):
     from src.training import runner
     if quick:
         base = os.path.join(ROOT, "results", "quick")
-        ag.RAW_SUB, ag.R, ag.T, plots.F = "quick/minirocket", base, os.path.join(base, "tables"), os.path.join(base, "figures")
+        ag.RAW_SUB, ag.R, ag.T, plots.F = "minirocket", base, os.path.join(base, "tables"), os.path.join(base, "figures")
     df, metrics, stats = ag.run(dev=runner.dev_datasets(runner.load_config()))
     plots.make_all(df, stats)
     if not quick:
@@ -62,6 +62,8 @@ if __name__ == "__main__":
     if a.mode == "quick":
         sh(f"{PY} -m pytest -q tests", "tests.log")
         sh(f"{PY} experiments/run_main.py --quick --workers {min(w, 2)}", "quick.log")
+        sh(f"{PY} experiments/run_main.py --quick --workers {min(w, 2)} --sub minirocket_v2 --methods loo_em_bic,bic_hard,bic_in_sample,bic_std_grid,bic_pen_0.5,bic_pen_2,bic_iter_5", "quick.log")
+        sh(f"{PY} experiments/run_main.py --quick --workers {min(w, 2)} --sub minirocket_v3 --methods conf_learning_cal", "quick.log")
         report(quick=True)
     elif a.mode == "full":
         sh(f"{PY} -m pytest -q tests", "tests.log")
@@ -70,9 +72,11 @@ if __name__ == "__main__":
         sh(f"{PY} experiments/run_main.py --workers {w} --max-n 3000", "main_minirocket.log")           # 108 datasets
         sh(f"{PY} experiments/run_main.py --workers 1 --threads {w} --sub large --seeds 0,1,2 --methods ridge_std,ridge_wide,loo_em_bic,loo_em,em_sym_T,enn,loo_relabel --datasets {BIG}", "large.log")  # 4 largest: scalability study
         sh(f"{PY} experiments/run_main.py --workers {w} --max-n 3000 --sub minirocket_v2 --methods loo_em_bic,bic_hard,bic_in_sample,bic_std_grid,bic_pen_0.5,bic_pen_2,bic_iter_5", "main_v2.log")
+        sh(f"{PY} experiments/run_main.py --workers {w} --max-n 3000 --sub minirocket_v3 --methods conf_learning_cal", "main_v3.log")
         core = "ridge_std,ridge_wide,loo_em_bic,loo_em,conf_learning"
-        for tr in ("multirocket", "hydra"):                                                                # other transforms
-            sh(f"{PY} experiments/run_main.py --transform {tr} --methods {core} --seeds 0,1,2 --workers {w} --max-n 3000", f"main_{tr}.log")
+        from experiments.run_sensitivity import subset                                                   # Hydra: fixed 30-dataset subset
+        hyd = ",".join(d for d in subset() if d != "StarLightCurves")                                    # (StarLightCurves needs > 15 GB)
+        sh(f"{PY} experiments/run_main.py --transform hydra --methods {core} --seeds 0,1,2 --workers {min(w, 2)} --datasets {hyd}", "main_hydra.log")
         sh(f"{PY} experiments/run_other.py --methods quant,nn_ed --seeds 0,1,2 --workers {w} --datasets $(tail -1 scripts/main108.txt)", "other.log")  # other families
         sh(f"{PY} experiments/run_sensitivity.py --workers {w}", "sensitivity.log")
         sh(f"{PY} experiments/run_uea.py --workers {w}", "uea.log")

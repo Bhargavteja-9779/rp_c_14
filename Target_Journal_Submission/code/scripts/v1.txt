@@ -1,0 +1,2 @@
+{"ridge":(cl.none,{},"std"),"ridge_wide":(cl.none,{},"wide"),"em_full_w":(cl.loo_em,{},"wide"),"em_hard_w":(cl.loo_em,dict(soft_targets=False),"wide"),
+"relab_w":(cl.loo_clean,{},"wide"),"CL":(cl.confident_learning,{},"std"),"CL_w":(cl.confident_learning,{},"wide")}

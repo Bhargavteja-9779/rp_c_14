@@ -1,0 +1,197 @@
+ArrowHead                                0.0s 
+BME                                      0.0s 
+Beef                                     0.0s 
+BeetleFly                                0.0s 
+BirdChicken                              0.0s 
+CBF                                      1.2s BadZipFile("Overlapped entries: 'Fte.npy' (possible zip bomb)")
+Car                                      0.1s BadZipFile("Overlapped entries: 'Ftr.npy' (possible zip bomb)")
+Chinatown                                0.0s BadZipFile("Overlapped entries: 'Ftr.npy' (possible zip bomb)")
+ACSF1                                    9.3s EOFError('No data left in file')
+Adiac                                   33.1s EOFError('No data left in file')
+Coffee                                   0.0s EOFError('No data left in file')
+Computers                               47.2s 
+ChlorineConcentration                  108.9s 
+CricketX                                53.7s 
+CricketY                                62.2s 
+DiatomSizeReduction                     15.2s 
+CricketZ                                62.4s 
+DistalPhalanxOutlineAgeGroup            24.7s 
+DistalPhalanxOutlineCorrect             36.1s 
+DistalPhalanxTW                         24.0s 
+ECG200                                   8.8s 
+ECGFiveDays                             18.3s 
+ECG5000                                135.4s 
+ArrowHead                                0.0s 
+Beef                                     0.0s 
+BeetleFly                                0.0s 
+BME                                      0.0s 
+BirdChicken                              0.0s 
+Car                                      0.7s BadZipFile("Overlapped entries: 'Ftr.npy' (possible zip bomb)")
+Chinatown                                0.1s BadZipFile("Overlapped entries: 'Ftr.npy' (possible zip bomb)")
+ChlorineConcentration                    0.0s 
+CBF                                      1.0s BadZipFile("Overlapped entries: 'Fte.npy' (possible zip bomb)")
+Coffee                                   0.0s EOFError('No data left in file')
+Computers                                0.0s 
+CricketX                                 0.0s 
+CricketY                                 0.0s 
+CricketZ                                 0.0s 
+DiatomSizeReduction                      0.0s 
+DistalPhalanxOutlineAgeGroup             0.0s 
+DistalPhalanxOutlineCorrect              0.0s 
+DistalPhalanxTW                          0.0s 
+ECG200                                   0.0s 
+ECG5000                                  0.0s 
+ECGFiveDays                              0.0s 
+ACSF1                                   12.4s EOFError('No data left in file')
+Adiac                                   44.3s EOFError('No data left in file')
+Earthquakes                             63.6s 
+EOGHorizontalSignal                    113.5s 
+WORKER_KILLED: rerun the same command to resume
+ACSF1                                    9.1s EOFError('No data left in file')
+ArrowHead                                0.0s 
+BME                                      0.0s 
+Beef                                     0.0s 
+BeetleFly                                0.0s 
+BirdChicken                              0.0s 
+CBF                                      0.0s BadZipFile("Overlapped entries: 'Fte.npy' (possible zip bomb)")
+Car                                      0.0s BadZipFile("Overlapped entries: 'Ftr.npy' (possible zip bomb)")
+Chinatown                                0.0s BadZipFile("Overlapped entries: 'Ftr.npy' (possible zip bomb)")
+ChlorineConcentration                    0.0s 
+Adiac                                   33.1s EOFError('No data left in file')
+Coffee                                   0.0s EOFError('No data left in file')
+Computers                                0.0s 
+CricketX                                 0.0s 
+CricketY                                 0.0s 
+CricketZ                                 0.0s 
+DiatomSizeReduction                      0.0s 
+DistalPhalanxOutlineAgeGroup             0.0s 
+DistalPhalanxOutlineCorrect              0.0s 
+DistalPhalanxTW                          0.0s 
+ECG200                                   0.0s 
+ECG5000                                  0.0s 
+ECGFiveDays                              0.0s 
+EOGHorizontalSignal                      0.0s 
+ArrowHead                                0.0s 
+BeetleFly                                0.0s 
+Computers                                0.0s 
+CricketX                                 0.0s 
+CricketZ                                 0.0s 
+DistalPhalanxOutlineCorrect              0.0s 
+DistalPhalanxTW                          0.0s 
+ECG5000                                  0.0s 
+EOGHorizontalSignal                      0.0s 
+Coffee                                   0.3s EOFError('No data left in file')
+Fish                                    35.5s 
+GunPointAgeSpan                         16.2s 
+Ham                                     20.4s 
+Herring                                 14.5s 
+FaceAll                                 87.9s 
+Lightning7                              13.6s 
+InsectEPGRegularTrain                   33.5s 
+MiddlePhalanxOutlineCorrect             44.5s 
+MoteStrain                              15.4s 
+WORKER_KILLED: rerun the same command to resume
+ArrowHead                                0.0s 
+BeetleFly                                0.0s 
+Coffee                                   0.4s EOFError('No data left in file')
+Computers                                0.0s 
+CricketX                                 0.0s 
+CricketZ                                 0.0s 
+DistalPhalanxOutlineCorrect              0.0s 
+DistalPhalanxTW                          0.0s 
+ECG5000                                  0.0s 
+EOGHorizontalSignal                      0.0s 
+FaceAll                                  0.0s 
+Fish                                     0.0s 
+GunPointAgeSpan                          0.0s 
+Ham                                      0.0s 
+Herring                                  0.0s 
+InsectEPGRegularTrain                    0.0s 
+Lightning7                               0.0s 
+MiddlePhalanxOutlineCorrect              0.0s 
+MixedShapesSmallTrain                  439.5s 
+MoteStrain                               0.0s 
+Phoneme                                394.1s 
+PigAirwayPressure                      101.6s 
+Plane                                    9.4s 
+ArrowHead                                0.0s 
+BeetleFly                                0.0s 
+Coffee                                   8.8s 
+Computers                                0.0s 
+CricketX                                 0.0s 
+CricketZ                                 0.0s 
+DistalPhalanxOutlineCorrect              0.0s 
+DistalPhalanxTW                          0.0s 
+ECG5000                                  0.0s 
+EOGHorizontalSignal                      0.0s 
+FaceAll                                  0.0s 
+Fish                                     0.0s 
+GunPointAgeSpan                          0.0s 
+Ham                                      0.0s 
+Herring                                  0.0s 
+InsectEPGRegularTrain                    0.0s 
+Lightning7                               0.0s 
+MiddlePhalanxOutlineCorrect              0.0s 
+MixedShapesSmallTrain                    0.0s 
+MoteStrain                               0.0s 
+Phoneme                                  0.0s 
+PigAirwayPressure                        0.0s 
+Plane                                    0.0s 
+SemgHandSubjectCh2                     279.3s 
+SemgHandSubjectCh2                     283.5s 
+SmallKitchenAppliances                  94.8s 
+SmallKitchenAppliances                  50.8s 
+WORKER_KILLED: rerun the same command to resume
+WORKER_KILLED: rerun the same command to resume
+ArrowHead                                0.0s 
+BeetleFly                                0.0s 
+Coffee                                   0.0s 
+Computers                                0.0s 
+CricketX                                 0.0s 
+CricketZ                                 0.0s 
+DistalPhalanxOutlineCorrect              0.0s 
+DistalPhalanxTW                          0.0s 
+ECG5000                                  0.0s 
+EOGHorizontalSignal                      0.0s 
+FaceAll                                  0.0s 
+Fish                                     0.0s 
+GunPointAgeSpan                          0.0s 
+Ham                                      0.0s 
+Herring                                  0.0s 
+InsectEPGRegularTrain                    0.0s 
+Lightning7                               0.0s 
+MiddlePhalanxOutlineCorrect              0.0s 
+MixedShapesSmallTrain                    0.0s 
+MoteStrain                               0.0s 
+Phoneme                                  0.0s 
+PigAirwayPressure                        0.0s 
+Plane                                    0.0s 
+SemgHandSubjectCh2                       0.0s 
+SmallKitchenAppliances                   0.0s 
+WORKER_KILLED: rerun the same command to resume
+ArrowHead                                0.0s 
+BeetleFly                                0.0s 
+Coffee                                   0.0s 
+Computers                                0.0s 
+CricketX                                 0.0s 
+CricketZ                                 0.0s 
+DistalPhalanxOutlineCorrect              0.0s 
+DistalPhalanxTW                          0.0s 
+ECG5000                                  0.0s 
+EOGHorizontalSignal                      0.0s 
+FaceAll                                  0.0s 
+Fish                                     0.0s 
+GunPointAgeSpan                          0.0s 
+Ham                                      0.0s 
+Herring                                  0.0s 
+InsectEPGRegularTrain                    0.0s 
+Lightning7                               0.0s 
+MiddlePhalanxOutlineCorrect              0.0s 
+MixedShapesSmallTrain                    0.0s 
+MoteStrain                               0.0s 
+Phoneme                                  0.0s 
+PigAirwayPressure                        0.0s 
+Plane                                    0.0s 
+SemgHandSubjectCh2                       0.0s 
+SmallKitchenAppliances                   0.0s 
+WORKER_KILLED: rerun the same command to resume

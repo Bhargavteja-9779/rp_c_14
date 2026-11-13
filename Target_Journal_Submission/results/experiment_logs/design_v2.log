@@ -1,0 +1,57 @@
+ACSF1
+ArrowHead
+BME
+Beef
+BeetleFly
+BirdChicken
+CBF
+Car
+Chinatown
+ChlorineConcentration
+CinCECGTorso
+Coffee
+Computers
+CricketX
+CricketY
+DiatomSizeReduction
+DistalPhalanxOutlineAgeGroup
+Adiac
+CricketZ
+ECG200
+DistalPhalanxOutlineCorrect
+ECGFiveDays
+DistalPhalanxTW
+ECG5000
+EOGHorizontalSignal
+EOGVerticalSignal
+Earthquakes
+FaceFour
+FacesUCR
+EthanolLevel
+Fish
+FaceAll
+FreezerSmallTrain
+FreezerRegularTrain
+GunPoint
+GunPointAgeSpan
+GunPointMaleVersusFemale
+GunPointOldVersusYoung
+FiftyWords
+v              bic  bic_hard  bic_p2  ridge_wide    sym     v1
+cond                                                          
+asym0.1      85.01     85.53   85.13       84.97  84.98  82.79
+asym0.2      81.87     81.93   81.56       80.39  81.81  80.30
+asym0.4      63.41     63.10   63.12       62.81  62.94  65.84
+boundary0.2  79.76     79.34   79.44       79.47  79.48  79.72
+sym0.0       87.68     87.58   87.76       87.86  87.77  86.04
+sym0.2       81.11     80.58   80.72       79.81  81.01  79.84
+sym0.4       64.67     63.77   64.13       62.96  64.45  62.99
+model        full  none  sym
+cond                        
+asym0.1         5    12   61
+asym0.2         9    10   59
+asym0.4         8    55   15
+boundary0.2     6    46   20
+sym0.0          3    58   17
+sym0.2          4    11   62
+sym0.4          3    42   33

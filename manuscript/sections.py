@@ -45,7 +45,7 @@ def build(ctx, md_table, pct):
         if key in ex:
             e = key.split("_")[1]
             rows += _rows(f"{tag} ({ex[key]['n_datasets']} UCR datasets)", ex[key]["mean_accuracy"], ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning"])
-            note = " Hydra counts are square-rooted and standardised here rather than passed through the sparse scaler of the original pipeline." if tag == "Hydra" else ""
+            note = " The datasets are the fixed random subset of the sensitivity study, without StarLightCurves, whose Hydra transform exceeded the available memory. Hydra counts are square-rooted and standardised here rather than passed through the sparse scaler of the original pipeline." if tag == "Hydra" else ""
             parts.append(f"*{tag} features* ({ex[key]['n_datasets']} datasets, seeds 0–2).{note} The wide grid changes accuracy relative to the default grid by "
                          f"{_d(ctx, e, 'ridge_wide', 'ridge_std', 'sym 0%')} on clean labels, {_d(ctx, e, 'ridge_wide', 'ridge_std', 'sym 40%')} at 40% symmetric and "
                          f"{_d(ctx, e, 'ridge_wide', 'ridge_std', 'asym 40%')} at 40% asymmetric noise. LOO-EM relative to wide-grid ridge: "
@@ -64,7 +64,7 @@ def build(ctx, md_table, pct):
         rows += _rows(f"MiniRocket, largest UCR datasets ({len(ds)})", ex["large"]["mean_accuracy"], ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "enn"])
         a = ex["large"]["mean_accuracy"]
         g = lambda m, c: f"{100 * a[c][m]:.1f}"
-        parts.append(f"*Larger training sets* ({', '.join(ds)}; 3,601–8,926 training series, seeds 0–2; no significance tests with {len(ds)} datasets). "
+        parts.append(f"*Larger training sets* ({', '.join(ds)}; 3,601–7,200 training series, seeds 0–2; no significance tests with {len(ds)} datasets). "
                      f"At 40% asymmetric noise the default grid gives {g('ridge_std', 'asym 40%')}%, the wide grid {g('ridge_wide', 'asym 40%')}%, LOO-EM {g('loo_em_bic', 'asym 40%')}% "
                      f"and v1 {g('loo_em', 'asym 40%')}%; at 40% symmetric noise {g('ridge_std', 'sym 40%')}%, {g('ridge_wide', 'sym 40%')}%, {g('loo_em_bic', 'sym 40%')}% and {g('loo_em', 'sym 40%')}%; "
                      f"on clean labels {g('ridge_std', 'sym 0%')}%, {g('ridge_wide', 'sym 0%')}%, {g('loo_em_bic', 'sym 0%')}% and {g('loo_em', 'sym 0%')}%.")
@@ -100,7 +100,8 @@ def build(ctx, md_table, pct):
                    f"wide-grid ridge reaches {g('ridge_wide', 'sym 30%')}% and LOO-EM {g('loo_em_bic', 'sym 30%')}%. At 30% asymmetric noise the figures are {g('fcn_ce', 'asym 30%')}%, {g('fcn_gce', 'asym 30%')}%, "
                    f"{g('fcn_coteach', 'asym 30%')}%, {g('ridge_wide', 'asym 30%')}% and {g('loo_em_bic', 'asym 30%')}%; on clean labels {g('fcn_ce', 'sym 0%')}%, {g('fcn_gce', 'sym 0%')}%, {g('fcn_coteach', 'sym 0%')}%, "
                    f"{g('ridge_wide', 'sym 0%')}% and {g('loo_em_bic', 'sym 0%')}%. One network takes {t.get('fcn_ce', float('nan')):.0f} s on average on one CPU core "
-                   f"(Co-teaching {t.get('fcn_coteach', float('nan')):.0f} s). The comparison covers few, small datasets and simple networks and supports no general claim about deep noisy-label methods.")
+                   f"(Co-teaching {t.get('fcn_coteach', float('nan')):.0f} s). On these datasets Co-teaching, which is told the true noise rate, is the most accurate method at 30% symmetric noise, and the ridge variants are the most accurate on clean labels and under asymmetric noise. "
+                   f"The comparison covers few, small datasets and simple networks and supports no general claim about deep noisy-label methods.")
     if rows:
         TABLES["families"] = pd.DataFrame(rows).to_markdown(index=False, disable_numparse=True) + \
             "\n\n: Other classifier families trained on the same noisy labels (seeds 0–2): mean test accuracy (%)\n"
@@ -142,20 +143,21 @@ def build(ctx, md_table, pct):
     s = pd.DataFrame(ex.get("sensitivity", []))
     if len(s):
         def v(tr, m, c):
-            r = s[(s.transform == tr) & (s.method == m)]
+            r = s[(s["transform"] == tr) & (s.method == m)]
             return float("nan") if r.empty else 100 * float(r[c].iloc[0])
         base = "minirocket"
         def line(m, label):
             return f"{label}: {v(base, m, 'sym 0%'):.1f} / {v(base, m, 'sym 40%'):.1f} / {v(base, m, 'asym 40%'):.1f}"
         kern = "; ".join(f"{tr.split('@')[1] if '@' in tr else '10,000'} kernels: ridge {v(tr, 'ridge_wide', 'sym 40%'):.1f}, LOO-EM {v(tr, 'loo_em_bic', 'sym 40%'):.1f}"
-                         for tr in ("minirocket@1000", "minirocket@2500", "minirocket@5000", "minirocket") if (s.transform == tr).any())
+                         for tr in ("minirocket@1000", "minirocket@2500", "minirocket@5000", "minirocket") if (s["transform"] == tr).any())
         n_s = 30
         text = (f"Sensitivity was examined on a fixed random subset of {n_s} datasets outside the development set (seeds 0–2; full table in the supplement). "
                 f"Mean accuracy (%) on clean labels / at 40% symmetric / at 40% asymmetric noise is, for the reference setting, {line('loo_em_bic', 'LOO-EM')}; "
                 f"{line('bic_pen_0.5', 'BIC penalty ×0.5')}; {line('bic_pen_2', 'BIC penalty ×2')}; {line('bic_pen_4', 'BIC penalty ×4')}; "
                 f"{line('bic_prior_1', 'prior strength 1')}; {line('bic_prior_50', 'prior strength 50')}; {line('bic_iter_5', '5 EM iterations')}; {line('bic_iter_50', '50 EM iterations')}; "
-                f"{line('ridge_wide', 'wide-grid ridge')}. The BIC penalty is the only setting with a visible effect, and it acts as described in Sect. 6.4: a smaller penalty buys accuracy under asymmetric noise "
-                f"with accuracy on clean labels. The number of EM iterations and the prior strength are immaterial within the ranges tried. "
+                f"{line('ridge_wide', 'wide-grid ridge')}. The BIC penalty acts as described in Sect. 6.4: a smaller penalty buys accuracy under asymmetric noise "
+                f"with accuracy on clean labels. A strong prior on the transition matrix (50 pseudo-counts per class) pulls the full model towards the symmetric one and lowers accuracy under asymmetric noise; "
+                f"the number of EM iterations is immaterial within the range tried. "
                 f"Varying the number of kernels at 40% symmetric noise gives {kern}; the ordering of the methods does not depend on it.")
     else:
         text = "Sensitivity results are not available in this build."

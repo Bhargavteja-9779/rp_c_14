@@ -20,7 +20,7 @@ def _one(args):
     if seeds:
         kw["seeds"] = seeds
     if sub:
-        kw["out_dir"] = os.path.join(runner.ucr.ROOT, "results", "raw", sub)
+        kw["out_dir"] = os.path.join(runner.ucr.ROOT, "results", "quick" if quick else "raw", sub)
     t = time.time()
     try:
         runner.run_dataset(d, cfg, transform=transform, n_jobs=threads, **kw)

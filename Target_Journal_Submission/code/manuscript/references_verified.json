@@ -1,0 +1,364 @@
+{
+ "10.1007/s10618-020-00701-z": {
+  "authors": "Dempster, Angus; Petitjean, Fran\u00e7ois; Webb, Geoffrey I.",
+  "year": 2020,
+  "title": "ROCKET: exceptionally fast and accurate time series classification using random convolutional kernels",
+  "venue": "Data Mining and Knowledge Discovery",
+  "volume": "34",
+  "issue": "5",
+  "pages": "1454-1495",
+  "n_authors": 3
+ },
+ "10.1145/3447548.3467231": {
+  "authors": "Dempster, Angus; Schmidt, Daniel F.; Webb, Geoffrey I.",
+  "year": 2021,
+  "title": "MiniRocket",
+  "venue": "Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery &amp; Data Mining",
+  "volume": null,
+  "issue": null,
+  "pages": "248-257",
+  "n_authors": 3
+ },
+ "10.1007/s10618-022-00844-1": {
+  "authors": "Tan, Chang Wei; Dempster, Angus; Bergmeir, Christoph; Webb, Geoffrey I.",
+  "year": 2022,
+  "title": "MultiRocket: multiple pooling operators and transformations for fast and effective time series classification",
+  "venue": "Data Mining and Knowledge Discovery",
+  "volume": "36",
+  "issue": "5",
+  "pages": "1623-1646",
+  "n_authors": 4
+ },
+ "10.1007/s10618-023-00939-3": {
+  "authors": "Dempster, Angus; Schmidt, Daniel F.; Webb, Geoffrey I.",
+  "year": 2023,
+  "title": "Hydra: competing convolutional kernels for fast and accurate time series classification",
+  "venue": "Data Mining and Knowledge Discovery",
+  "volume": "37",
+  "issue": "5",
+  "pages": "1779-1805",
+  "n_authors": 3
+ },
+ "10.1007/s10618-024-01036-9": {
+  "authors": "Dempster, Angus; Schmidt, Daniel F.; Webb, Geoffrey I.",
+  "year": 2024,
+  "title": "quant: a minimalist interval method for time series classification",
+  "venue": "Data Mining and Knowledge Discovery",
+  "volume": "38",
+  "issue": "4",
+  "pages": "2377-2402",
+  "n_authors": 3
+ },
+ "10.1007/s10618-024-01022-1": {
+  "authors": "Middlehurst, Matthew; Sch\u00e4fer, Patrick; Bagnall, Anthony",
+  "year": 2024,
+  "title": "Bake off redux: a review and experimental evaluation of recent time series classification algorithms",
+  "venue": "Data Mining and Knowledge Discovery",
+  "volume": "38",
+  "issue": "4",
+  "pages": "1958-2031",
+  "n_authors": 3
+ },
+ "10.1109/JAS.2019.1911747": {
+  "authors": "Dau, Hoang Anh; Bagnall, Anthony; Kamgar, Kaveh; Yeh, Chin-Chia Michael; Zhu, Yan; Gharghabi, Shaghayegh; Ratanamahatana, Chotirat Ann; Keogh, Eamonn",
+  "year": 2019,
+  "title": "The UCR time series archive",
+  "venue": "IEEE/CAA Journal of Automatica Sinica",
+  "volume": "6",
+  "issue": "6",
+  "pages": "1293-1305",
+  "n_authors": 8
+ },
+ "10.1613/jair.1.12125": {
+  "authors": "Northcutt, Curtis; Jiang, Lu; Chuang, Isaac",
+  "year": 2021,
+  "title": "Confident Learning: Estimating Uncertainty in Dataset Labels",
+  "venue": "Journal of Artificial Intelligence Research",
+  "volume": "70",
+  "issue": null,
+  "pages": "1373-1411",
+  "n_authors": 3
+ },
+ "10.1109/TNNLS.2013.2292894": {
+  "authors": "Frenay, Benoit; Verleysen, Michel",
+  "year": 2014,
+  "title": "Classification in the Presence of Label Noise: A Survey",
+  "venue": "IEEE Transactions on Neural Networks and Learning Systems",
+  "volume": "25",
+  "issue": "5",
+  "pages": "845-869",
+  "n_authors": 2
+ },
+ "10.1109/TNNLS.2022.3152527": {
+  "authors": "Song, Hwanjun; Kim, Minseok; Park, Dongmin; Shin, Yooju; Lee, Jae-Gil",
+  "year": 2023,
+  "title": "Learning From Noisy Labels With Deep Neural Networks: A Survey",
+  "venue": "IEEE Transactions on Neural Networks and Learning Systems",
+  "volume": "34",
+  "issue": "11",
+  "pages": "8135-8153",
+  "n_authors": 5
+ },
+ "10.1109/TSMC.1972.4309137": {
+  "authors": "Wilson, Dennis L.",
+  "year": 1972,
+  "title": "Asymptotic Properties of Nearest Neighbor Rules Using Edited Data",
+  "venue": "IEEE Transactions on Systems, Man, and Cybernetics",
+  "volume": "SMC-2",
+  "issue": "3",
+  "pages": "408-421",
+  "n_authors": 1
+ },
+ "10.24963/ijcai.2023/450": {
+  "authors": "Ma, Peitian; Liu, Zhen; Zheng, Junhao; Wang, Linghao; Ma, Qianli",
+  "year": 2023,
+  "title": "CTW: Confident Time-Warping for Time-Series Label-Noise Learning",
+  "venue": "Proceedings of the Thirty-Second International Joint Conference on Artificial Intelligence",
+  "volume": null,
+  "issue": null,
+  "pages": "4046-4054",
+  "n_authors": 5
+ },
+ "10.1007/978-3-030-86486-6_29": {
+  "authors": "Castellani, Andrea; Schmitt, Sebastian; Hammer, Barbara",
+  "year": 2021,
+  "title": "Estimating the Electrical Power Output of Industrial Devices with End-to-End Time-Series Classification in the Presence of Label Noise",
+  "venue": "Lecture Notes in Computer Science",
+  "volume": null,
+  "issue": null,
+  "pages": "469-484",
+  "n_authors": 3
+ },
+ "10.1109/IJCNN.2017.7966039": {
+  "authors": "Wang, Zhiguang; Yan, Weizhong; Oates, Tim",
+  "year": 2017,
+  "title": "Time series classification from scratch with deep neural networks: A strong baseline",
+  "venue": "2017 International Joint Conference on Neural Networks (IJCNN)",
+  "volume": null,
+  "issue": null,
+  "pages": "1578-1585"
+ },
+ "10.1080/00401706.1979.10489751": {
+  "authors": "Golub, Gene H.; Heath, Michael; Wahba, Grace",
+  "year": 1979,
+  "title": "Generalized Cross-Validation as a Method for Choosing a Good Ridge Parameter",
+  "venue": "Technometrics",
+  "volume": "21",
+  "issue": "2",
+  "pages": "215-223",
+  "n_authors": 3
+ },
+ "10.2307/2346806": {
+  "authors": "Dawid, A. P.; Skene, A. M.",
+  "year": 1979,
+  "title": "Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm",
+  "venue": "Applied Statistics",
+  "volume": "28",
+  "issue": "1",
+  "pages": "20",
+  "n_authors": 2
+ },
+ "10.1007/978-3-642-33460-3_15": {
+  "authors": "Bootkrajang, Jakramate; Kab\u00e1n, Ata",
+  "year": 2012,
+  "title": "Label-Noise Robust Logistic Regression and Its Applications",
+  "venue": "Lecture Notes in Computer Science",
+  "volume": null,
+  "issue": null,
+  "pages": "143-158",
+  "n_authors": 2
+ },
+ "10.1609/aaai.v31i1.10894": {
+  "authors": "Ghosh, Aritra; Kumar, Himanshu; Sastry, P. S.",
+  "year": 2017,
+  "title": "Robust Loss Functions under Label Noise for Deep Neural Networks",
+  "venue": "Proceedings of the AAAI Conference on Artificial Intelligence",
+  "volume": "31",
+  "issue": "1",
+  "pages": null,
+  "n_authors": 3
+ },
+ "10.1109/CVPR.2017.240": {
+  "authors": "Patrini, Giorgio; Rozza, Alessandro; Menon, Aditya Krishna; Nock, Richard; Qu, Lizhen",
+  "year": 2017,
+  "title": "Making Deep Neural Networks Robust to Label Noise: A Loss Correction Approach",
+  "venue": "2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+  "volume": null,
+  "issue": null,
+  "pages": "2233-2241",
+  "n_authors": 5
+ },
+ "10.1007/s10618-019-00619-1": {
+  "authors": "Ismail Fawaz, Hassan; Forestier, Germain; Weber, Jonathan; Idoumghar, Lhassane; Muller, Pierre-Alain",
+  "year": 2019,
+  "title": "Deep learning for time series classification: a review",
+  "venue": "Data Mining and Knowledge Discovery",
+  "volume": "33",
+  "issue": "4",
+  "pages": "917-963",
+  "n_authors": 5
+ },
+ "10.1073/pnas.1907378117": {
+  "authors": "Bartlett, Peter L.; Long, Philip M.; Lugosi, G\u00e1bor; Tsigler, Alexander",
+  "year": 2020,
+  "title": "Benign overfitting in linear regression",
+  "venue": "Proceedings of the National Academy of Sciences",
+  "volume": "117",
+  "issue": "48",
+  "pages": "30063-30070",
+  "n_authors": 4
+ },
+ "10.1613/jair.606": {
+  "authors": "Brodley, C. E.; Friedl, M. A.",
+  "year": 1999,
+  "title": "Identifying Mislabeled Training Data",
+  "venue": "Journal of Artificial Intelligence Research",
+  "volume": "11",
+  "issue": null,
+  "pages": "131-167",
+  "n_authors": 2
+ },
+ "10.1007/978-0-387-84858-7": {
+  "authors": "Hastie, Trevor; Tibshirani, Robert; Friedman, Jerome",
+  "year": 2009,
+  "title": "The Elements of Statistical Learning",
+  "venue": "Springer Series in Statistics",
+  "volume": null,
+  "issue": null,
+  "pages": null,
+  "n_authors": 3
+ },
+ "10.1609/aaai.v35i13.17364": {
+  "authors": "Chen, Pengfei; Ye, Junjie; Chen, Guangyong; Zhao, Jingwei; Heng, Pheng-Ann",
+  "year": 2021,
+  "title": "Robustness of Accuracy Metric and its Inspirations in Learning with Noisy Labels",
+  "venue": "Proceedings of the AAAI Conference on Artificial Intelligence",
+  "volume": "35",
+  "issue": "13",
+  "pages": "11451-11461"
+ },
+ "10.2307/3001968": {
+  "authors": "Wilcoxon, Frank",
+  "year": 1945,
+  "title": "Individual Comparisons by Ranking Methods",
+  "venue": "Biometrics Bulletin",
+  "volume": "1",
+  "issue": "6",
+  "pages": "80",
+  "n_authors": 1
+ },
+ "10.2202/1544-6115.1000": {
+  "authors": "Tibshirani, Robert J.; Efron, Brad",
+  "year": 2002,
+  "title": "Pre-validation and inference in microarrays",
+  "venue": "Statistical Applications in Genetics and Molecular Biology",
+  "volume": "1",
+  "issue": "1",
+  "pages": null,
+  "n_authors": 2
+ },
+ "10.1109/TPAMI.2015.2456899": {
+  "authors": "Liu, Tongliang; Tao, Dacheng",
+  "year": 2016,
+  "title": "Classification with Noisy Labels by Importance Reweighting",
+  "venue": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+  "volume": "38",
+  "issue": "3",
+  "pages": "447-461",
+  "n_authors": 2
+ },
+ "10.1023/A:1022873112823": {
+  "authors": "Angluin, Dana; Laird, Philip",
+  "year": 1988,
+  "title": "Learning From Noisy Examples",
+  "venue": "Machine Learning",
+  "volume": "2",
+  "issue": "4",
+  "pages": "343-370",
+  "n_authors": 2
+ },
+ "10.1007/s10618-016-0483-9": {
+  "authors": "Bagnall, Anthony; Lines, Jason; Bostrom, Aaron; Large, James; Keogh, Eamonn",
+  "year": 2017,
+  "title": "The great time series classification bake off: a review and experimental evaluation of recent algorithmic advances",
+  "venue": "Data Mining and Knowledge Discovery",
+  "volume": "31",
+  "issue": "3",
+  "pages": "606-660",
+  "n_authors": 5
+ },
+ "10.1080/00401706.1970.10488634": {
+  "authors": "Hoerl, Arthur E.; Kennard, Robert W.",
+  "year": 1970,
+  "title": "Ridge Regression: Biased Estimation for Nonorthogonal Problems",
+  "venue": "Technometrics",
+  "volume": "12",
+  "issue": "1",
+  "pages": "55-67",
+  "n_authors": 2
+ },
+ "10.1007/s10994-013-5412-1": {
+  "authors": "Yan, Yan; Rosales, R\u00f3mer; Fung, Glenn; Subramanian, Ramanathan; Dy, Jennifer",
+  "year": 2014,
+  "title": "Learning from multiple annotators with varying expertise",
+  "venue": "Machine Learning",
+  "volume": "95",
+  "issue": "3",
+  "pages": "291-327",
+  "n_authors": 5
+ },
+ "arXiv:2401.15610": {
+  "authors": "Angus Dempster; Geoffrey I. Webb; Daniel F. Schmidt",
+  "year": 2024,
+  "title": "Prevalidated ridge regression is a highly-efficient drop-in replacement for logistic regression for high-dimensional data",
+  "venue": "arXiv preprint"
+ },
+ "arXiv:2608.11704": {
+  "authors": "Ziqiang Li; Yun Liu; Gouhei Tanaka",
+  "year": 2026,
+  "title": "Robust and Efficient Noisy-Label Time-Series Classification via Dynamic Time Warping Based Granular Ball Computing",
+  "venue": "arXiv preprint"
+ },
+ "arXiv:2410.15954": {
+  "authors": "Jiaxu Li; Kejia Fan; Songning Lai; Linpu Lv; Jinfeng Xu; Jianheng Tang; Anfeng Liu; Houbing Herbert Song; Yutao Yue; Yunhuai Liu; Huiping Zhuang",
+  "year": 2024,
+  "title": "TS-ACL: Closed-Form Solution for Time Series-oriented Continual Learning",
+  "venue": "arXiv preprint"
+ },
+ "10.1214/aos/1176344136": {
+  "authors": "Schwarz, Gideon",
+  "year": 1978,
+  "title": "Estimating the Dimension of a Model",
+  "venue": "The Annals of Statistics",
+  "volume": "6",
+  "issue": "2",
+  "pages": "461-464"
+ },
+ "10.1007/s10618-020-00710-y": {
+  "authors": "Ismail Fawaz, Hassan; Lucas, Benjamin; Forestier, Germain; Pelletier, Charlotte; Schmidt, Daniel F.; Weber, Jonathan; Webb, Geoffrey I.; Idoumghar, Lhassane; Muller, Pierre-Alain; Petitjean, Fran\u00e7ois",
+  "year": 2020,
+  "title": "InceptionTime: Finding AlexNet for time series classification",
+  "venue": "Data Mining and Knowledge Discovery",
+  "volume": "34",
+  "issue": "6",
+  "pages": "1936-1962"
+ },
+ "arXiv:1804.06872v3": {
+  "authors": "Bo Han; Quanming Yao; Xingrui Yu; Gang Niu; Miao Xu; Weihua Hu; Ivor Tsang; Masashi Sugiyama",
+  "year": 2018,
+  "title": "Co-teaching: Robust Training of Deep Neural Networks with Extremely Noisy Labels",
+  "venue": "arXiv"
+ },
+ "arXiv:1805.07836v4": {
+  "authors": "Zhilu Zhang; Mert R. Sabuncu",
+  "year": 2018,
+  "title": "Generalized Cross Entropy Loss for Training Deep Neural Networks with Noisy Labels",
+  "venue": "arXiv"
+ },
+ "arXiv:2406.14231v1": {
+  "authors": "Matthew Middlehurst; Ali Ismail-Fawaz; Antoine Guillaume; Christopher Holder; David Guijo Rubio; Guzal Bulatova; Leonidas Tsaprounis; Lukasz Mentel; Martin Walter; Patrick Sch\u00e4fer; Anthony Bagnall",
+  "year": 2024,
+  "title": "aeon: a Python toolkit for learning from time series",
+  "venue": "arXiv"
+ }
+}

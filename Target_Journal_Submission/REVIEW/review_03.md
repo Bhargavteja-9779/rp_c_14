@@ -1,0 +1,14 @@
+# Review round 3 — statistics and experimental fairness
+
+| # | Severity | Issue | Action | Status |
+|---|---|---|---|---|
+| 1 | **MAJOR** | The development set (12 datasets, ≤ 8 classes) was unrepresentative, and the final method was designed after looking at held-out results. Any "all datasets" comparison is optimistic. | Three-stage protocol documented (development → design set of 39 → confirmation set of 60 frozen before inspection). Primary claims for LOO-EM are taken from the confirmation set; "all datasets" numbers are labelled as including design data. | Fixed |
+| 2 | **MAJOR** | Confident learning was fed a softmax of raw ridge scores (range roughly ±1), i.e. nearly flat probabilities. That may handicap the baseline. | New experiment: confident learning with a temperature fitted by maximum likelihood on the out-of-fold scores (`conf_learning_cal`), all 108 datasets, 5 seeds. Result reported in the supplement and summarised in Sect. 6.2 whichever way it falls. | Experiment added (see final audit for the outcome) |
+| 3 | MAJOR | Wilcoxon with `zero_method="wilcox"` discards ties; with 55 ties out of 108 on clean data the effect size describes only the non-tied datasets. | Wins/ties/losses are printed next to every test and the mean difference with bootstrap CI is computed on all datasets including ties. Stated in the caption. | Fixed |
+| 4 | MODERATE | Holm family not defined. | Defined: the 12 noise conditions of one method pair. Secondary experiments: within each pair and experiment. No correction across pairs — stated; conclusions rest on the two pre-specified pairs. | Fixed |
+| 5 | MODERATE | One noise realisation per (dataset, seed): noise and resampling variance are confounded. | True by design (5 independent realisations per dataset); the unit of analysis is the dataset mean. Stated. | Disclosed |
+| 6 | MODERATE | All cleaning baselines must use the same penalty grid as the proposed method. | Verified in `config/default.yaml`: every cleaning method uses the wide grid; `bic_std_grid` is an ablation only. | Verified |
+| 7 | MODERATE | The LOO criterion used to pick the penalty is computed on noisy labels. | Yes, for every method alike, since no clean labels exist at training time; consistent with Chen et al. (2021) for symmetric noise. Its failure for n < 100 is reported (wide grid worse than default at 30 % symmetric noise in that stratum). | Disclosed |
+| 8 | MODERATE | Leakage: scaling statistics are not recomputed inside the LOO formula. | Same as scikit-learn pipelines; stated in Sect. 3.1. Test data never enter any training statistic (checked in code). | Disclosed |
+| 9 | MODERATE | Archive duplicates across train/test (16 datasets). | Audit table; main table recomputed without the 6 datasets with > 1 % duplicated test series (supplement). | Fixed |
+| 10 | MINOR | Seeds chosen after the fact? | Seeds 0–4 fixed in the config before the first full run (commit history). | Verified |

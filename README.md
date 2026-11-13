@@ -69,7 +69,7 @@ python manuscript/build_manuscript.py   # manuscript Markdown/DOCX/PDF with ever
 python -m pytest -q tests
 ```
 
-`--mode full` runs, in order: unit tests, dataset summary, leakage audit, the main experiment (108 datasets x 5
+`--mode full` runs, in order (note: on the 15 GB machine used for the paper, MultiRocket and ElectricDevices could not be completed and Hydra was run on the fixed 30-dataset subset of `experiments/run_sensitivity.py`; those are the committed results): unit tests, dataset summary, leakage audit, the main experiment (108 datasets x 5
 seeds x 12 noise conditions x 15 methods), the BIC pass, the calibrated-confident-learning pass, the four largest
 datasets, Hydra and MultiRocket features, QUANT and 1-NN, the sensitivity study, the multivariate UEA study and the
 deep baselines, then the report. Each stage writes one CSV per dataset under `results/raw/<stage>/` and skips files

@@ -1,0 +1,8 @@
+name: looem-tsc
+channels: [conda-forge]
+dependencies:
+  - python=3.13
+  - pip
+  - pandoc
+  - pip:
+      - -r requirements.txt
