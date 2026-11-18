@@ -99,6 +99,31 @@ def _fit_beta(F, lik_fn, lo=-4.0, hi=6.0):
     return float(np.exp(r.x))
 
 
+def _inst_lik(F, y, theta):
+    """Instance-dependent observation model.  Returns LOO probabilities P (n x C), the likelihood matrix
+    L[i, z] = P(y_i | z, x_i) and the flip probabilities e_i."""
+    n = len(y)
+    lb, a, b = theta
+    P = _softmax(np.exp(lb) * F)
+    u = 1.0 - P.max(1)
+    e = 1.0 / (1.0 + np.exp(-(a + b * u)))
+    py = P[np.arange(n), y]
+    L = e[:, None] * py[:, None] / np.clip(1.0 - P, 1e-9, None)
+    L[np.arange(n), y] = 1.0 - e
+    return P, L, e
+
+
+def _fit_inst(F, y, init=None):
+    """Maximum observed-label likelihood of (log beta, a, b)."""
+    from scipy.optimize import minimize
+    def nll(t):
+        P, L, _ = _inst_lik(F, y, t)
+        return -np.sum(np.log((P * L).sum(1) + 1e-12))
+    x0 = np.array([0.0, np.log(0.1 / 0.9), 0.0]) if init is None else np.asarray(init, float)
+    r = minimize(nll, x0, method="L-BFGS-B", bounds=[(-4, 6), (-10, 10), (-30, 30)])
+    return r.x
+
+
 def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
            transition: str = "full", prior_strength: float | None = None,
            soft_targets: bool = True, in_sample: bool = False, reselect: bool = True,
@@ -115,7 +140,9 @@ def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
             hat matrix is label-independent), inverse temperature beta and T by
             maximum observed-data likelihood  sum_i log sum_z p_loo,i(z) T[z, y_i].
 
-    transition      'full' (C x C, shrunk to a symmetric prior), 'sym' (one rate)
+    transition      'full' (C x C, shrunk to a symmetric prior), 'sym' (one rate),
+                    'inst' (instance-dependent: flip probability e_i = sigmoid(a + b u_i) rising with the
+                    LOO uncertainty u_i; flips go to classes in proportion to their LOO probability)
     prior_strength  pseudo-count of the symmetric prior per class row (default C)
     soft_targets    final/intermediate ridge targets are the soft posteriors
     in_sample       ablation: in-sample fitted values instead of LOO values
@@ -133,6 +160,7 @@ def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
     alpha = None
     first_score = None
     beta = 1.0
+    theta = None
     hist = []
     for it in range(max_iter):
         Y = 2 * Q - 1 if soft_targets else one_hot_pm(Q.argmax(1), C)
@@ -158,6 +186,15 @@ def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
         if not use_noise_model:
             beta = _fit_beta(F, lambda P: np.sum(np.log(P[np.arange(n), y] + 1e-12)))
             Qn = _softmax(beta * F)
+        elif transition == "inst":
+            theta = _fit_inst(F, y, theta if it else None)
+            beta = float(np.exp(theta[0]))
+            P, L, e_inst = _inst_lik(F, y, theta)
+            Qn = P * L
+            Qn /= Qn.sum(1, keepdims=True) + 1e-12
+            ll_noise = float(np.sum(np.log((P * L).sum(1) + 1e-12)))
+            T = np.full((C, C), float(e_inst.mean()) / max(C - 1, 1))
+            np.fill_diagonal(T, 1 - float(e_inst.mean()))
         else:
             for _ in range(5):  # alternate beta | T
                 Ty = T[:, y].T  # n x C : T[z, y_i]
@@ -184,7 +221,8 @@ def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
             P = _softmax(beta * F)
             Qn = P * T[:, y].T
             Qn /= Qn.sum(1, keepdims=True) + 1e-12
-        ll_noise = float(np.sum(np.log((P * T[:, y].T).sum(1) + 1e-12))) if use_noise_model else 0.0
+        if transition != "inst" or not use_noise_model:
+            ll_noise = float(np.sum(np.log((P * T[:, y].T).sum(1) + 1e-12))) if use_noise_model else 0.0
         delta = float(np.abs(Qn - Q).max())
         Q = Qn
         hist.append(delta)
@@ -206,30 +244,58 @@ def loo_em(g: GramRidge, y, C, max_iter: int = 20, tol: float = 1e-3,
                           T=T, alpha=alpha))
 
 
-def loo_em_bic(g: GramRidge, y, C, penalty: float = 1.0, **kw):
-    """LOO-EM v2: choose between {no noise, symmetric T, full T} by BIC on the
-    leave-one-out observed-label log-likelihood, counting 0, 1 and C(C-1) free
-    noise parameters respectively.  (v1 gated the full model with a one-parameter
-    penalty, which let a C x C matrix absorb ordinary model error on many-class
-    data; see supplementary/protocol.md.)"""
+def loo_em_bic(g: GramRidge, y, C, penalty: float = 1.0, models=("sym", "full"), **kw):
+    """LOO-EM with BIC model selection.  The noise-free model (0 noise parameters) competes with the
+    candidates in ``models``: 'sym' (1 parameter), 'inst' (2: instance-dependent flip rate), 'full'
+    (C(C-1)).  BIC is computed on the leave-one-out observed-label log-likelihood.  (v1 gated the full
+    model with a one-parameter penalty, which let a C x C matrix absorb ordinary model error on
+    many-class data; see supplementary/protocol.md.)"""
     n = len(y)
     half_log_n = 0.5 * np.log(n) * penalty
+    k_of = {"sym": 1, "inst": 2, "full": C * (C - 1)}
     cands = []
-    for name, k in (("sym", 1), ("full", C * (C - 1))):
+    for name in models:
         r = loo_em(g, y, C, transition=name, gate=None, local_search=True, **kw)
-        cands.append((r["info"]["ll_noise"] - k * half_log_n, name, r))
+        cands.append((r["info"]["ll_noise"] - k_of[name] * half_log_n, name, r))
     ll_clean = cands[0][2]["info"]["ll_clean"]
+    rounds = int(sum(c[2]["info"]["rounds"] for c in cands))
     best = max(cands, key=lambda t: t[0])
     if best[0] <= ll_clean:
         r = none(g, y, C)
         r["score"] = cands[0][2]["score"]
-        r["info"] = dict(model="none", accepted=False, noise_rate=0.0,
-                         rounds=cands[0][2]["info"]["rounds"] + cands[1][2]["info"]["rounds"])
+        r["info"] = dict(model="none", accepted=False, noise_rate=0.0, rounds=rounds)
         return r
     r = best[2]
-    r["info"].update(model=best[1], accepted=True,
-                     rounds=cands[0][2]["info"]["rounds"] + cands[1][2]["info"]["rounds"])
+    r["info"].update(model=best[1], accepted=True, rounds=rounds)
     return r
+
+
+def loo_em_inst(g: GramRidge, y, C, **kw):
+    """Stage-3 candidate: BIC over none / symmetric / instance-dependent / full."""
+    return loo_em_bic(g, y, C, models=("sym", "inst", "full"), **kw)
+
+
+def backward_ridge(g: GramRidge, y, C, quantile: float = 1.0, **kw):
+    """Backward loss correction (Natarajan et al. 2013; Patrini et al. 2017) for the squared loss: the ridge
+    targets onehot(y) T^-1 are unbiased for the clean one-hot targets.  T is estimated by anchor points
+    (for each class the series at the given quantile of its calibrated LOO probability) from wide-grid
+    ridge fitted to the noisy labels."""
+    n = len(y)
+    Y = one_hot_pm(y, C)
+    a, F, _ = g.select_alpha(Y)
+    beta = _fit_beta(F, lambda P: np.sum(np.log(P[np.arange(n), y] + 1e-12)))
+    P = _softmax(beta * F)
+    T = np.zeros((C, C))
+    for c in range(C):
+        q = np.quantile(P[:, c], quantile)
+        T[c] = P[np.argmin(np.abs(P[:, c] - q))]
+    T = np.clip(T, 1e-6, None)
+    T /= T.sum(1, keepdims=True)
+    onehot = np.zeros((n, C)); onehot[np.arange(n), y] = 1.0
+    Qc = onehot @ np.linalg.pinv(T)
+    return dict(y_clean=Qc.argmax(1), keep=np.ones(n, bool), flagged=Qc.argmax(1) != y,
+                score=1.0 - P[np.arange(n), y], soft=Qc,
+                info=dict(cond_T=float(np.linalg.cond(T)), noise_rate=float(1 - np.trace(T) / C)))
 
 
 def kfold_scores(g: GramRidge, y, C, k: int = 5, seed: int = 0):
@@ -315,26 +381,43 @@ def enn(g: GramRidge, y, C, k: int = 3, **kw):
     return dict(y_clean=y.copy(), keep=keep, flagged=~keep, score=1 - agree, info={})
 
 
+def _final(g: GramRidge, Fte, K_te, res, C):
+    y, keep = res["y_clean"], res["keep"]
+    if keep.all():
+        Y = one_hot_pm(y, C) if res.get("soft") is None else 2 * res["soft"] - 1
+        a, loo, _ = g.select_alpha(Y)
+        return g.predict(K_te, Y, a), a, loo, Y
+    idx = np.flatnonzero(keep)
+    gs = g.subset(idx)
+    Y = one_hot_pm(y[idx], C)
+    a, loo, _ = gs.select_alpha(Y)
+    return gs.predict(gs.test_kernel(Fte), Y, a), a, loo, Y
+
+
 def final_predict(g: GramRidge, Fte, K_te, res, C):
     """Fit the final ridge on the cleaned training set; return test decision values
     and the selected alpha.  ``K_te`` is the test kernel of the full model ``g``;
     if samples were removed the model is refitted on the retained subset."""
-    y, keep = res["y_clean"], res["keep"]
-    if keep.all():
-        Y = one_hot_pm(y, C) if res.get("soft") is None else 2 * res["soft"] - 1
-        a, _, _ = g.select_alpha(Y)
-        return g.predict(K_te, Y, a), a
-    idx = np.flatnonzero(keep)
-    gs = g.subset(idx)
-    Y = one_hot_pm(y[idx], C)
-    a, _, _ = gs.select_alpha(Y)
-    return gs.predict(gs.test_kernel(Fte), Y, a), a
+    F, a, _, _ = _final(g, Fte, K_te, res, C)
+    return F, a
+
+
+def final_predict_proba(g: GramRidge, Fte, K_te, res, C):
+    """As final_predict, plus test probabilities: one temperature fitted by maximum likelihood on the final
+    model's own LOO decision values against its training targets (arg-max of soft targets).  No clean
+    labels are used."""
+    F, a, loo, Y = _final(g, Fte, K_te, res, C)
+    t = Y.argmax(1)
+    beta = _fit_beta(loo, lambda P: np.sum(np.log(P[np.arange(len(t)), t] + 1e-12)))
+    return F, a, _softmax(beta * F)
 
 
 METHODS = {
     "ridge": none,
     "loo_em": loo_em,
     "loo_em_bic": loo_em_bic,
+    "loo_em_inst": loo_em_inst,
+    "backward_ridge": backward_ridge,
     "loo_relabel": loo_clean,
     "confident_learning": confident_learning,
     "kfold_relabel": kfold_relabel,

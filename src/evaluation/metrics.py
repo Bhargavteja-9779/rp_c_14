@@ -24,3 +24,26 @@ def detection(is_noisy, flagged, score, y_clean_after, y_true):
         p, r = out["det_prec"], out["det_rec"]
         out["det_f1"] = 2 * p * r / (p + r) if (p == p and p + r > 0) else 0.0
     return out
+
+
+def probabilistic(y_true, P, train_counts):
+    """Class-wise and probabilistic quality: recall of the smallest training class, worst-class recall,
+    top-label expected calibration error (15 equal-width bins), multi-class Brier score."""
+    y_true = np.asarray(y_true)
+    pred = P.argmax(1)
+    classes = np.unique(y_true)
+    rec = {c: float(np.mean(pred[y_true == c] == c)) for c in classes}
+    tc = np.asarray(train_counts, float)
+    present = [c for c in classes if c < len(tc) and tc[c] > 0]
+    minority = min(present, key=lambda c: (tc[c], c)) if present else classes[0]
+    conf = P.max(1)
+    correct = (pred == y_true).astype(float)
+    bins = np.linspace(0, 1, 16)
+    ece = 0.0
+    for lo, hi in zip(bins[:-1], bins[1:]):
+        m = (conf > lo) & (conf <= hi)
+        if m.any():
+            ece += m.mean() * abs(correct[m].mean() - conf[m].mean())
+    onehot = np.zeros_like(P); onehot[np.arange(len(y_true)), y_true] = 1.0
+    return dict(minority_recall=rec[minority], worst_recall=float(min(rec.values())),
+                ece=float(ece), brier=float(np.mean(np.sum((P - onehot) ** 2, 1))))

@@ -83,10 +83,10 @@ def run_dataset(dataset, cfg, transform=None, methods=None, seeds=None, out_dir=
                     t0 = time.time()
                     try:
                         res = cl.METHODS[fn](gg, yn, C, seed=seed, **(kw or {}))
-                        F, alpha = cl.final_predict(gg, f["Fte"], K_te, res, C)
+                        F, alpha, Pte = cl.final_predict_proba(gg, f["Fte"], K_te, res, C)
                         err = ""
                     except Exception as e:  # recorded, never silently dropped
-                        res, F, alpha, err = None, None, np.nan, repr(e)[:200]
+                        res, F, alpha, Pte, err = None, None, np.nan, None, repr(e)[:200]
                     dt = time.time() - t0
                     row = dict(dataset=dataset, transform=transform, seed=seed, noise=kind, rate=rate,
                                method=name, n_train=len(ytr), n_test=len(yte), n_classes=C,
@@ -94,6 +94,7 @@ def run_dataset(dataset, cfg, transform=None, methods=None, seeds=None, out_dir=
                                t_feat=t_feat, t_eig=t_eig, error=err)
                     if res is not None:
                         row.update(metrics.classification(yte, F.argmax(1)))
+                        row.update(metrics.probabilistic(yte, Pte, np.bincount(ytr, minlength=C)))
                         row.update(metrics.detection(is_noisy, res["flagged"], res["score"],
                                                      res["y_clean"], ytr))
                         info = res.get("info", {})
