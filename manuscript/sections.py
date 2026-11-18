@@ -13,6 +13,15 @@ NAMES = {"ridge_std": "Ridge (default grid)", "ridge_wide": "Ridge (wide grid)",
          "fcn_coteach": "FCN, Co-teaching (true rate given)"}
 
 
+def _wl(w, l):
+    return f"{w} win{'s' if w != 1 else ''} and {l} loss{'es' if l != 1 else ''}"
+
+
+def _z(v):
+    """Signed one-decimal string; values that round to zero are printed as 0.0."""
+    return "0.0" if round(v, 1) == 0 else f"{v:+.1f}"
+
+
 def _rows(tag, acc, methods, conds=CONDS):
     out = []
     for m in methods:
@@ -35,7 +44,7 @@ def _d(ctx, exp, cand, ref, cond):
         return "n/a"
     p = "< 0.001" if r["p_holm"] < 0.001 else f"= {r['p_holm']:.3f}"
     import re
-    return re.sub(r"(?<![A-Za-z])-(?=\d)", "−", f"{100 * r['mean_diff']:+.1f} points, Holm-adjusted p {p}, {r['wins']} wins and {r['losses']} losses")
+    return re.sub(r"(?<![A-Za-z])-(?=\d)", "−", f"{_z(100 * r['mean_diff'])} points, Holm-adjusted p {p}, {_wl(r['wins'], r['losses'])}")
 
 
 def build(ctx, md_table, pct):
@@ -382,4 +391,27 @@ def _revision_sections(ctx, md_table, pct):
                      "![End-to-end use of the pipeline: training with a ranked list of suspicious labels for expert review, and on-line inference, with "
                      "times, model size and memory measured on the ECG data](FIG:fig_deployment)")
     out["scalability"] = "\n\n".join(parts)
+
+    # ---- error analysis (generated from tables/table_error_analysis.csv) ---------------------------------
+    import os
+    from src.data import ucr
+    e = pd.read_csv(os.path.join(ucr.ROOT, "tables", "table_error_analysis.csv"))
+    corr = ex["error_analysis"]["correlates"]
+    c0 = e[(e.cond == "sym 0%") & (e.group == "largest losses")]
+    c4w = e[(e.cond == "asym 40%") & (e.group == "largest wins")]
+    c4l = e[(e.cond == "asym 40%") & (e.group == "largest losses")]
+    rng = lambda v: f"{100 * min(v):.0f}–{100 * max(v):.0f}"
+    names = lambda d: ", ".join(d.dataset.iloc[:-1]) + " and " + d.dataset.iloc[-1]
+    out["errors"] = (
+        f"On clean labels the largest losses occur on {names(c0)} (losses of {rng(-c0['diff'])} points): problems on which the clean "
+        f"classifier is itself far from perfect (wide-grid ridge reaches {rng(c0.ridge_wide)}% on them) or that have very few series per class "
+        f"(as few as {int((c0.n_train / c0.n_classes).min())}), so that systematic confusions between similar classes look like label noise. "
+        f"LOO-EM changes the accuracy of {100 * corr['sym 0%']['frac_datasets_changed']:.0f}% of datasets on clean labels at all. At 40% asymmetric "
+        f"noise the largest gains ({rng(c4w['diff'])} points on {names(c4w)}) occur on problems with {int(c4w.n_classes.min())}–"
+        f"{int(c4w.n_classes.max())} classes and at least {int(c4w.n_train.min())} training series, where the classes are separable enough for "
+        f"the transition matrix to be identified; the largest losses ({rng(-c4l['diff'])} points) occur on "
+        f"{int((c4l.n_classes == 2).sum())} two-class problems and {int(((c4l.n_classes > 2) & (c4l.n_train < 60)).sum())} with fewer than 60 "
+        f"training series. The per-dataset gain at 40% asymmetric noise correlates weakly with the training-set size (Spearman "
+        f"{corr['asym 40%']['spearman_diff_vs_log_n']:.2f}) and with clean accuracy ({corr['asym 40%']['spearman_diff_vs_clean_accuracy']:.2f})."
+        .replace("(-", "(−").replace(" -0.", " −0."))
     return out

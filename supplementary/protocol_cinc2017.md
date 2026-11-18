@@ -37,3 +37,10 @@ training folds; fraction of training labels agreeing with v3 after cleaning.
 **Tests.** McNemar's exact test on pooled out-of-fold correctness (each record contributes once per repetition;
 reported per repetition), and a paired bootstrap over records (10,000 resamples) for the accuracy and F1
 differences. Holm correction over the two primary comparisons. No other comparison is used for a claim.
+
+**Note added during analysis (no change to the protocol).** The four PhysioNet label files map onto the challenge
+paper's versions as follows, as shown by the changes between them: file v0 → v1 changes 237 labels, all to the noisy
+class (the paper's "V2" re-check for unreadable signals); v1 → v2 and v2 → v3 change 57 and 148 labels, mostly between
+rhythm classes (expert review). File v0 therefore corresponds to the paper's initial labels (its "V1"). The dataset
+page describes the initial labels as single-expert labels; the challenge paper as outsourced labels with about 10 %
+over-read. The manuscript reports both descriptions.

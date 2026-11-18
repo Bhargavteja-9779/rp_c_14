@@ -24,6 +24,15 @@ M = os.path.join(ROOT, "manuscript")
 T = os.path.join(ROOT, "tables")
 
 
+def _wl(w, l):
+    return f"{w} win{'s' if w != 1 else ''} and {l} loss{'es' if l != 1 else ''}"
+
+
+def _z(v):
+    """Signed one-decimal string; values that round to zero are printed as 0.0."""
+    return "0.0" if round(v, 1) == 0 else f"{v:+.1f}"
+
+
 def _minus(t):
     """Typographic minus for negative numbers only (never inside words such as 'Holm-adjusted')."""
     return re.sub(r"(?<![A-Za-z])-(?=\d)", "−", t)
@@ -77,12 +86,12 @@ class Ctx:
 
     def DSTAT(self, cand, ref, cond, subset="all"):
         r = self._st(cand, ref, cond, subset)
-        return _minus(f"{100 * r['mean_diff']:+.1f} points, 95% CI {100 * r['ci_lo']:+.1f} to {100 * r['ci_hi']:+.1f}, "
-                      f"Holm-adjusted p {self.p(r['p_holm'])}, {r['wins']} wins and {r['losses']} losses")
+        return _minus(f"{_z(100 * r['mean_diff'])} points, 95% CI {100 * r['ci_lo']:+.1f} to {100 * r['ci_hi']:+.1f}, "
+                      f"Holm-adjusted p {self.p(r['p_holm'])}, {_wl(r['wins'], r['losses'])}")
 
     def WL(self, cand, ref, cond, subset="all"):
         r = self._st(cand, ref, cond, subset)
-        return f"{r['wins']} wins, {r['losses']} losses"
+        return f"{_wl(r['wins'], r['losses'])}"
 
     def MD(self, metric, cand, ref, cond):
         """Mean paired difference (points) for balanced accuracy / macro-F1, all datasets."""
@@ -91,7 +100,7 @@ class Ctx:
 
     def MDP(self, metric, cand, ref, cond):
         r = next(r for r in self.stats[f"{metric}__{cand}__vs__{ref}__all"] if r["cond"] == cond)
-        return f"{100 * r['mean_diff']:+.1f} points (Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, {r['losses']} losses)".replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4")
+        return _minus(f"{_z(100 * r['mean_diff'])} points, Holm-adjusted p {self.p(r['p_holm'])}, {_wl(r['wins'], r['losses'])}")
 
     def IMB(self, metric, b, cond, m):
         r = next(r for r in self.metrics["by_imbalance"] if r["metric"] == metric and r["imbalance_bin"].startswith(b) and r["cond"] == cond)
@@ -120,6 +129,19 @@ class Ctx:
         r = self._ct(cand, ref)
         return (f"{100 * r['acc_diff']:+.1f} accuracy points, 95% CI {100 * r['acc_ci_lo']:+.1f} to {100 * r['acc_ci_hi']:+.1f}; "
                 f"F1 {r['f1_diff']:+.3f}").replace("-", "−")
+
+    def CINCSTEP(self, a, b, kind="all"):
+        """Number of label changes between two PhysioNet label files (0..3); kind 'noisy' counts changes to '~'."""
+        import pandas as pd
+        from src.data import cinc2017
+        f = lambda v: pd.read_csv(os.path.join(cinc2017.RAW, f"REFERENCE-v{v}.csv"), header=None, names=["rec", "y"]).set_index("rec").y
+        x, y = f(a), f(b)
+        ch = x != y
+        if kind == "noisy":
+            return int((ch & (y == "~")).sum())
+        if kind == "rhythm":
+            return int((ch & (y != "~") & (x != "~")).sum())
+        return int(ch.sum())
 
     def PCTREV(self):
         c = self._c(); return f"{100 * c['n_revised'] / c['n_records']:.1f}"
@@ -156,7 +178,7 @@ class Ctx:
     def CTWS(self, cand, ref, cond):
         r = next(r for r in self.stats["secondary"] if r["experiment"] == "ctw" and r["candidate"] == cand
                  and r["reference"] == ref and r["cond"] == cond)
-        return (f"{100 * r['mean_diff']:+.1f} points ({r['wins']} wins, {r['losses']} losses over "
+        return (f"{_z(100 * r['mean_diff'])} points ({_wl(r['wins'], r['losses'])} over "
                 f"{r['n']} datasets)").replace("-", "−")
 
     def CTWX(self, key, dec=0):
@@ -173,14 +195,14 @@ class Ctx:
         if metric in ("ece", "brier"):      # lower is better
             wl = f"lower on {r['losses']} and higher on {r['wins']} datasets"
         else:
-            wl = f"{r['wins']} wins and {r['losses']} losses"
-        return _minus(f"{100 * r['mean_diff']:+.1f} points, Holm-adjusted p {self.p(r['p_holm'])}, {wl}")
+            wl = f"{_wl(r['wins'], r['losses'])}"
+        return _minus(f"{_z(100 * r['mean_diff'])} points, Holm-adjusted p {self.p(r['p_holm'])}, {wl}")
 
     # ---- secondary main-benchmark comparisons ----------------------------------------------------------
     def SEC(self, exp, cand, ref, cond):
         r = next(r for r in self.stats["secondary"] if r["experiment"] == exp and r["candidate"] == cand
                  and r["reference"] == ref and r["cond"] == cond)
-        return _minus(f"{100 * r['mean_diff']:+.1f} points, Holm-adjusted p {self.p(r['p_holm'])}, {r['wins']} wins and {r['losses']} losses")
+        return _minus(f"{_z(100 * r['mean_diff'])} points, Holm-adjusted p {self.p(r['p_holm'])}, {_wl(r['wins'], r['losses'])}")
 
     # ---- exact LOO, scaling -----------------------------------------------------------------------------
     def EXL(self, cond, key, scale=1, dec=2):
