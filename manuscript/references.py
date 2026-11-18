@@ -49,6 +49,20 @@ REFS = {
  "wilcoxon1945": R("Wilcoxon 1945", "Wilcoxon F (1945) Individual comparisons by ranking methods. Biometrics Bull 1:80–83. https://doi.org/10.2307/3001968"),
  "wilson1972": R("Wilson 1972", "Wilson DL (1972) Asymptotic properties of nearest neighbor rules using edited data. IEEE Trans Syst Man Cybern SMC-2:408–421. https://doi.org/10.1109/TSMC.1972.4309137"),
  "zhang2018": R("Zhang and Sabuncu 2018", "Zhang Z, Sabuncu MR (2018) Generalized cross entropy loss for training deep neural networks with noisy labels. In: Advances in neural information processing systems 31 (NeurIPS 2018). arXiv:1805.07836"),
+ "brier1950": R("Brier 1950", "Brier GW (1950) Verification of forecasts expressed in terms of probability. Mon Weather Rev 78:1–3. https://doi.org/10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2"),
+ "chen2024": R("Chen et al. 2024", "Chen J, Cao T, Xu J, Li J, Chen Z, Xiao T, Yang Y (2024) Con4m: context-aware consistency learning framework for segmented time series classification. arXiv preprint arXiv:2408.00041"),
+ "clifford2017": R("Clifford et al. 2017", "Clifford GD, Liu C, Moody B, Lehman LH, Silva I, Li Q, Johnson AEW, Mark RG (2017) AF classification from a short single lead ECG recording: the PhysioNet/Computing in Cardiology Challenge 2017. In: Computing in Cardiology, vol 44. https://doi.org/10.22489/CinC.2017.065-469"),
+ "efron1979": R("Efron 1979", "Efron B (1979) Bootstrap methods: another look at the jackknife. Ann Stat 7:1–26. https://doi.org/10.1214/aos/1176344552"),
+ "goldberger2000": R("Goldberger et al. 2000", "Goldberger AL, Amaral LAN, Glass L, Hausdorff JM, Ivanov PC, Mark RG, Mietus JE, Moody GB, Peng CK, Stanley HE (2000) PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals. Circulation 101:e215–e220. https://doi.org/10.1161/01.CIR.101.23.e215"),
+ "guo2017": R("Guo et al. 2017", "Guo C, Pleiss G, Sun Y, Weinberger KQ (2017) On calibration of modern neural networks. In: Proceedings of the 34th International Conference on Machine Learning (ICML). arXiv:1706.04599"),
+ "li2025": R("Li et al. 2025", "Li Y, Luo L, Aickelin U (2025) Dynamical label augmentation and calibration for noisy electronic health records. arXiv preprint arXiv:2505.07320"),
+ "liuj2026": R("Liu et al. 2026", "Liu J, Yang K, He J, Yang C, Yang S, Zhou Y (2026) Robust learning with time series noisy labels via self-supervised learning and soft labels refurbishment. Neurocomputing 676:133059. https://doi.org/10.1016/j.neucom.2026.133059"),
+ "lukasik2020": R("Lukasik et al. 2020", "Lukasik M, Bhojanapalli S, Menon AK, Kumar S (2020) Does label smoothing mitigate label noise? In: Proceedings of the 37th International Conference on Machine Learning (ICML). arXiv:2003.02819"),
+ "mcnemar1947": R("McNemar 1947", "McNemar Q (1947) Note on the sampling error of the difference between correlated proportions or percentages. Psychometrika 12:153–157. https://doi.org/10.1007/BF02295996"),
+ "nagaraj2025": R("Nagaraj et al. 2025", "Nagaraj S, Gerych W, Tonekaboni S, Goldenberg A, Ustun B, Hartvigsen T (2025) Learning under temporal label noise. In: International Conference on Learning Representations (ICLR). arXiv:2402.04398"),
+ "teijeiro2017": R("Teijeiro et al. 2017", "Teijeiro T, García CA, Castro D, Félix P (2017) Arrhythmia classification from the abductive interpretation of short single-lead ECG records. In: Computing in Cardiology, vol 44. https://doi.org/10.22489/CinC.2017.166-054"),
+ "wei2024": R("Wei et al. 2024", "Wei Y, Deng Y, Sun C, Lin M, Jiang H, Peng Y (2024) Deep learning with noisy labels in medical prediction problems: a scoping review. arXiv preprint arXiv:2403.13111"),
+ "xia2020": R("Xia et al. 2020", "Xia X, Liu T, Han B, Wang N, Gong M, Liu H, Niu G, Tao D, Sugiyama M (2020) Part-dependent label noise: towards instance-dependent label noise. In: Advances in Neural Information Processing Systems 33 (NeurIPS 2020). arXiv:2006.07836"),
 }
 
 _CITE = re.compile(r"((?:[A-ZÀ-Ý][\w\-éèšáñ]+(?: [A-Z][\w\-éèšáñ]+)?)(?: et al\.| and [A-ZÀ-Ý][\w\-éèšáñ]+)?),? \(?((?:19|20)\d\d[ab]?)\)?")

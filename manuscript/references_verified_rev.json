@@ -1,0 +1,112 @@
+{
+ "arXiv:2402.04398": {
+  "id": "2402.04398",
+  "year": "2024",
+  "authors": "Sujay Nagaraj; Walter Gerych; Sana Tonekaboni; Anna Goldenberg; Berk Ustun; Thomas Hartvigsen",
+  "title": "Learning under Temporal Label Noise",
+  "journal_ref": [],
+  "doi": []
+ },
+ "arXiv:2505.07320": {
+  "id": "2505.07320",
+  "year": "2025",
+  "authors": "Yuhao Li; Ling Luo; Uwe Aickelin",
+  "title": "Dynamical Label Augmentation and Calibration for Noisy Electronic Health Records",
+  "journal_ref": [],
+  "doi": []
+ },
+ "arXiv:2403.13111": {
+  "id": "2403.13111",
+  "year": "2024",
+  "authors": "Yishu Wei; Yu Deng; Cong Sun; Mingquan Lin; Hongmei Jiang; Yifan Peng",
+  "title": "Deep learning with noisy labels in medical prediction problems: a scoping review",
+  "journal_ref": [],
+  "doi": []
+ },
+ "arXiv:2408.00041": {
+  "id": "2408.00041",
+  "year": "2024",
+  "authors": "Junru Chen; Tianyu Cao; Jing Xu; Jiahe Li; Zhilong Chen; Tao Xiao; Yang Yang",
+  "title": "Con4m: Context-aware Consistency Learning Framework for Segmented Time Series Classification",
+  "journal_ref": [],
+  "doi": []
+ },
+ "arXiv:2006.07836": {
+  "id": "2006.07836",
+  "year": "2020",
+  "authors": "Xiaobo Xia; Tongliang Liu; Bo Han; Nannan Wang; Mingming Gong; Haifeng Liu; Gang Niu; Dacheng Tao; Masashi Sugiyama",
+  "title": "Part-dependent Label Noise: Towards Instance-dependent Label Noise",
+  "journal_ref": [],
+  "doi": []
+ },
+ "arXiv:1706.04599": {
+  "id": "1706.04599",
+  "year": "2017",
+  "authors": "Chuan Guo; Geoff Pleiss; Yu Sun; Kilian Q. Weinberger",
+  "title": "On Calibration of Modern Neural Networks",
+  "journal_ref": [],
+  "doi": []
+ },
+ "arXiv:2003.02819": {
+  "id": "2003.02819",
+  "year": "2020",
+  "authors": "Michal Lukasik; Srinadh Bhojanapalli; Aditya Krishna Menon; Sanjiv Kumar",
+  "title": "Does label smoothing mitigate label noise?",
+  "journal_ref": [],
+  "doi": []
+ },
+ "10.22489/CinC.2017.065-469": {
+  "doi": "10.22489/CinC.2017.065-469",
+  "year": 2017,
+  "authors": "Clifford, Gari; Liu, Chengyu; Moody, Benjamin; Lehman, Li-wei; Silva, Ikaro; Li, Qiao; Johnson, Alistair; Mark, Roger",
+  "title": "AF Classification from a Short Single Lead ECG Recording: the Physionet Computing in Cardiology Challenge 2017",
+  "venue": "Computing in Cardiology Conference (CinC)",
+  "volume": "44",
+  "pages": null
+ },
+ "10.22489/CinC.2017.166-054": {
+  "doi": "10.22489/CinC.2017.166-054",
+  "year": 2017,
+  "authors": "Teijeiro, Tomas; Garcia, Constantino A.; Castro, Daniel; F�lix, Paulo",
+  "title": "Arrhythmia Classification from the Abductive Interpretation of Short Single-Lead ECG Records",
+  "venue": "Computing in Cardiology Conference (CinC)",
+  "volume": "44",
+  "pages": null
+ },
+ "10.1161/01.CIR.101.23.e215": {
+  "doi": "10.1161/01.CIR.101.23.e215",
+  "year": 2000,
+  "authors": "Goldberger, Ary L.; Amaral, Luis A. N.; Glass, Leon; Hausdorff, Jeffrey M.; Ivanov, Plamen Ch.; Mark, Roger G.; Mietus, Joseph E.; Moody, George B.; Peng, Chung-Kang; Stanley, H. Eugene",
+  "title": "PhysioBank, PhysioToolkit, and PhysioNet",
+  "venue": "Circulation",
+  "volume": "101",
+  "pages": null
+ },
+ "10.1007/BF02295996": {
+  "doi": "10.1007/BF02295996",
+  "year": 1947,
+  "authors": "McNemar, Quinn",
+  "title": "Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages",
+  "venue": "Psychometrika",
+  "volume": "12",
+  "pages": "153-157"
+ },
+ "10.1214/aos/1176344552": {
+  "doi": "10.1214/aos/1176344552",
+  "year": 1979,
+  "authors": "Efron, B.",
+  "title": "Bootstrap Methods: Another Look at the Jackknife",
+  "venue": "The Annals of Statistics",
+  "volume": "7",
+  "pages": "1-26"
+ },
+ "10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2": {
+  "doi": "10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2",
+  "year": 1950,
+  "authors": "BRIER, GLENN W.",
+  "title": "VERIFICATION OF FORECASTS EXPRESSED IN TERMS OF PROBABILITY",
+  "venue": "Monthly Weather Review",
+  "volume": "78",
+  "pages": "1-3"
+ }
+}

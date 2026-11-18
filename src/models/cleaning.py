@@ -298,9 +298,25 @@ def backward_ridge(g: GramRidge, y, C, quantile: float = 1.0, **kw):
                 info=dict(cond_T=float(np.linalg.cond(T)), noise_rate=float(1 - np.trace(T) / C)))
 
 
+_KF_CACHE: dict = {}
+
+
 def kfold_scores(g: GramRidge, y, C, k: int = 5, seed: int = 0):
     """Out-of-fold ridge decision values via explicit k-fold refits (the costly
-    route that closed-form LOO replaces)."""
+    route that closed-form LOO replaces).  Memoised per (model object, labels, k, seed): the calibrated and
+    uncalibrated confident-learning variants and k-fold relabelling share identical folds and scores."""
+    # key on the data, not on id(g): ids are reused after garbage collection
+    key = (g.n_, np.asarray(g.s_[-5:]).tobytes(), np.asarray(g.Z_[:3, :8]).tobytes(), np.asarray(y).tobytes(), C, k, seed)
+    if key in _KF_CACHE:
+        return _KF_CACHE[key].copy()
+    if len(_KF_CACHE) > 8:
+        _KF_CACHE.clear()
+    F = _kfold_scores(g, y, C, k, seed)
+    _KF_CACHE[key] = F
+    return F.copy()
+
+
+def _kfold_scores(g: GramRidge, y, C, k: int = 5, seed: int = 0):
     from sklearn.model_selection import StratifiedKFold, KFold
     n = len(y)
     Zraw = g.Z_ * g.sd_ + g.mu_

@@ -1,0 +1,13 @@
+rep0 fold0 ridge_std                  0.9s acc_v3=0.7356
+rep0 fold0 ridge_wide                 1.8s acc_v3=0.7263
+rep0 fold0 loo_em_bic                17.0s acc_v3=0.7157
+rep0 fold0 loo_em                    28.1s acc_v3=0.7157
+rep0 fold0 loo_em_inst               25.8s acc_v3=0.7157
+rep0 fold0 conf_learning_cal        440.5s acc_v3=0.7192
+rep0 fold0 conf_learning             77.7s acc_v3=0.7216
+rep0 fold0 kfold_relabel              1.5s acc_v3=0.7263
+rep0 fold0 enn                       60.4s acc_v3=0.7040
+rep0 fold0 loo_relabel                2.6s acc_v3=0.6964
+rep0 fold0 loo_remove                53.1s acc_v3=0.7063
+rep0 fold0 backward_ridge             3.0s acc_v3=0.7380
+rep0 fold0 ridge_wide_v3labels        1.5s acc_v3=0.7309
