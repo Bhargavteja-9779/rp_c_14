@@ -94,10 +94,19 @@ class GramRidge:
         return loo, fit, h
 
     def _score(self, Y, UtY, a, criterion):
+        """LOO selection criteria.  'mse' (default, as RidgeClassifierCV); 'err': LOO 0-1 error; 'bal': LOO
+        balanced error (mean per-class error).  The error criteria are piecewise constant in alpha, so ties are
+        broken by the LOO squared error (a tiny weight that never overrides a difference in error)."""
         loo, _, _ = self.loo(Y, a, UtY)
+        mse = float(np.mean((loo - Y) ** 2))
         if criterion == "mse":
-            return float(np.mean((loo - Y) ** 2)), loo
-        return float(np.mean(loo.argmax(1) != Y.argmax(1))), loo
+            return mse, loo
+        t, p = Y.argmax(1), loo.argmax(1)
+        if criterion == "err":
+            e = float(np.mean(p != t))
+        else:
+            e = float(np.mean([np.mean(p[t == c] != c) for c in np.unique(t)]))
+        return e + 1e-9 * mse, loo
 
     def select_alpha(self, Y: np.ndarray, criterion: str = "mse", around: float | None = None, width: int = 2):
         """LOO model selection over the alpha grid (as RidgeClassifierCV).

@@ -15,7 +15,10 @@ NAMES = {"ridge_std": "Ridge (default grid)", "ridge_wide": "Ridge (wide grid)",
          "loo_em": "LOO-EM v1 (full T)", "loo_em_inst": "LOO-EM + instance model (rejected)",
          "conf_learning_cal": "Confident learning (calibrated)", "conf_learning": "Confident learning (uncalibrated)",
          "kfold_relabel": "5-fold relabel", "enn": "ENN", "loo_relabel": "LOO relabel (1 round)", "loo_remove": "LOO remove",
-         "backward_ridge": "Backward-corrected ridge", "ridge_wide_v3labels": "Ridge (wide), trained on expert labels"}
+         "backward_ridge": "Backward-corrected ridge", "ridge_wide_v3labels": "Ridge (wide), trained on expert labels",
+         "ridge_wide_err": "Ridge (wide, LOO-error criterion)", "ridge_wide_bal": "Ridge (wide, LOO balanced-error criterion)",
+         "ridge_wide_bal_v3labels": "Ridge (wide, balanced-error), expert labels"}
+CRIT = ["ridge_wide_err", "ridge_wide_bal", "ridge_wide_bal_v3labels"]
 ORDER = list(NAMES)
 
 
@@ -55,12 +58,23 @@ def run(write=True):
         return None
     reps = sorted({int(os.path.basename(f).split("_")[0][3:]) for f, _ in folds})
     methods = [m for m in ORDER if f"{m}__pred" in folds[0][1].files]
+    crit = {}
+    for f, _ in folds:
+        cf = os.path.join(os.path.dirname(f), "crit_" + os.path.basename(f))
+        if os.path.exists(cf):
+            crit[f] = np.load(cf)
+    has_crit = len(crit) == len(folds)
+    if has_crit:
+        methods += [m for m in CRIT if f"{m}__pred" in next(iter(crit.values())).files]
     pred = {m: {r: np.full(len(y0), -1) for r in reps} for m in methods}
     det, lab, info = [], [], []
     for f, z in folds:
         r = int(os.path.basename(f).split("_")[0][3:]); te, tr = z["test_idx"], z["train_idx"]
         noisy_tr = (y0[tr] != y3[tr])
         for m in methods:
+            if m in CRIT:
+                pred[m][r][te] = crit[f][f"{m}__pred"]
+                continue
             pred[m][r][te] = z[f"{m}__pred"]
             if m == "ridge_wide_v3labels":
                 continue
@@ -103,7 +117,9 @@ def run(write=True):
     for a_, b_ in [("loo_em_bic", "ridge_wide"), ("ridge_wide", "ridge_std"), ("loo_em_bic", "conf_learning_cal"),
                    ("loo_em_bic", "ridge_std"), ("conf_learning_cal", "ridge_wide"), ("loo_relabel", "ridge_wide"),
                    ("loo_remove", "ridge_wide"), ("enn", "ridge_wide"), ("backward_ridge", "ridge_wide"),
-                   ("loo_em", "ridge_wide"), ("loo_em_inst", "ridge_wide"), ("ridge_wide_v3labels", "ridge_wide")]:
+                   ("loo_em", "ridge_wide"), ("loo_em_inst", "ridge_wide"), ("ridge_wide_v3labels", "ridge_wide"),
+                   ("ridge_wide_bal", "ridge_wide"), ("ridge_wide_err", "ridge_wide"), ("ridge_wide_bal", "ridge_std"),
+                   ("ridge_wide_v3labels", "ridge_std"), ("ridge_wide_bal_v3labels", "ridge_wide_bal")]:
         if a_ not in methods or b_ not in methods:
             continue
         mc = [mcnemar_exact(pred[a_][r] == y3, pred[b_][r] == y3) for r in complete]

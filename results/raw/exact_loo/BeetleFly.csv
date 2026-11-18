@@ -1,0 +1,4 @@
+dataset,n,cond,alpha_closed,alpha_exact,corr,argmax_agree,max_abs_diff,acc_em_closed,model_closed,acc_em_exact,model_exact
+BeetleFly,20,sym 0%,3162.2776601683795,3162.2776601683795,0.9998289654238234,1.0,0.06606226636912027,0.85,none,0.85,none
+BeetleFly,20,sym 30%,100000.0,100000.0,0.9995785595382677,1.0,0.018610724685898486,0.6,none,0.6,none
+BeetleFly,20,asym 40%,10000.0,10000.0,0.9997663049852611,1.0,0.04820043287516851,0.65,sym,0.65,full

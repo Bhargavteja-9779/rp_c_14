@@ -141,7 +141,8 @@ def run(dev=None):
              ("loo_em_bic", "kfold_relabel"), ("loo_em_bic", "enn"), ("conf_learning", "ridge_wide"),
              ("enn", "ridge_wide"), ("conf_learning_cal", "ridge_wide"), ("conf_learning_cal", "conf_learning"), ("loo_em_bic", "conf_learning_cal"), ("loo_relabel", "ridge_wide"), ("loo_remove", "ridge_wide"),
              ("kfold_relabel", "ridge_wide"), ("loo_em_bic", "bic_hard"), ("loo_em_bic", "bic_in_sample"),
-             ("loo_em_bic", "bic_std_grid"), ("loo_em_bic", "em_sym_T"), ("loo_em_bic", "em_no_T")]
+             ("loo_em_bic", "bic_std_grid"), ("loo_em_bic", "em_sym_T"), ("loo_em_bic", "em_no_T"),
+             ("ridge_wide_bal", "ridge_std"), ("ridge_wide_bal", "ridge_wide"), ("ridge_wide_err", "ridge_wide"), ("ridge_wide_err", "ridge_std")]
     have = set(df.method.unique())
     for cand, ref in pairs:
         if cand not in have or ref not in have:

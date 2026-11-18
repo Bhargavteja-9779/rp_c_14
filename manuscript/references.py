@@ -77,6 +77,6 @@ def cite_keys(text):
     for m in _CITE.finditer(body):
         s = f"{m.group(1)} {m.group(2)}"
         if s not in pats and not any(s.endswith(p) for p in pats) and m.group(1).split()[0] not in (
-                "Table", "Fig", "Sect", "Eq", "Seed", "Python", "Proposition", "In", "The", "On", "At", "With", "For", "Over", "Under"):
+                "Table", "Fig", "Sect", "Eq", "Seed", "CinC", "Challenge", "Python", "Proposition", "In", "The", "On", "At", "With", "For", "Over", "Under"):
             keys.append("?:" + s)
     return keys

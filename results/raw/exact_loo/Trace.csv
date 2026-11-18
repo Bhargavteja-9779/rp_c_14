@@ -1,0 +1,4 @@
+dataset,n,cond,alpha_closed,alpha_exact,corr,argmax_agree,max_abs_diff,acc_em_closed,model_closed,acc_em_exact,model_exact
+Trace,100,sym 0%,0.001,0.001,0.999995252560016,1.0,0.02558385185697598,1.0,none,1.0,none
+Trace,100,sym 30%,10000.0,10000.0,0.9999824617154133,1.0,0.03593782238349841,0.98,sym,0.98,sym
+Trace,100,asym 40%,10000.0,10000.0,0.9999557421608891,1.0,0.049507645562778146,0.85,none,0.85,none

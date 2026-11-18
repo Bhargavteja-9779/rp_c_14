@@ -6,6 +6,7 @@
 | LOO-EM v1 (full T)                |          0.0974 |        0.4388 |      2762.0021 |                 3.0066 |
 | Confident learning (calibrated)   |          0.3880 |        1.0428 |      6564.6409 |                 8.8417 |
 | Confident learning (uncalibrated) |          0.3089 |        1.1433 |      7196.9997 |                 7.1473 |
+| Backward-corrected ridge          |          0.0062 |        0.0280 |       176.0013 |                 0.1769 |
 | 5-fold relabel                    |          0.1453 |        0.7575 |      4768.3616 |                 4.8698 |
 | ENN                               |          0.1159 |        0.4416 |      2779.8696 |                 2.2017 |
 | LOO relabel (1 round)             |          0.0045 |        0.0352 |       221.8256 |                 0.1760 |

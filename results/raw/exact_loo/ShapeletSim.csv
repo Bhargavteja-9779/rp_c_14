@@ -1,0 +1,4 @@
+dataset,n,cond,alpha_closed,alpha_exact,corr,argmax_agree,max_abs_diff,acc_em_closed,model_closed,acc_em_exact,model_exact
+ShapeletSim,20,sym 0%,0.1,0.001,0.9998166208835841,1.0,0.06525676583602119,1.0,none,1.0,none
+ShapeletSim,20,sym 30%,1000000000.0,1000000000.0,0.9999999999986455,1.0,5.920264546654952e-07,0.5,none,0.5,none
+ShapeletSim,20,asym 40%,0.31622776601683794,1000.0,0.9995014518712538,1.0,0.02229637162998188,0.7055555555555556,none,0.7055555555555556,none

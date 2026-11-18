@@ -1,0 +1,4 @@
+dataset,n,cond,alpha_closed,alpha_exact,corr,argmax_agree,max_abs_diff,acc_em_closed,model_closed,acc_em_exact,model_exact
+BirdChicken,20,sym 0%,0.01,0.001,0.9980147287335481,1.0,0.33095140200576223,0.9,none,0.9,none
+BirdChicken,20,sym 30%,1000000000.0,1000000000.0,0.9999999999748732,1.0,5.42214123339102e-06,0.5,none,0.5,none
+BirdChicken,20,asym 40%,1000000000.0,1000000000.0,0.9999999996624227,1.0,3.5221851024808126e-06,0.85,none,0.85,none

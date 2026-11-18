@@ -13,6 +13,7 @@ from src.data import ucr
 from src.evaluation import aggregate as ag
 
 F = os.path.join(ucr.ROOT, "figures")
+COL_EXTRA = {"backward_ridge": "#bcbd22", "loo_em_inst": "#ff7f0e", "ridge_wide_bal": "#393b79", "ridge_wide_err": "#637939"}
 COL = {"ridge_std": "#7f7f7f", "ridge_wide": "#1f77b4", "loo_em": "#ff9896", "loo_em_bic": "#d62728", "conf_learning": "#98df8a", "conf_learning_cal": "#2ca02c",
        "kfold_relabel": "#9467bd", "enn": "#8c564b", "loo_relabel": "#e377c2", "loo_remove": "#17becf"}
 MK = {"ridge_std": "o", "ridge_wide": "s", "loo_em": "d", "loo_em_bic": "D", "conf_learning": "^", "conf_learning_cal": "^", "kfold_relabel": "v", "enn": "P",
@@ -46,7 +47,7 @@ def fig_accuracy_curves(df, methods=("ridge_std", "ridge_wide", "loo_em_bic", "l
                 sub = _complete(pdt, c, methods)
                 if m not in sub: continue
                 xs.append(100 * r); ys.append(sub[m].mean()); es.append(1.96 * sub[m].std(ddof=1) / np.sqrt(len(sub)))
-            ax.errorbar(xs, ys, yerr=None, marker=MK[m], color=COL[m], lw=1.5, ms=5, label=ag.LABEL[m])
+            ax.errorbar(xs, ys, yerr=None, marker=MK.get(m, "o"), color=COL.get(m, COL_EXTRA.get(m, "#555555")), lw=1.5, ms=5, label=ag.LABEL[m])
         ax.set_title(KIND[kind]); ax.set_xlabel("Training-label noise rate (%)"); ax.grid(alpha=.3)
     axes[0].set_ylabel("Mean test accuracy over datasets")
     axes[0].legend(frameon=False, fontsize=7.5, loc="lower left")
@@ -146,7 +147,7 @@ def fig_ranks(stats):
     fig, axes = plt.subplots(1, len(conds), figsize=(2.3 * len(conds), 3), sharey=True)
     for ax, c in zip(axes, conds):
         r = stats["ranks"][c]; items = sorted(r["mean_rank"].items(), key=lambda kv: kv[1])
-        ax.barh([ag.LABEL[k] for k, _ in items][::-1], [v for _, v in items][::-1], color=[COL[k] for k, _ in items][::-1])
+        ax.barh([ag.LABEL[k] for k, _ in items][::-1], [v for _, v in items][::-1], color=[COL.get(k, COL_EXTRA.get(k, "#555555")) for k, _ in items][::-1])
         ax.set_title(f"{c}\nCD={r['nemenyi_cd']:.2f}", fontsize=8); ax.set_xlabel("Mean rank (lower is better)")
         ax.tick_params(axis="y", labelsize=7)
     save(fig, "fig_mean_ranks")

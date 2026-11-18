@@ -92,3 +92,15 @@ Criterion (ii) fails, so it is **not adopted**; it is run on all datasets and on
 negative result. (b) Backward correction: Patrini et al. describe two anchor rules (97th percentile and arg-max).
 On 13 design datasets the 97th-percentile rule lost 6.7 points on clean labels relative to ridge and the arg-max rule
 0.2 points; the arg-max rule is used, i.e. the baseline is given the better of its two published configurations.
+
+## Stage 4 (exploratory, prompted by the ECG results; written before these runs)
+
+**Observation that prompted it.** On the ECG data (repetition 0) the default grid was saturated at 10³ on every
+fold and the leave-one-out squared-error criterion selected 3×10³ on the wide grid even with expert labels;
+the wide grid then lost accuracy and AF recall. This points at the selection *criterion*, not at label noise.
+
+**Exploratory variants.** Wide-grid ridge with the penalty chosen by (a) leave-one-out classification error and
+(b) leave-one-out balanced error (mean per-class error), both computed from the same closed-form LOO decision values,
+ties broken by the LOO squared error. Run on all 108 UCR datasets (seeds 0–4, all noise conditions) and on the ECG
+data. Because the idea was formed after seeing ECG results, ECG evidence for it is not confirmatory; the UCR
+results, on which these variants have never been run, are the test. Reported as exploratory in the paper.

@@ -26,6 +26,7 @@ def margins(F: np.ndarray, y: np.ndarray):
 
 
 def none(g: GramRidge, y, C, **kw):
+    """Plain ridge (labels untouched)."""
     n = len(y)
     return dict(y_clean=y.copy(), keep=np.ones(n, bool), flagged=np.zeros(n, bool),
                 score=np.zeros(n), info={})
@@ -397,11 +398,22 @@ def enn(g: GramRidge, y, C, k: int = 3, **kw):
     return dict(y_clean=y.copy(), keep=keep, flagged=~keep, score=1 - agree, info={})
 
 
+def none_err(g: GramRidge, y, C, **kw):
+    """Plain ridge, penalty by LOO classification error (exploratory, stage 4)."""
+    r = none(g, y, C); r["criterion"] = "err"; return r
+
+
+def none_bal(g: GramRidge, y, C, **kw):
+    """Plain ridge, penalty by LOO balanced error (exploratory, stage 4)."""
+    r = none(g, y, C); r["criterion"] = "bal"; return r
+
+
 def _final(g: GramRidge, Fte, K_te, res, C):
     y, keep = res["y_clean"], res["keep"]
+    crit = res.get("criterion", "mse")
     if keep.all():
         Y = one_hot_pm(y, C) if res.get("soft") is None else 2 * res["soft"] - 1
-        a, loo, _ = g.select_alpha(Y)
+        a, loo, _ = g.select_alpha(Y, criterion=crit)
         return g.predict(K_te, Y, a), a, loo, Y
     idx = np.flatnonzero(keep)
     gs = g.subset(idx)
@@ -430,6 +442,8 @@ def final_predict_proba(g: GramRidge, Fte, K_te, res, C):
 
 METHODS = {
     "ridge": none,
+    "ridge_err": none_err,
+    "ridge_bal": none_bal,
     "loo_em": loo_em,
     "loo_em_bic": loo_em_bic,
     "loo_em_inst": loo_em_inst,

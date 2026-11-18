@@ -1,0 +1,4 @@
+dataset,n,cond,alpha_closed,alpha_exact,corr,argmax_agree,max_abs_diff,acc_em_closed,model_closed,acc_em_exact,model_exact
+InsectEPGRegularTrain,62,sym 0%,0.001,0.001,0.9997652047780932,1.0,0.15556820050163367,1.0,none,1.0,none
+InsectEPGRegularTrain,62,sym 30%,10000.0,10000.0,0.9991444598386755,1.0,0.1792703022519438,0.9196787148594378,sym,0.9196787148594378,sym
+InsectEPGRegularTrain,62,asym 40%,31622.776601683792,31622.776601683792,0.9996321744535421,1.0,0.07373286907660045,1.0,full,1.0,full
