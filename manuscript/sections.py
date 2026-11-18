@@ -96,7 +96,7 @@ def build(ctx, md_table, pct):
         a = f["mean_accuracy"]
         g = lambda m, c: f"{100 * a[c][m]:.1f}"
         t = f["mean_time_s"]
-        fam.append(f"*Deep baselines* (TABREF:deep; {f['n_datasets']} small datasets, seeds 0–2, CPU training). At 30% symmetric noise a fully convolutional network reaches "
+        fam.append(f"*Deep baselines* (Supplementary Table S1; {f['n_datasets']} small datasets, seeds 0–2, CPU training). At 30% symmetric noise a fully convolutional network reaches "
                    f"{g('fcn_ce', 'sym 30%')}% with cross-entropy, {g('fcn_gce', 'sym 30%')}% with the generalised cross-entropy and {g('fcn_coteach', 'sym 30%')}% with Co-teaching given the true noise rate; "
                    f"wide-grid ridge reaches {g('ridge_wide', 'sym 30%')}% and LOO-EM {g('loo_em_bic', 'sym 30%')}%. At 30% asymmetric noise the figures are {g('fcn_ce', 'asym 30%')}%, {g('fcn_gce', 'asym 30%')}%, "
                    f"{g('fcn_coteach', 'asym 30%')}%, {g('ridge_wide', 'asym 30%')}% and {g('loo_em_bic', 'asym 30%')}%; on clean labels {g('fcn_ce', 'sym 0%')}%, {g('fcn_gce', 'sym 0%')}%, {g('fcn_coteach', 'sym 0%')}%, "
@@ -110,7 +110,7 @@ def build(ctx, md_table, pct):
     if rows:
         text += "\n\nTABLE:families"
     if "deep" in TABLES:
-        text += "\n\nTABLE:deep"
+        TABLES.pop("deep")          # moved to the supplement (Table S-deep); summarised in the text
     sec["generalisation"] = text
 
     # ------------------------------------------------------------------ cost
@@ -123,7 +123,7 @@ def build(ctx, md_table, pct):
     cap = "Wall-clock cost per run of each method beyond the shared feature transform and eigendecomposition (single CPU thread, all datasets and conditions)"
     key = "cost"
     TABLES[key] = pd.DataFrame(cost_rows).to_markdown(index=False, disable_numparse=True) + f"\n\n: {cap}\n"
-    text = (f"TABREF:cost and FIGREF:fig_runtime report the time each method adds to the shared work, which is the MiniRocket transform (median {b['median_t_feat']:.2f} s per dataset) and one eigendecomposition "
+    text = (f"TABREF:cost and Supplementary Fig. S3 report the time each method adds to the shared work, which is the MiniRocket transform (median {b['median_t_feat']:.2f} s per dataset) and one eigendecomposition "
             f"(median {b['median_t_eig']:.3f} s). Selecting the penalty on the wide instead of the default grid costs {1000 * (e['median_time_s']['ridge_wide'] - e['median_time_s']['ridge_std']):.0f} ms at the median. "
             f"LOO-EM takes a median of {e['median_time_s']['loo_em_bic']:.2f} s (mean {e['mean_time_s']['loo_em_bic']:.2f} s), {e['time_over_eig_median']['loo_em_bic']:.1f} times the eigendecomposition; "
             f"5-fold confident learning takes {e['median_time_s']['conf_learning_cal']:.2f} s (mean {e['mean_time_s']['conf_learning_cal']:.2f} s), {e['time_over_eig_median']['conf_learning_cal']:.1f} times. "
@@ -222,13 +222,13 @@ def _revision_sections(ctx, md_table, pct):
     c = ctx.metrics.get("cinc2017", {})
     if "ridge_wide_bal" in c.get("performance", {}).get("acc", {}):
         t.append("")
-        t.append(f"On the ECG data the balanced-error criterion selected smaller penalties than the squared error and reached {ctx.CINC('ridge_wide_bal', 'acc')}% "
-                 f"accuracy and challenge F1 {ctx.CINC('ridge_wide_bal', 'f1_nao')}, against {ctx.CINC('ridge_wide', 'acc')}% and {ctx.CINC('ridge_wide', 'f1_nao')} for the "
-                 f"squared error and {ctx.CINC('ridge_std', 'acc')}% and {ctx.CINC('ridge_std', 'f1_nao')} for the default grid "
-                 f"(versus the squared error on the wide grid: {ctx.CINCT('ridge_wide_bal', 'ridge_wide')}). Since this is the data set that suggested the "
-                 f"analysis, it is not independent evidence. The practical conclusion is modest but useful: the penalty should be selected by a "
-                 f"leave-one-out criterion that matches the metric of interest, which costs nothing because all criteria are read off the same "
-                 f"closed-form predictions.")
+        t.append(f"On the ECG data the balanced-error criterion reached {ctx.CINC('ridge_wide_bal', 'acc')}% accuracy and challenge F1 "
+                 f"{ctx.CINC('ridge_wide_bal', 'f1_nao')}, against {ctx.CINC('ridge_wide', 'acc')}% and {ctx.CINC('ridge_wide', 'f1_nao')} for the squared error "
+                 f"on the same grid ({ctx.CINCT('ridge_wide_bal', 'ridge_wide')}) and {ctx.CINC('ridge_std', 'acc')}% and {ctx.CINC('ridge_std', 'f1_nao')} for "
+                 "the default grid. It thus traded accuracy for the class-balanced challenge metric, as on the UCR data, but did not improve on the "
+                 "default grid on either metric. Since the ECG data suggested the analysis, they are not independent evidence. The conclusion we draw "
+                 "is limited: the criterion that selects the penalty should match the metric of interest, and different criteria can be compared at "
+                 "no cost because all are read off the same closed-form predictions; the squared-error default is not neutral with respect to class balance.")
     out["criterion"] = "\n".join(t)
 
     # ---- class-wise and calibration (appended to 6.5) -------------------------------------------------
@@ -288,6 +288,9 @@ def _revision_sections(ctx, md_table, pct):
 
     # ---- CTW (appended to generalisation) --------------------------------------------------------------
     ct = ex.get("ctw")
+    need = ["sym 0%", "sym 20%", "sym 40%", "asym 20%", "asym 40%", "boundary 30%"]
+    if ct and not (all(c in ct["mean_accuracy"] for c in need) and ct["n_datasets"] == 8 and len(ct["seeds"]) == 3):
+        ct = None
     if ct:
         a = ct["mean_accuracy"]
         g = lambda m, cnd: f"{100 * a[cnd][m]:.1f}"

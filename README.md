@@ -5,25 +5,32 @@ ROCKET-family time series classifiers (random convolutional kernel features + ri
 
 **What the study found (all numbers are generated from `results/`):**
 
-1. Part of the fragility of MiniRocket + ridge under label noise comes from the customary ridge-penalty grid
-   `logspace(-3, 3, 10)`. Widening it to `logspace(-3, 9, 25)` is free, does not change clean accuracy and is the
-   most reliable improvement we observed.
-2. Generic cleaning (confident learning, edited nearest neighbours, hard relabelling) detects mislabelled series
-   well but *lowers* accuracy on clean and mildly noisy data.
-3. **LOO-EM** – EM for class-conditional noise whose predictive distribution is always the closed-form
-   leave-one-out one, with the noise model (none / symmetric / full) chosen by BIC – adds a modest further gain
-   under moderate-to-heavy class-conditional noise at a small cost on clean labels.
-4. Negative results are reported, not hidden: the first frozen version of LOO-EM failed on many-class data, and
-   an anchor-point variant was worse than plain ridge (`supplementary/protocol.md`).
+1. *Theory.* For a ridge classifier, symmetric label noise leaves the expected decision function order-preserving and
+   only adds variance; label smoothing therefore changes no prediction; asymmetric noise can move the arg-max.
+2. *Synthetic noise (108 UCR datasets).* The customary ROCKET penalty grid `logspace(-3, 3, 10)` saturates under
+   noise; widening it raises accuracy substantially, but with the squared-error LOO criterion the gain under symmetric
+   noise is bought with minority-class recall. **LOO-EM** (EM on closed-form leave-one-out predictions, BIC choice of
+   the noise model) adds a modest gain under heavy class-conditional noise. Generic cleaning costs accuracy at low noise.
+3. *Real annotation errors (8,528 PhysioNet/CinC 2017 ECGs, original vs expert-revised labels).* Training on the noisy
+   labels costs well under one point; **no relabelling or removal method — LOO-EM included — improves agreement with the
+   expert labels, and most reduce it**; label-error rankings recover the documented errors only modestly. Conclusions
+   from synthetic noise did not transfer.
+4. *Exploratory:* choosing the penalty with a leave-one-out criterion that matches the target metric (e.g. balanced
+   error) is free and removes the minority-class penalty under symmetric noise.
+5. Negative results are reported, not hidden: a failed first version of LOO-EM, a rejected instance-dependent noise
+   model, an unstable backward-correction configuration, and the real-noise result above (`supplementary/protocol.md`).
 
 ## Layout
 
 ```
 config/default.yaml        frozen protocol: seeds, penalty grids, noise models, every method variant
 src/data/ucr.py            dataset download (via aeon) and stratified resampling
+src/data/cinc2017.py       PhysioNet/CinC 2017 ECG recordings with original (v0) and expert-revised (v3) labels
 src/preprocessing/         MiniRocket / MultiRocket / Hydra transforms with caching
 src/models/ridge_loo.py    Gram ridge classifier with closed-form leave-one-out predictions
-src/models/cleaning.py     LOO-EM (v1, BIC), LOO relabel/remove, confident learning, k-fold relabel, ENN
+src/models/cleaning.py     LOO-EM (v1, BIC, rejected instance model), LOO relabel/remove, confident learning,
+                           k-fold relabel, ENN, backward-corrected ridge, LOO-error penalty criteria
+src/models/ctw.py          re-implementation of CTW (Ma et al., IJCAI 2023) following the official code
 src/models/noise.py        symmetric, asymmetric (pair-flip) and boundary (instance-dependent) noise
 src/training/runner.py     resumable experiment runner (one CSV per dataset)
 src/evaluation/            metrics, aggregation, automatic table generation
@@ -56,6 +63,8 @@ is detected automatically and only matters for the optional deep baselines. Buil
 
 Nothing has to be downloaded by hand. The UCR/UEA archives are fetched per dataset from
 <https://www.timeseriesclassification.com> through `aeon` on first use and stored in `data/raw/` (about 0.8 GB).
+The ECG data (100 MB) and the four label versions are fetched from PhysioNet
+(<https://physionet.org/content/challenge-2017/1.0.0/>, Open Data Commons Attribution License v1.0) on first use.
 `data/dataset_summary.csv` lists the 112 equal-length univariate problems; `tables/table_leakage_audit.csv` lists
 exact and near duplicates across the archive's train/test splits.
 
@@ -69,11 +78,14 @@ python manuscript/build_manuscript.py   # manuscript Markdown/DOCX/PDF with ever
 python -m pytest -q tests
 ```
 
-`--mode full` runs, in order (note: on the 15 GB machine used for the paper, MultiRocket and ElectricDevices could not be completed and Hydra was run on the fixed 30-dataset subset of `experiments/run_sensitivity.py`; those are the committed results): unit tests, dataset summary, leakage audit, the main experiment (108 datasets x 5
-seeds x 12 noise conditions x 15 methods), the BIC pass, the calibrated-confident-learning pass, the four largest
-datasets, Hydra and MultiRocket features, QUANT and 1-NN, the sensitivity study, the multivariate UEA study and the
-deep baselines, then the report. Each stage writes one CSV per dataset under `results/raw/<stage>/` and skips files
-that already exist, so an interrupted run is resumed by issuing the same command again.
+`--mode full` runs every experiment in the paper, each writing one result file per dataset/fold under
+`results/raw/<stage>/` and skipping files that already exist (re-issue the same command to resume):
+main benchmark (108 datasets x 5 seeds x 12 noise conditions), the BIC, calibrated-confident-learning, backward-correction/
+instance-model and penalty-criterion passes, the class-wise/calibration pass, the three large datasets, Hydra features (fixed
+30-dataset subset), QUANT and 1-NN, the sensitivity study, the multivariate UEA study, deep baselines, **the PhysioNet/CinC 2017
+real-noise experiment** (`experiments/run_cinc2017.py`, `run_cinc2017_criteria.py`), **CTW** (`run_ctw.py`), the exact-LOO
+sensitivity (`run_exact_loo.py`) and the scaling study (`run_scaling.py`), then the report. On the 15 GB machine used,
+MultiRocket and ElectricDevices with the 5-fold baselines could not be completed and are not reported.
 
 **Cost.** On the 4-core, 15 GB machine used for the paper the main experiment took roughly 5 hours and everything
 else roughly another 10–15 hours. The feature cache (`data/cache/`) needs about 6 GB per seed for MiniRocket; delete
