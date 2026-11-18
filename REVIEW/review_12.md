@@ -1,0 +1,12 @@
+# Review round 12 — real-world validity (attempt to invalidate the ECG conclusions)
+
+| # | Severity | Attack | Assessment | Action |
+|---|---|---|---|---|
+| 1 | MAJOR | The base classifier is weak on this task (about 73% agreement with the expert labels; strong published entries are far better), so "correction does not help" may be a property of a weak classifier, not of real noise. | Valid as a scope limit. The paper studies the random-kernel ridge family; with a stronger classifier the balance of model error and label error differs. | Stated in Limitations and in "What the real data changed"; the mechanism (model error ≫ label error) is named explicitly. Not fixable without changing the object of study. |
+| 2 | MAJOR | The v3 reference is itself noisy and was not produced by re-reading every training recording; methods that predict the noisy class more often are rewarded because most revisions are into that class. | Valid. This is why backward correction and expert-label training gain recall of the noisy class. | Reference described as "expert-revised", not ground truth; the performance table also scores predictions against the original labels; detection is described as recovering *documented* corrections. |
+| 3 | MODERATE | Preprocessing (150 Hz, 30-s centre crop/tiling) could favour some methods. | Fixed before any run, identical for all methods, not tuned. | Stated in the protocol. |
+| 4 | MODERATE | McNemar's test per repetition ignores dependence between repetitions. | Each repetition is tested separately and reported separately; the bootstrap CIs pool both repetitions per recording. | Explained in Sect. 5 and the table caption. |
+| 5 | MODERATE | The penalty-criterion idea was formed on the ECG data; reporting it in the same paper invites forking-paths criticism. | Valid; mitigated by labelling it exploratory and testing it on 108 UCR datasets on which it had never been run, with all outcomes (including where it is worse) reported. | Sect. 6.7 states this; the conclusion drawn is deliberately limited. |
+| 6 | MINOR | Only 46 recordings carry the noisy-class label in the original labels; per-fold training sets have about 37. | True; it is part of the real noise pattern (the class is under-labelled). | Visible in the label-revision table. |
+
+Verdict: the ECG evidence supports the paper's revised claims (correction did not help *here*; synthetic conclusions did not transfer *here*); it does not support general claims about all real noise, and the text does not make them.

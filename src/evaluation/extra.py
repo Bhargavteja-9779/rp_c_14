@@ -184,6 +184,11 @@ def run(main_df):
                                    argmax_agree=("argmax_agree", "mean"), alpha_same=("alpha_closed", lambda v: np.nan),
                                    acc_closed=("acc_em_closed", "mean"), acc_exact=("acc_em_exact", "mean"))
         g["alpha_same"] = ex.assign(same=np.isclose(ex.alpha_closed, ex.alpha_exact)).groupby("cond").same.mean()
+        grid = np.logspace(-3, 9, 25)
+        step = lambda v: np.argmin(np.abs(np.log(grid) - np.log(v)))
+        ex["alpha_steps"] = [abs(step(x) - step(y)) for x, y in zip(ex.alpha_closed, ex.alpha_exact)]
+        g["alpha_within1"] = ex.groupby("cond").alpha_steps.apply(lambda v: float((v <= 1).mean()))
+        g["alpha_steps_max"] = ex.groupby("cond").alpha_steps.max()
         g["model_same"] = ex.assign(same=ex.model_closed == ex.model_exact).groupby("cond").same.mean()
         g["max_abs_acc_diff"] = ex.assign(dd=(ex.acc_em_closed - ex.acc_em_exact).abs()).groupby("cond").dd.max()
         ag.write(g, "table_exact_loo")

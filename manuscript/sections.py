@@ -34,7 +34,8 @@ def _d(ctx, exp, cand, ref, cond):
     if r is None:
         return "n/a"
     p = "< 0.001" if r["p_holm"] < 0.001 else f"= {r['p_holm']:.3f}"
-    return f"{100 * r['mean_diff']:+.1f} points (Holm-adjusted p {p}; {r['wins']} wins, {r['losses']} losses)".replace("-", "−").replace("Holm−", "Holm-")
+    import re
+    return re.sub(r"(?<![A-Za-z])-(?=\d)", "−", f"{100 * r['mean_diff']:+.1f} points, Holm-adjusted p {p}, {r['wins']} wins and {r['losses']} losses")
 
 
 def build(ctx, md_table, pct):
@@ -167,6 +168,13 @@ def build(ctx, md_table, pct):
     return sec
 
 
+def _sg(v):
+    """Signed one-decimal number with a typographic minus; values that round to zero print as 0.0."""
+    if round(v, 1) == 0:
+        return "0.0"
+    return f"{v:+.1f}".replace("-", "\u2212")
+
+
 def _cmp(a, b):
     d = 100 * (a - b)
     if abs(d) < 0.5:
@@ -226,7 +234,9 @@ def _revision_sections(ctx, md_table, pct):
                  f"{ctx.CINC('ridge_wide_bal', 'f1_nao')}, against {ctx.CINC('ridge_wide', 'acc')}% and {ctx.CINC('ridge_wide', 'f1_nao')} for the squared error "
                  f"on the same grid ({ctx.CINCT('ridge_wide_bal', 'ridge_wide')}) and {ctx.CINC('ridge_std', 'acc')}% and {ctx.CINC('ridge_std', 'f1_nao')} for "
                  "the default grid. It thus traded accuracy for the class-balanced challenge metric, as on the UCR data, but did not improve on the "
-                 "default grid on either metric. Since the ECG data suggested the analysis, they are not independent evidence. The conclusion we draw "
+                 f"default grid on either metric. The plain error criterion, by contrast, reached {ctx.CINC('ridge_wide_err', 'acc')}% and "
+                 f"{ctx.CINC('ridge_wide_err', 'f1_nao')}, recovering what the squared error had lost on the same grid "
+                 f"({ctx.CINCT('ridge_wide_err', 'ridge_wide')}). Since the ECG data suggested the analysis, they are not independent evidence. The conclusion we draw "
                  "is limited: the criterion that selects the penalty should match the metric of interest, and different criteria can be compared at "
                  "no cost because all are read off the same closed-form predictions; the squared-error default is not neutral with respect to class balance.")
     out["criterion"] = "\n".join(t)
@@ -237,15 +247,20 @@ def _revision_sections(ctx, md_table, pct):
         g = lambda met, m, cnd: f"{100 * cw[met][cnd][m]:.1f}"
         out["classwise"] = (
             "**Class-wise behaviour and calibration.** A further pass over all datasets and seeds recorded the recall of the smallest training class, "
-            "the worst per-class recall, and the calibration of probabilities obtained from each final model's own LOO scores (FIGREF:fig_classwise). "
-            f"At 40% symmetric noise the recall of the smallest class is {g('minority_recall', 'ridge_std', 'sym 40%')}% with the default grid, "
-            f"{g('minority_recall', 'ridge_wide', 'sym 40%')}% with the wide grid and {g('minority_recall', 'loo_em_bic', 'sym 40%')}% with LOO-EM "
-            f"(LOO-EM versus wide grid: {ctx.CWS('minority_recall', 'loo_em_bic', 'ridge_wide', 'sym 40%')}); at 40% asymmetric noise the figures are "
-            f"{g('minority_recall', 'ridge_std', 'asym 40%')}%, {g('minority_recall', 'ridge_wide', 'asym 40%')}% and {g('minority_recall', 'loo_em_bic', 'asym 40%')}%. "
-            f"Calibration degrades with noise for every method; the expected calibration error at 40% symmetric noise is {g('ece', 'ridge_wide', 'sym 40%')}% for wide-grid "
-            f"ridge and {g('ece', 'loo_em_bic', 'sym 40%')}% for LOO-EM ({ctx.CWS('ece', 'loo_em_bic', 'ridge_wide', 'sym 40%')}), and on clean labels "
-            f"{g('ece', 'ridge_wide', 'sym 0%')}% and {g('ece', 'loo_em_bic', 'sym 0%')}%. Probabilities calibrated on noisy labels inherit the noise: a "
-            "temperature fitted to corrupted targets reproduces their uncertainty, not that of the clean labels.\n\n"
+            "the worst per-class recall and the calibration of probabilities obtained from each final model's own LOO scores (FIGREF:fig_classwise). "
+            "It shows the cost of the wide grid more starkly than balanced accuracy does. At 40% symmetric noise the worst per-class recall is "
+            f"{g('worst_recall', 'ridge_std', 'sym 40%')}% with the default grid and {g('worst_recall', 'ridge_wide', 'sym 40%')}% with the wide grid "
+            f"({ctx.CWS('worst_recall', 'ridge_wide', 'ridge_std', 'sym 40%')}), and the recall of the smallest class falls from "
+            f"{g('minority_recall', 'ridge_std', 'sym 40%')}% to {g('minority_recall', 'ridge_wide', 'sym 40%')}%; at 40% asymmetric noise the worst-class "
+            f"recall is {g('worst_recall', 'ridge_std', 'asym 40%')}% against {g('worst_recall', 'ridge_wide', 'asym 40%')}%. The extra shrinkage that buys "
+            "accuracy is paid for by the hardest class. LOO-EM does not restore it "
+            f"({g('worst_recall', 'loo_em_bic', 'sym 40%')}% at 40% symmetric noise), whereas calibrated confident learning partly does under boundary "
+            f"noise ({g('worst_recall', 'conf_learning_cal', 'boundary 30%')}% against {g('worst_recall', 'ridge_wide', 'boundary 30%')}% at 30%). "
+            "Calibration is where LOO-EM differs most from plain ridge: the expected calibration error at 20% symmetric noise is "
+            f"{g('ece', 'ridge_wide', 'sym 20%')}% for wide-grid ridge and {g('ece', 'loo_em_bic', 'sym 20%')}% for LOO-EM "
+            f"({ctx.CWS('ece', 'loo_em_bic', 'ridge_wide', 'sym 20%')}) and at 40% {g('ece', 'ridge_wide', 'sym 40%')}% against {g('ece', 'loo_em_bic', 'sym 40%')}%, "
+            f"while on clean labels LOO-EM is slightly worse calibrated ({g('ece', 'loo_em_bic', 'sym 0%')}% against {g('ece', 'ridge_wide', 'sym 0%')}%). "
+            "A temperature fitted to corrupted targets reproduces their uncertainty; soft targets from the EM remove part of it.\n\n"
             "![Class-wise behaviour and calibration against the noise rate (mean over datasets): recall of the smallest training class, worst per-class recall and "
             "expected calibration error of temperature-scaled probabilities; solid lines symmetric, dashed lines asymmetric noise](FIG:fig_classwise)")
     else:
@@ -258,20 +273,22 @@ def _revision_sections(ctx, md_table, pct):
         pc = {r["cond"]: r for r in el["per_cond"]}
         c0, c3 = pc.get("sym 0%"), pc.get("asym 40%")
         wl = el["wilcoxon"]
+        worst = max(wl, key=lambda k: abs(wl[k]["mean_diff"]))
+        lab = {"sym 0%": "clean labels", "sym 30%": "30% symmetric noise", "asym 40%": "40% asymmetric noise"}
         v.append("**Does the global standardisation matter?** The closed form keeps the column scaling computed on all training series, so its "
                  "LOO values differ slightly from those of a pipeline that re-standardises without the left-out series. For the "
                  f"{el['n_datasets']} datasets with at most 100 training series we computed the exact operator by refitting the scaling and the ridge "
-                 f"model $n$ times for every penalty. The median correlation between closed-form and exact LOO decision values was {c0['corr_median']:.3f} on "
-                 f"clean labels (minimum {c0['corr_min']:.3f}), the predicted class agreed for {100 * c0['argmax_agree']:.1f}% of training series, and the same penalty "
-                 f"was selected in {100 * c0['alpha_same']:.0f}% of datasets. Running LOO-EM with the exact operator changed mean test accuracy by "
-                 + ", ".join(f"{100 * wl[k]['mean_diff']:+.2f} ({k})".replace("-", "−") for k in ("sym 0%", "sym 30%", "asym 40%") if k in wl)
-                 + " points, with the noise model chosen identically in "
-                 f"{100 * c3['model_same']:.0f}% of datasets at 40% asymmetric noise; "
-                 + (f"none of these differences is significant (Wilcoxon p ≥ {min(wl[k]['p'] for k in wl):.2f}), so the approximation does not affect the conclusions. "
-                    if min(wl[k]['p'] for k in wl) >= 0.05 else
-                    "the smallest Wilcoxon p-value is " + f"{min(wl[k]['p'] for k in wl):.3f}" + ", so the approximation has a measurable effect on small datasets, of the size reported. ")
-                 + "Refitting the random-kernel transform itself "
-                 "without each series, the remaining approximation, is shared by every LOO-based method including the standard ridge pipeline.")
+                 f"model $n$ times for every penalty. On clean labels the median correlation between closed-form and exact LOO decision values was "
+                 f"{c0['corr_median']:.4f} (minimum {c0['corr_min']:.3f}) and the predicted class agreed for {100 * c0['argmax_agree']:.1f}% of training series. "
+                 f"The selected penalty, however, was identical in only {100 * c0['alpha_same']:.0f}% of datasets and within one grid step in "
+                 f"{100 * c0['alpha_within1']:.0f}%: on clean labels the leave-one-out criterion is flat over a wide range of penalties, so the choice "
+                 "within that range is unstable while the predictions it implies are not. Running LOO-EM with the exact operator changed mean test "
+                 "accuracy by " + ", ".join(f"{_sg(100 * wl[k]['mean_diff'])} points {'on' if k == 'sym 0%' else 'under'} {lab.get(k, k)}" for k in ("sym 0%", "sym 30%", "asym 40%") if k in wl)
+                 + f"; the largest difference ({lab.get(worst, worst)}) has Wilcoxon p = {wl[worst]['p']:.2f}"
+                 + (", and none is significant at the 5% level, so the approximation does not change the conclusions. " if min(wl[k]['p'] for k in wl) >= 0.05
+                    else ", so the approximation has a measurable effect on small datasets. ")
+                 + "Refitting the random-kernel transform itself without each series, the remaining approximation, is shared by every LOO-based "
+                 "method including the standard ridge pipeline.")
     else:
         v.append(na("exact-LOO sensitivity"))
     if "loo_em_inst" in meth:
@@ -289,7 +306,7 @@ def _revision_sections(ctx, md_table, pct):
     # ---- CTW (appended to generalisation) --------------------------------------------------------------
     ct = ex.get("ctw")
     need = ["sym 0%", "sym 20%", "sym 40%", "asym 20%", "asym 40%", "boundary 30%"]
-    if ct and not (all(c in ct["mean_accuracy"] for c in need) and ct["n_datasets"] == 8 and len(ct["seeds"]) == 3):
+    if ct and not (all(c in ct["mean_accuracy"] for c in need) and ct["n_datasets"] == 7 and len(ct["seeds"]) == 3):
         ct = None
     if ct:
         a = ct["mean_accuracy"]
@@ -300,8 +317,8 @@ def _revision_sections(ctx, md_table, pct):
                 rows.append({"Noise": cnd, **{lab: g(m, cnd) for m, lab in (("ridge_std", "Ridge (default)"), ("ridge_wide", "Ridge (wide)"),
                              ("loo_em_bic", "LOO-EM (BIC)"), ("conf_learning_cal", "Confident learning (cal.)"), ("ctw", "CTW"))}})
         TABLES["ctw"] = pd.DataFrame(rows).to_markdown(index=False, disable_numparse=True) + \
-            f"\n\n: Comparison with CTW (re-implemented) on the eight UCR datasets of the CTW paper ({', '.join(ct['datasets'])}); mean test accuracy (%), seeds {', '.join(map(str, ct['seeds']))}, identical splits and noise for all methods\n"
-        out["ctw"] = (f"*A time-series-specific noisy-label method.* On the eight UCR datasets of the CTW authors' own experiment list (TABREF:ctw), CTW reaches "
+            f"\n\n: Comparison with CTW (re-implemented) on the UCR datasets of the CTW paper's experiment list ({', '.join(ct['datasets'])}; MelbournePedestrian, which has unequal-length series, is excluded); mean test accuracy (%), seeds {', '.join(map(str, ct['seeds']))}, identical splits and noise for all methods\n"
+        out["ctw"] = (f"*A time-series-specific noisy-label method.* On the {ct['n_datasets']} equal-length UCR datasets of the CTW authors' own experiment list (TABREF:ctw), CTW reaches "
                       f"{g('ctw', 'sym 0%')}% on clean labels, {g('ctw', 'sym 40%')}% at 40% symmetric and {g('ctw', 'asym 40%')}% at 40% asymmetric noise, against "
                       f"{g('ridge_wide', 'sym 0%')}%, {g('ridge_wide', 'sym 40%')}% and {g('ridge_wide', 'asym 40%')}% for wide-grid ridge and {g('loo_em_bic', 'sym 0%')}%, "
                       f"{g('loo_em_bic', 'sym 40%')}% and {g('loo_em_bic', 'asym 40%')}% for LOO-EM (CTW versus LOO-EM at 40% asymmetric noise: "
@@ -309,7 +326,7 @@ def _revision_sections(ctx, md_table, pct):
                       f"Averaged over the six conditions, CTW is {_cmp(np.mean([a[k]['ctw'] for k in a]), np.mean([a[k]['loo_em_bic'] for k in a]))} LOO-EM and "
                       f"{_cmp(np.mean([a[k]['ctw'] for k in a]), np.mean([a[k]['ridge_wide'] for k in a]))} wide-grid ridge. "
                       f"One CTW run took a median of {ct['median_time_s']:.0f} s on one CPU core, against well under a second "
-                      "for every ridge-based method on these datasets. Eight datasets are too few for a significance test to carry much weight, and CTW was run "
+                      "for every ridge-based method on these datasets. Seven datasets are too few for a significance test to carry much weight, and CTW was run "
                       "with its published hyper-parameters rather than tuned; the comparison therefore locates the methods relative to each other on the "
                       "CTW authors' own benchmark rather than establishing a general ranking.\n\nTABLE:ctw")
     else:

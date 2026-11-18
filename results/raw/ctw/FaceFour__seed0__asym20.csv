@@ -1,0 +1,2 @@
+dataset,transform,seed,noise,rate,method,n_train,n_test,n_classes,true_noise,time_s,acc,bal_acc,macro_f1
+FaceFour,raw,0,asym,0.2,ctw,24,88,4,0.25,162.60546231269836,0.5681818181818182,0.5194805194805194,0.5121212121212121

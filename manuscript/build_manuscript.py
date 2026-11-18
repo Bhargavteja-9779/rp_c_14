@@ -24,6 +24,11 @@ M = os.path.join(ROOT, "manuscript")
 T = os.path.join(ROOT, "tables")
 
 
+def _minus(t):
+    """Typographic minus for negative numbers only (never inside words such as 'Holm-adjusted')."""
+    return re.sub(r"(?<![A-Za-z])-(?=\d)", "−", t)
+
+
 class Pt(float):
     """A number of accuracy points that prints with one decimal and survives unary minus."""
     def __neg__(self): return Pt(-float(self))
@@ -72,8 +77,8 @@ class Ctx:
 
     def DSTAT(self, cand, ref, cond, subset="all"):
         r = self._st(cand, ref, cond, subset)
-        return (f"{100 * r['mean_diff']:+.1f} points (95% CI {100 * r['ci_lo']:+.1f} to {100 * r['ci_hi']:+.1f}; "
-                f"Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, {r['losses']} losses)").replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4").replace("-5", "−5").replace("-6", "−6").replace("-7", "−7").replace("-8", "−8").replace("-9", "−9")
+        return _minus(f"{100 * r['mean_diff']:+.1f} points, 95% CI {100 * r['ci_lo']:+.1f} to {100 * r['ci_hi']:+.1f}, "
+                      f"Holm-adjusted p {self.p(r['p_holm'])}, {r['wins']} wins and {r['losses']} losses")
 
     def WL(self, cand, ref, cond, subset="all"):
         r = self._st(cand, ref, cond, subset)
@@ -165,15 +170,17 @@ class Ctx:
     def CWS(self, metric, cand, ref, cond):
         r = next(r for r in self.stats["secondary"] if r["experiment"] == f"classwise_{metric}" and r["candidate"] == cand
                  and r["reference"] == ref and r["cond"] == cond)
-        return (f"{100 * r['mean_diff']:+.1f} points (Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, "
-                f"{r['losses']} losses)").replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4").replace("-5", "−5").replace("-6", "−6").replace("-7", "−7").replace("-8", "−8").replace("-9", "−9")
+        if metric in ("ece", "brier"):      # lower is better
+            wl = f"lower on {r['losses']} and higher on {r['wins']} datasets"
+        else:
+            wl = f"{r['wins']} wins and {r['losses']} losses"
+        return _minus(f"{100 * r['mean_diff']:+.1f} points, Holm-adjusted p {self.p(r['p_holm'])}, {wl}")
 
     # ---- secondary main-benchmark comparisons ----------------------------------------------------------
     def SEC(self, exp, cand, ref, cond):
         r = next(r for r in self.stats["secondary"] if r["experiment"] == exp and r["candidate"] == cand
                  and r["reference"] == ref and r["cond"] == cond)
-        return (f"{100 * r['mean_diff']:+.1f} points (Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, "
-                f"{r['losses']} losses)").replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4").replace("-5", "−5").replace("-6", "−6").replace("-7", "−7").replace("-8", "−8").replace("-9", "−9")
+        return _minus(f"{100 * r['mean_diff']:+.1f} points, Holm-adjusted p {self.p(r['p_holm'])}, {r['wins']} wins and {r['losses']} losses")
 
     # ---- exact LOO, scaling -----------------------------------------------------------------------------
     def EXL(self, cond, key, scale=1, dec=2):
@@ -312,7 +319,7 @@ def build_tables(ctx):
                          "Δ F1 [95% CI]": f"{r['f1_diff']:+.3f} [{r['f1_ci_lo']:+.3f}, {r['f1_ci_hi']:+.3f}]",
                          "McNemar p (rep. 0, 1)": ", ".join(p(v) for v in r["mcnemar_p"]),
                          "Holm p (primary)": "" if r.get("p_holm_primary") is None or r["p_holm_primary"] != r["p_holm_primary"] else p(r["p_holm_primary"])})
-        t["cinc_tests"] = pd.DataFrame(rows).to_markdown(index=False, disable_numparse=True) + \
+        t["cinc_tests"] = _minus(pd.DataFrame(rows).to_markdown(index=False, disable_numparse=True)) + \
             ("\n\n: ECG data: paired comparisons against the expert-revised labels. Differences of accuracy and challenge F1 with paired-bootstrap 95% confidence "
              "intervals over recordings; McNemar's exact test on per-recording correctness, separately for each repetition; Holm correction over the two "
              "pre-specified primary comparisons only. Comparisons involving the exploratory criteria or expert-label references are descriptive\n")

@@ -1,0 +1,2 @@
+dataset,transform,seed,noise,rate,method,n_train,n_test,n_classes,true_noise,time_s,acc,bal_acc,macro_f1
+CBF,raw,0,asym,0.4,ctw,30,900,3,0.4,90.91368532180786,0.5988888888888889,0.5982352795926732,0.5864459807974453

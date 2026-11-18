@@ -6,11 +6,20 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd
 
-CTW_UCR = "ArrowHead,CBF,FaceFour,MelbournePedestrian,OSULeaf,Plane,Symbols,Trace"
+# The CTW paper's UCR list minus MelbournePedestrian, which has unequal-length series with missing values and is
+# therefore not part of the equal-length benchmark on which all other methods were run.
+CTW_UCR = "ArrowHead,CBF,FaceFour,OSULeaf,Plane,Symbols,Trace"
 CONDS = [("sym", 0.0), ("sym", 0.2), ("sym", 0.4), ("asym", 0.2), ("asym", 0.4), ("boundary", 0.3)]
 
 
 def one(args):
+    try:
+        return _one(args)
+    except Exception as e:                       # recorded, never silently dropped
+        return args[0], args[1], "FAILED " + repr(e)[:200]
+
+
+def _one(args):
     d, seed, epochs = args
     import torch; torch.set_num_threads(1)
     from src.training import runner

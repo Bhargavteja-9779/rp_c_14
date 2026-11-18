@@ -37,3 +37,28 @@ and both propositions were additionally recomputed independently from the raw CS
 * "arg-max preserved iff T symmetric" → only the "if" direction plus a counter-example.
 * Any statement about MultiRocket or ElectricDevices → removed (experiments not completed).
 * "state of the art", "outperforms" → not used.
+
+## Claims added or changed in the revision
+
+| Claim | Evidence | Where |
+|---|---|---|
+| Label smoothing changes no ridge prediction | Corollary 1 (proof) + unit test `test_label_smoothing_changes_no_prediction` | Sect. 3.2 |
+| Primal and dual routes give identical results | Unit test `test_primal_route_equals_dual` | Sect. 4.3 |
+| On real ECG noise, training on noisy labels costs < 1 point | ECG experiment, paired bootstrap + McNemar | Sect. 6.6, ECG tables |
+| LOO-EM lowers agreement with expert labels; over-corrects | Primary comparison (Holm), label-change rate vs documented rate | Sect. 6.6 |
+| No relabelling/removal method helps on real noise; most hurt | Paired tests for each method | ECG tests table |
+| Backward correction is the only helpful correction on real noise | Paired test, both repetitions | Sect. 6.6 |
+| Detection of documented errors is modest (AUROC ≈ 0.64–0.70) | Per-fold AUROC vs v0≠v3 | Sect. 6.6, Fig. (ECG) |
+| Wide grid hurts worst-class recall under symmetric noise | Class-wise pass, paired tests | Sect. 6.5, Fig. (class-wise) |
+| LOO-EM improves calibration under noise | Class-wise pass (ECE, Brier) | Sect. 6.5 |
+| Balanced-error criterion protects minority classes (exploratory) | 108-dataset pass, registered beforehand | Sect. 6.7 |
+| Exact vs closed-form LOO: no significant effect on LOO-EM | Exact operator on 41 datasets | Sect. 6.4 |
+| Instance-dependent model rejected | Pre-set rule on design set; confirmation set | Sect. 6.4 |
+| Scaling/deployment numbers | Scaling experiment, ECG timing | Sect. 6.9 |
+| CTW comparison | 7 datasets × 3 seeds × 6 conditions, identical splits/noise | Sect. 6.8 |
+
+**Claims removed or weakened in the revision:** "widening the grid never hurts clean accuracy" (false on the ECG data,
+where it hurt under the squared-error criterion); "LOO-EM is the only correction that improves on ridge" (true on
+synthetic noise only); "every cleaning method reduced agreement" (calibrated confident learning's difference was not
+significant — rewritten as "none improved it, most reduced it"); the stated bound ε < (C−1)/C in Corollary 1
+(corrected to ε < 1 after re-derivation).
