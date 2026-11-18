@@ -61,3 +61,46 @@ design set it was worse than wide-grid ridge on clean labels (−1.5 to −2.5 p
 neither the development set nor the design set. v2 was frozen before any of their results was inspected. The
 manuscript reports v1 in full as a negative/trade-off result and reports v2 separately on the confirmation set.
 Primary comparison (updated): `loo_em_bic` vs `ridge_wide` and vs `ridge_std` on the confirmation set.
+
+## Stage 3 (revision after external review, written before the corresponding runs)
+
+**Instance-dependent noise model (candidate "v3").** Observation model
+P(ỹ = k | z, x_i) = (1 − e_i)[k = z] + e_i · p_i(k) / (1 − p_i(z)) for k ≠ z, with e_i = σ(a + b·u_i),
+u_i = 1 − max_k p_i(k) the uncertainty of the current leave-one-out predictive distribution p_i. Flips are thus more
+likely for uncertain series and go preferentially to classes the classifier finds plausible. Two parameters (a, b),
+fitted inside the same EM; added as a fourth candidate to the BIC choice (none / symmetric / instance / full).
+Caveat stated in advance: the synthetic boundary noise of the benchmark flips low-margin series to the runner-up
+class, a mechanism close to this model, so a gain under boundary noise is weak evidence; the real-noise ECG data are
+the decisive test.
+
+**Design data and adoption rule (fixed now).** Design set of stage 2 (39 datasets, seeds 0–1), conditions sym 0/20/40,
+asym 20/40, boundary 20/30. The candidate replaces the stage-2 method only if, relative to it, (i) mean accuracy at
+30 % boundary noise rises by ≥ 0.5 points and (ii) no other condition loses more than 0.2 points. Otherwise the
+stage-2 method stays the proposed method and the candidate is reported as a negative result.
+
+**New baseline.** Backward loss correction (Natarajan et al. 2013; Patrini et al. 2017) applied to the squared loss:
+ridge fitted to the corrected targets onehot(ỹ)·T̂⁻¹, with T̂ estimated by the anchor-point method from calibrated
+LOO probabilities of wide-grid ridge (97th-percentile anchors, as in Patrini et al.).
+
+**Additional outcome measures (all datasets, seeds 0–4).** Recall of the smallest training class, worst-class recall,
+expected calibration error (15 equal-width bins, top label) and Brier score of probabilities obtained by fitting one
+temperature on the final model's LOO decision values against its own training targets (no clean labels used).
+
+**Stage-3 outcomes (design set).** (a) Instance-dependent candidate: +0.69 points at 30 % boundary noise but −0.59
+and −0.78 points at 20 % and 40 % asymmetric noise relative to the stage-2 method (`supplementary/design_v4_results.csv`).
+Criterion (ii) fails, so it is **not adopted**; it is run on all datasets and on the ECG data and reported as a
+negative result. (b) Backward correction: Patrini et al. describe two anchor rules (97th percentile and arg-max).
+On 13 design datasets the 97th-percentile rule lost 6.7 points on clean labels relative to ridge and the arg-max rule
+0.2 points; the arg-max rule is used, i.e. the baseline is given the better of its two published configurations.
+
+## Stage 4 (exploratory, prompted by the ECG results; written before these runs)
+
+**Observation that prompted it.** On the ECG data (repetition 0) the default grid was saturated at 10³ on every
+fold and the leave-one-out squared-error criterion selected 3×10³ on the wide grid even with expert labels;
+the wide grid then lost accuracy and AF recall. This points at the selection *criterion*, not at label noise.
+
+**Exploratory variants.** Wide-grid ridge with the penalty chosen by (a) leave-one-out classification error and
+(b) leave-one-out balanced error (mean per-class error), both computed from the same closed-form LOO decision values,
+ties broken by the LOO squared error. Run on all 108 UCR datasets (seeds 0–4, all noise conditions) and on the ECG
+data. Because the idea was formed after seeing ECG results, ECG evidence for it is not confirmatory; the UCR
+results, on which these variants have never been run, are the test. Reported as exploratory in the paper.

@@ -110,3 +110,35 @@ def test_symmetric_noise_expected_solution_is_scaled():
     K = g.test_kernel(Xt)
     f, fe = g.predict(K, Y, 1.0), g.predict(K, EY, 1.0)
     assert np.allclose(fe, (1 - rho * C / (C - 1)) * f + (rho * C / (C - 1)) * (2.0 / C - 1), atol=1e-8)
+
+
+def test_primal_route_equals_dual():
+    """n > p uses the p x p scatter matrix; LOO values, selected penalty and predictions must agree."""
+    X, y, Xt, _ = make(n=120, p=40, sep=1.0)
+    gp = GramRidge().fit(X)
+    assert gp.route_ == "primal"
+    Y = one_hot_pm(y, 3)
+    a, loo_p, _ = gp.select_alpha(Y)
+    # brute-force dual reference on the same standardised features
+    Z = gp.Z_
+    K = Z @ Z.T
+    for alpha in (0.1, 10.0):
+        H = np.linalg.solve(K + alpha * np.eye(120), K).T + 1.0 / 120
+        loo_ref = (H @ Y - np.diag(H)[:, None] * Y) / (1 - np.diag(H)[:, None])
+        assert np.allclose(gp.loo(Y, alpha)[0], loo_ref, atol=1e-6)
+    Kt = gp.test_kernel(Xt)
+    Zt = gp.test_features(Xt)
+    assert np.allclose(gp.predict(Kt, Y, a), gp.predict_features(Zt, Y, a), atol=1e-6)
+
+
+def test_label_smoothing_changes_no_prediction():
+    """Corollary 1: label smoothing is an affine map of the targets -> identical arg-max for any penalty."""
+    X, y, Xt, _ = make(n=50, p=80)
+    g = GramRidge().fit(X)
+    K = g.test_kernel(Xt)
+    C = 3
+    onehot = np.eye(C)[y]
+    for eps in (0.1, 0.5, 0.9):
+        Ys = 2 * ((1 - eps) * onehot + eps / C) - 1
+        for a in (0.01, 1.0, 1e3):
+            assert np.array_equal(g.predict(K, one_hot_pm(y, C), a).argmax(1), g.predict(K, Ys, a).argmax(1))

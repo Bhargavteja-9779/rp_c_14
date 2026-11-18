@@ -15,13 +15,13 @@ from src.statistics import tests as st
 R = os.path.join(ucr.ROOT, "results")
 T = os.path.join(ucr.ROOT, "tables")
 RAW_SUB = "raw/minirocket"
-KEY = ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning_cal", "conf_learning", "kfold_relabel", "enn", "loo_relabel", "loo_remove"]
-ABL = ["loo_em_bic", "bic_hard", "bic_in_sample", "bic_std_grid", "bic_iter_5", "bic_pen_0.5", "bic_pen_2", "em_sym_T", "loo_em",
+KEY = ["ridge_std", "ridge_wide", "loo_em_bic", "loo_em", "conf_learning_cal", "conf_learning", "backward_ridge", "kfold_relabel", "enn", "loo_relabel", "loo_remove"]
+ABL = ["loo_em_bic", "loo_em_inst", "bic_hard", "bic_in_sample", "bic_std_grid", "bic_iter_5", "bic_pen_0.5", "bic_pen_2", "em_sym_T", "loo_em",
        "em_no_gate", "em_no_T", "loo_relabel", "loo_relabel_it", "loo_remove", "ridge_wide"]
 LABEL = {"ridge_std": "Ridge (default grid)", "ridge_wide": "Ridge (wide grid)", "loo_em": "LOO-EM v1 (full T)",
          "loo_em_bic": "LOO-EM (BIC, proposed)", "bic_hard": "BIC: hard targets", "bic_in_sample": "BIC: in-sample scores",
          "bic_std_grid": "BIC: default grid", "bic_iter_5": "BIC: 5 EM iterations", "bic_pen_0.5": "BIC: penalty x0.5",
-         "bic_pen_2": "BIC: penalty x2",
+         "bic_pen_2": "BIC: penalty x2", "backward_ridge": "Backward-corrected ridge", "loo_em_inst": "+ instance-dependent model (rejected)",
          "conf_learning": "Confident learning (uncalibrated)", "conf_learning_cal": "Confident learning (calibrated)", "kfold_relabel": "5-fold relabel", "enn": "ENN",
          "loo_relabel": "LOO relabel (1 round)", "loo_relabel_it": "LOO relabel (iterated)",
          "loo_remove": "LOO remove", "em_no_gate": "v1 without gate", "em_sym_T": "Symmetric T only",
@@ -141,7 +141,9 @@ def run(dev=None):
              ("loo_em_bic", "kfold_relabel"), ("loo_em_bic", "enn"), ("conf_learning", "ridge_wide"),
              ("enn", "ridge_wide"), ("conf_learning_cal", "ridge_wide"), ("conf_learning_cal", "conf_learning"), ("loo_em_bic", "conf_learning_cal"), ("loo_relabel", "ridge_wide"), ("loo_remove", "ridge_wide"),
              ("kfold_relabel", "ridge_wide"), ("loo_em_bic", "bic_hard"), ("loo_em_bic", "bic_in_sample"),
-             ("loo_em_bic", "bic_std_grid"), ("loo_em_bic", "em_sym_T"), ("loo_em_bic", "em_no_T")]
+             ("loo_em_bic", "bic_std_grid"), ("loo_em_bic", "em_sym_T"), ("loo_em_bic", "em_no_T"),
+             ("ridge_wide_bal", "ridge_std"), ("ridge_wide_bal", "ridge_wide"), ("ridge_wide_err", "ridge_wide"), ("ridge_wide_err", "ridge_std"),
+             ("loo_em_inst", "loo_em_bic"), ("backward_ridge", "ridge_wide")]
     have = set(df.method.unique())
     for cand, ref in pairs:
         if cand not in have or ref not in have:

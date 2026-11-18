@@ -348,7 +348,8 @@ def _revision_sections(ctx, md_table, pct):
                              ("loo_em_bic", "LOO-EM (BIC)"), ("conf_learning_cal", "Confident learning (cal.)"), ("ctw", "CTW"))}})
         TABLES["ctw"] = pd.DataFrame(rows).to_markdown(index=False, disable_numparse=True) + \
             f"\n\n: Comparison with CTW (re-implemented) on the UCR datasets of the CTW paper's experiment list ({', '.join(ct['datasets'])}; MelbournePedestrian, which has unequal-length series, is excluded); mean test accuracy (%), seeds {', '.join(map(str, ct['seeds']))}, identical splits and noise for all methods\n"
-        out["ctw"] = (f"*A time-series-specific noisy-label method.* On the {ct['n_datasets']} equal-length UCR datasets of the CTW authors' own experiment list (TABREF:ctw), CTW reaches "
+        words = {7: "seven", 8: "eight", 6: "six"}
+        out["ctw"] = (f"*A time-series-specific noisy-label method.* On the {words.get(ct['n_datasets'], ct['n_datasets'])} equal-length UCR datasets of the CTW authors' own experiment list (TABREF:ctw), CTW reaches "
                       f"{g('ctw', 'sym 0%')}% on clean labels, {g('ctw', 'sym 40%')}% at 40% symmetric and {g('ctw', 'asym 40%')}% at 40% asymmetric noise, against "
                       f"{g('ridge_wide', 'sym 0%')}%, {g('ridge_wide', 'sym 40%')}% and {g('ridge_wide', 'asym 40%')}% for wide-grid ridge and {g('loo_em_bic', 'sym 0%')}%, "
                       f"{g('loo_em_bic', 'sym 40%')}% and {g('loo_em_bic', 'asym 40%')}% for LOO-EM (CTW versus LOO-EM at 40% asymmetric noise: "
@@ -356,7 +357,7 @@ def _revision_sections(ctx, md_table, pct):
                       f"Averaged over the six conditions, CTW is {_cmp(np.mean([a[k]['ctw'] for k in a]), np.mean([a[k]['loo_em_bic'] for k in a]))} LOO-EM and "
                       f"{_cmp(np.mean([a[k]['ctw'] for k in a]), np.mean([a[k]['ridge_wide'] for k in a]))} wide-grid ridge. "
                       f"One CTW run took a median of {ct['median_time_s']:.0f} s on one CPU core, against well under a second "
-                      "for every ridge-based method on these datasets. Seven datasets are too few for a significance test to carry much weight, and CTW was run "
+                      "for every ridge-based method on these datasets, a difference of more than two orders of magnitude. Seven datasets are too few for a significance test to carry much weight, and CTW was run "
                       "with its published hyper-parameters rather than tuned; the comparison therefore locates the methods relative to each other on the "
                       "CTW authors' own benchmark rather than establishing a general ranking." + _ctw_check(ex) + "\n\nTABLE:ctw")
     else:

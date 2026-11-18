@@ -1,0 +1,76 @@
+CBF 0 654s
+ArrowHead 0 945s
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+  File "/home/user/rp_c_14/experiments/run_ctw.py", line 26, in one
+    f = get_features(d, seed, "minirocket", n_jobs=1)
+  File "/home/user/rp_c_14/src/preprocessing/features.py", line 35, in get_features
+    Xtr, ytr, Xte, yte = ucr.resample(*ucr.load(dataset), seed)
+                                       ~~~~~~~~^^^^^^^^^
+  File "/home/user/rp_c_14/src/data/ucr.py", line 22, in load
+    return np.asarray(Xtr, np.float32), ytr, np.asarray(Xte, np.float32), yte
+                                             ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 2 dimensions. The detected shape was (2439, 1) + inhomogeneous part.
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/rp_c_14/experiments/run_ctw.py", line 57, in <module>
+    for r in p.imap_unordered(one, jobs):
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/multiprocessing/pool.py", line 873, in next
+    raise value
+ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 2 dimensions. The detected shape was (2439, 1) + inhomogeneous part.
+ArrowHead 0 skip
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+  File "/home/user/rp_c_14/experiments/run_ctw.py", line 26, in one
+    f = get_features(d, seed, "minirocket", n_jobs=1)
+  File "/home/user/rp_c_14/src/preprocessing/features.py", line 35, in get_features
+    Xtr, ytr, Xte, yte = ucr.resample(*ucr.load(dataset), seed)
+                                       ~~~~~~~~^^^^^^^^^
+  File "/home/user/rp_c_14/src/data/ucr.py", line 22, in load
+    return np.asarray(Xtr, np.float32), ytr, np.asarray(Xte, np.float32), yte
+                                             ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 2 dimensions. The detected shape was (2439, 1) + inhomogeneous part.
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/rp_c_14/experiments/run_ctw.py", line 57, in <module>
+    for r in p.imap_unordered(one, jobs):
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/multiprocessing/pool.py", line 873, in next
+    raise value
+ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 2 dimensions. The detected shape was (2439, 1) + inhomogeneous part.
+ArrowHead 0 skip
+CBF 0 skip
+FaceFour 0 444s
+Symbols 0 831s
+Plane 0 1065s
+CBF 1 472s
+ArrowHead 1 731s
+Trace 0 1624s
+FaceFour 1 1307s
+Plane 1 1689s
+Symbols 1 1032s
+ArrowHead 2 883s
+OSULeaf 0 4929s
+CBF 2 533s
+Trace 1 1626s
+FaceFour 2 823s
+Plane 2 1152s
+OSULeaf 1 5022s
+Symbols 2 937s
+Trace 2 1551s
+OSULeaf 2 4130s

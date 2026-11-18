@@ -41,6 +41,12 @@ class GramRidge:
 
     # ------------------------------------------------------------------ fit
     def fit(self, Phi: np.ndarray) -> "GramRidge":
+        """Standardise, centre and decompose.
+
+        Dual route (n <= p): eigendecomposition of the n x n Gram matrix, O(n^3) time, O(n^2) memory.
+        Primal route (n > p): eigendecomposition of the p x p scatter matrix and U = Z V S^{-1/2},
+        O(n p^2 + p^3) time, O(n p) memory.  Both give the same thin factor U (n x r) and eigenvalues s,
+        so every downstream formula (hat diagonal, LOO values, predictions) is identical."""
         Phi = np.asarray(Phi, dtype=self.dtype)
         self.n_ = Phi.shape[0]
         self.mu_ = Phi.mean(0)
@@ -49,9 +55,18 @@ class GramRidge:
         self.sd_ = sd
         Z = (Phi - self.mu_) / self.sd_
         self.Z_ = Z
-        K = Z @ Z.T
-        s, U = linalg.eigh(K, overwrite_a=True, check_finite=False)
-        s = np.clip(s, 0.0, None)
+        n, p = Z.shape
+        self.route_ = "dual" if n <= p else "primal"
+        if self.route_ == "dual":
+            K = Z @ Z.T
+            s, U = linalg.eigh(K, overwrite_a=True, check_finite=False)
+            s = np.clip(s, 0.0, None)
+        else:
+            S = Z.T @ Z
+            s, V = linalg.eigh(S, overwrite_a=True, check_finite=False)
+            keep = s > 1e-10 * max(s.max(), 1e-300)
+            s, V = s[keep], V[:, keep]
+            U = (Z @ V) / np.sqrt(s)
         self.s_, self.U_ = s, U
         self.U2_ = U * U
         return self
@@ -79,10 +94,19 @@ class GramRidge:
         return loo, fit, h
 
     def _score(self, Y, UtY, a, criterion):
+        """LOO selection criteria.  'mse' (default, as RidgeClassifierCV); 'err': LOO 0-1 error; 'bal': LOO
+        balanced error (mean per-class error).  The error criteria are piecewise constant in alpha, so ties are
+        broken by the LOO squared error (a tiny weight that never overrides a difference in error)."""
         loo, _, _ = self.loo(Y, a, UtY)
+        mse = float(np.mean((loo - Y) ** 2))
         if criterion == "mse":
-            return float(np.mean((loo - Y) ** 2)), loo
-        return float(np.mean(loo.argmax(1) != Y.argmax(1))), loo
+            return mse, loo
+        t, p = Y.argmax(1), loo.argmax(1)
+        if criterion == "err":
+            e = float(np.mean(p != t))
+        else:
+            e = float(np.mean([np.mean(p[t == c] != c) for c in np.unique(t)]))
+        return e + 1e-9 * mse, loo
 
     def select_alpha(self, Y: np.ndarray, criterion: str = "mse", around: float | None = None, width: int = 2):
         """LOO model selection over the alpha grid (as RidgeClassifierCV).
@@ -120,8 +144,17 @@ class GramRidge:
         return A, ybar
 
     def predict(self, K_te: np.ndarray, Y: np.ndarray, alpha: float) -> np.ndarray:
+        """Decision values from the test kernel K_te = Z_te Z^T (n_te x n)."""
         A, ybar = self.dual_coef(Y, alpha)
         return K_te @ A + ybar
+
+    def predict_features(self, Z_te: np.ndarray, Y: np.ndarray, alpha: float) -> np.ndarray:
+        """Same decision values from standardised test features (n_te x p): avoids forming K_te."""
+        A, ybar = self.dual_coef(Y, alpha)
+        return Z_te @ (self.Z_.T @ A) + ybar
+
+    def test_features(self, Phi_te: np.ndarray) -> np.ndarray:
+        return (np.asarray(Phi_te, dtype=self.dtype) - self.mu_) / self.sd_
 
     def subset(self, idx: np.ndarray) -> "GramRidge":
         """New GramRidge restricted to training rows ``idx`` (re-centred, refit)."""

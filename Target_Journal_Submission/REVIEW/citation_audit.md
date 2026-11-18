@@ -26,3 +26,18 @@ Every reference in `manuscript/references.py` was checked for author list, title
 * TS-ACL (arXiv 2410.15954) was read during topic selection and is not cited in the manuscript (different topic).
 
 **Automatic cross-check.** `build_manuscript.py` fails the consistency check if an in-text author–year string has no entry or an entry is never cited; the current build reports 42 references, all cited.
+
+## References added in the revision (all verified before use)
+
+| Reference | Verified via |
+|---|---|
+| Brier 1950; Efron 1979; McNemar 1947; Goldberger et al. 2000 | Crossref (DOI) |
+| Clifford et al. 2017 (challenge paper); Teijeiro et al. 2017 | Crossref (DOI 10.22489/CinC.2017.065-469, …166-054); the challenge paper was also read for the relabelling procedure |
+| Pollard et al. 2026 (PhysioNet, Nat Health 1:792–795) | Crossref; requested by the PhysioNet dataset page. The Crossref record lists more than eight authors; the entry gives the first eight and "et al." — authors should expand it if the style requires all names |
+| Liu J et al. 2026 (Neurocomputing 676:133059) | Crossref |
+| Nagaraj et al. 2025 (ICLR); Li et al. 2025; Wei et al. 2024; Chen et al. 2024 (Con4m); Xia et al. 2020; Guo et al. 2017; Lukasik et al. 2020 | arXiv API (titles, authors, years). Venue statements (ICLR 2025, ICML 2017/2020, NeurIPS 2020) come from the proceedings listings found during search; check final page numbers if the style requires them |
+
+Claims attributed to these references were checked against the abstract or, for the challenge paper, the full text:
+"outsourced company, about 10% over-read", "V2 visual re-check for noisy recordings", "V3 expert relabelling",
+"Fleiss κ = 0.245" (Clifford et al. 2017); "197 of 8,528 records relabelled after a manual review" (Teijeiro et al. 2017 — verified in the
+paper's full text, Sect. 2.1.1); "most methods evaluated with synthetic noise" (Wei et al. 2024, abstract).

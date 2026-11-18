@@ -24,6 +24,20 @@ M = os.path.join(ROOT, "manuscript")
 T = os.path.join(ROOT, "tables")
 
 
+def _wl(w, l):
+    return f"{w} win{'s' if w != 1 else ''} and {l} loss{'es' if l != 1 else ''}"
+
+
+def _z(v):
+    """Signed one-decimal string; values that round to zero are printed as 0.0."""
+    return "0.0" if round(v, 1) == 0 else f"{v:+.1f}"
+
+
+def _minus(t):
+    """Typographic minus for negative numbers only (never inside words such as 'Holm-adjusted')."""
+    return re.sub(r"(?<![A-Za-z])-(?=\d)", "−", t)
+
+
 class Pt(float):
     """A number of accuracy points that prints with one decimal and survives unary minus."""
     def __neg__(self): return Pt(-float(self))
@@ -72,12 +86,12 @@ class Ctx:
 
     def DSTAT(self, cand, ref, cond, subset="all"):
         r = self._st(cand, ref, cond, subset)
-        return (f"{100 * r['mean_diff']:+.1f} points (95% CI {100 * r['ci_lo']:+.1f} to {100 * r['ci_hi']:+.1f}; "
-                f"Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, {r['losses']} losses)").replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4").replace("-5", "−5").replace("-6", "−6").replace("-7", "−7").replace("-8", "−8").replace("-9", "−9")
+        return _minus(f"{_z(100 * r['mean_diff'])} points, 95% CI {100 * r['ci_lo']:+.1f} to {100 * r['ci_hi']:+.1f}, "
+                      f"Holm-adjusted p {self.p(r['p_holm'])}, {_wl(r['wins'], r['losses'])}")
 
     def WL(self, cand, ref, cond, subset="all"):
         r = self._st(cand, ref, cond, subset)
-        return f"{r['wins']} wins, {r['losses']} losses"
+        return f"{_wl(r['wins'], r['losses'])}"
 
     def MD(self, metric, cand, ref, cond):
         """Mean paired difference (points) for balanced accuracy / macro-F1, all datasets."""
@@ -86,7 +100,7 @@ class Ctx:
 
     def MDP(self, metric, cand, ref, cond):
         r = next(r for r in self.stats[f"{metric}__{cand}__vs__{ref}__all"] if r["cond"] == cond)
-        return f"{100 * r['mean_diff']:+.1f} points (Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, {r['losses']} losses)".replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4")
+        return _minus(f"{_z(100 * r['mean_diff'])} points, Holm-adjusted p {self.p(r['p_holm'])}, {_wl(r['wins'], r['losses'])}")
 
     def IMB(self, metric, b, cond, m):
         r = next(r for r in self.metrics["by_imbalance"] if r["metric"] == metric and r["imbalance_bin"].startswith(b) and r["cond"] == cond)
@@ -94,6 +108,112 @@ class Ctx:
 
     def NIMB(self, b):
         return next(r for r in self.metrics["by_imbalance"] if r["imbalance_bin"].startswith(b))["n_datasets"]
+
+    # ---- real-world ECG (PhysioNet/CinC 2017) -------------------------------------------------------
+    def _c(self):
+        return self.metrics["cinc2017"]
+
+    def CINC(self, method, metric, dec=1):
+        v = self._c()["performance"][metric][method]
+        return f"{100 * v:.{dec}f}" if metric not in ("f1_nao",) else f"{v:.3f}"
+
+    def CINCD(self, method, key):
+        v = self._c()["detection"][key][method]
+        return f"{v:.2f}" if key in ("auroc",) else f"{100 * v:.1f}"
+
+    def _ct(self, cand, ref):
+        return next(r for r in self._c()["tests"] if r["candidate"] == cand and r["reference"] == ref)
+
+    def CINCT(self, cand, ref):
+        """Compact inline effect: accuracy difference with bootstrap CI and the F1 difference; tests in the table."""
+        r = self._ct(cand, ref)
+        return (f"{100 * r['acc_diff']:+.1f} accuracy points, 95% CI {100 * r['acc_ci_lo']:+.1f} to {100 * r['acc_ci_hi']:+.1f}; "
+                f"F1 {r['f1_diff']:+.3f}").replace("-", "−")
+
+    def CINCSTEP(self, a, b, kind="all"):
+        """Number of label changes between two PhysioNet label files (0..3); kind 'noisy' counts changes to '~'."""
+        import pandas as pd
+        from src.data import cinc2017
+        f = lambda v: pd.read_csv(os.path.join(cinc2017.RAW, f"REFERENCE-v{v}.csv"), header=None, names=["rec", "y"]).set_index("rec").y
+        x, y = f(a), f(b)
+        ch = x != y
+        if kind == "noisy":
+            return int((ch & (y == "~")).sum())
+        if kind == "rhythm":
+            return int((ch & (y != "~") & (x != "~")).sum())
+        return int(ch.sum())
+
+    def PCTREV(self):
+        c = self._c(); return f"{100 * c['n_revised'] / c['n_records']:.1f}"
+
+    def TREV(self):
+        return "TABNUM:cinc_revisions"
+
+    def CINCACC(self, cand, ref):
+        return Pt(100 * self._ct(cand, ref)["acc_diff"])
+
+    def CINCERR(self):
+        return f"{100 * (1 - self._c()['performance']['acc']['ridge_std']):.0f}"
+
+    def ENRICH(self, m):
+        d = self._c()["detection"]["prec_at_k"]
+        return f"{d[m] / d['ridge_wide']:.1f}"
+
+    def PCTN(self):
+        from src.data import cinc2017
+        _, y0, _, _, _ = cinc2017.load()
+        return f"{100 * np.mean(y0 == 0):.0f}"
+
+    def CINCP(self, cand, ref):
+        return self.p(self._ct(cand, ref)["p_holm_primary"])
+
+    def CINCX(self, key, dec=0):
+        v = self._c()[key]
+        return f"{v:,.{dec}f}" if isinstance(v, (int, float)) else str(v)
+
+    # ---- CTW ----------------------------------------------------------------------------------------
+    def CTW(self, method, cond):
+        return f"{100 * self.metrics['extra']['ctw']['mean_accuracy'][cond][method]:.1f}"
+
+    def CTWS(self, cand, ref, cond):
+        r = next(r for r in self.stats["secondary"] if r["experiment"] == "ctw" and r["candidate"] == cand
+                 and r["reference"] == ref and r["cond"] == cond)
+        return _minus(f"{_z(100 * r['mean_diff'])} points, {_wl(r['wins'], r['losses'])} over {r['n']} datasets")
+
+    def CTWX(self, key, dec=0):
+        v = self.metrics["extra"]["ctw"][key]
+        return f"{v:,.{dec}f}" if isinstance(v, (int, float)) else ", ".join(map(str, v))
+
+    # ---- class-wise / calibration --------------------------------------------------------------------
+    def CW(self, metric, method, cond):
+        return f"{100 * self.metrics['extra']['classwise'][metric][cond][method]:.1f}"
+
+    def CWS(self, metric, cand, ref, cond):
+        r = next(r for r in self.stats["secondary"] if r["experiment"] == f"classwise_{metric}" and r["candidate"] == cand
+                 and r["reference"] == ref and r["cond"] == cond)
+        if metric in ("ece", "brier"):      # lower is better
+            wl = f"lower on {r['losses']} and higher on {r['wins']} datasets"
+        else:
+            wl = f"{_wl(r['wins'], r['losses'])}"
+        return _minus(f"{_z(100 * r['mean_diff'])} points, Holm-adjusted p {self.p(r['p_holm'])}, {wl}")
+
+    # ---- secondary main-benchmark comparisons ----------------------------------------------------------
+    def SEC(self, exp, cand, ref, cond):
+        r = next(r for r in self.stats["secondary"] if r["experiment"] == exp and r["candidate"] == cand
+                 and r["reference"] == ref and r["cond"] == cond)
+        return _minus(f"{_z(100 * r['mean_diff'])} points, Holm-adjusted p {self.p(r['p_holm'])}, {_wl(r['wins'], r['losses'])}")
+
+    # ---- exact LOO, scaling -----------------------------------------------------------------------------
+    def EXL(self, cond, key, scale=1, dec=2):
+        r = next(r for r in self.metrics["extra"]["exact_loo"]["per_cond"] if r["cond"] == cond)
+        return f"{scale * r[key]:.{dec}f}"
+
+    def EXLN(self):
+        return self.metrics["extra"]["exact_loo"]["n_datasets"]
+
+    def SCL(self, n, k, key, scale=1, dec=0):
+        r = next(r for r in self.metrics["extra"]["scaling"] if r["n_req"] == n and r["n_kernels"] == k)
+        return f"{scale * r[key]:,.{dec}f}" if isinstance(r[key], (int, float)) else str(r[key])
 
     # ---- penalty ----------------------------------------------------------------------------------
     def PCT_SAT(self, cond):
@@ -178,7 +298,7 @@ def build_tables(ctx):
     t["stats_wide"] = stats_md(ctx, "ridge_wide", "ridge_std", "all").to_markdown(index=False, disable_numparse=True) + \
         f"\n\n: Wide versus default penalty grid, all {len(ctx.all_ds)} datasets: paired differences in accuracy points, two-sided Wilcoxon signed-rank test, Holm correction over the twelve conditions, matched-pairs rank-biserial effect size, and wins/ties/losses over datasets\n"
     t["stats_em"] = stats_md(ctx, "loo_em_bic", "ridge_wide", "confirm").to_markdown(index=False, disable_numparse=True) + \
-        f"\n\n: LOO-EM (BIC) versus wide-grid ridge on the {len(ctx.subs['confirm'])} confirmation datasets (columns as in Table 2)\n"
+        f"\n\n: LOO-EM (BIC) versus wide-grid ridge on the {len(ctx.subs['confirm'])} confirmation datasets (columns as in TABREF:stats_wide)\n"
     abl = ctx.mt().loc[[m for m in ag.ABL if m in ctx.mt().index]].rename(index=ag.LABEL)
     t["ablation"] = md_table(pct(abl), "Ablation and variants: mean test accuracy (%) over all datasets. " + SHORT, "Variant")
     conds = ["sym 0%", "sym 30%", "asym 40%", "boundary 20%"]
@@ -192,6 +312,46 @@ def build_tables(ctx):
                              "Confident learning (cal.)": f"{100 * r['conf_learning_cal']:.1f}"})
     s = pd.DataFrame(rows)
     t["strata"] = s.to_markdown(index=False, disable_numparse=True) + "\n\n: Mean test accuracy (%) by training-set size and by number of classes\n"
+    c = ctx.metrics.get("cinc2017", {})
+    if c.get("performance"):
+        from src.evaluation.realworld import NAMES as CN
+        perf = pd.DataFrame(c["performance"])
+        order = [m for m in CN if m in perf.index]
+        rows = []
+        for m in order:
+            r = perf.loc[m]
+            lab = CN[m] + (" †" if m in ("ridge_wide_err", "ridge_wide_bal", "ridge_wide_bal_v3labels") else "")
+            rows.append({"Method": lab, "Acc.": f"{100*r.acc:.1f}", "F1 (NAO)": f"{r.f1_nao:.3f}", "Bal. acc.": f"{100*r.bal_acc:.1f}",
+                         "Rec. N": f"{100*r.rec_N:.0f}", "Rec. A": f"{100*r.rec_A:.0f}", "Rec. O": f"{100*r.rec_O:.0f}", "Rec. ~": f"{100*r.rec_noisy:.0f}",
+                         "Acc. vs original": f"{100*r.acc_vs_v0:.1f}"})
+        t["cinc_performance"] = pd.DataFrame(rows).to_markdown(index=False, disable_numparse=True) + \
+            ("\n\n: ECG data (PhysioNet/CinC 2017): methods trained on the original labels, evaluated against the expert-revised labels on pooled out-of-fold "
+             "predictions (5-fold cross-validation, two repetitions). Accuracy, the challenge F1 (mean of N, A, O), balanced accuracy and per-class recall in %; "
+             "the last column scores the same predictions against the original labels. Rows trained on expert labels are references, not competitors. "
+             "† exploratory penalty criteria (Sect. 6.7)\n")
+    if c.get("tests"):
+        from src.evaluation.realworld import NAMES as CN
+        short = {k: v.replace(" (BIC, proposed)", "").replace("Ridge (wide grid)", "ridge (wide)").replace("Ridge (default grid)", "ridge (default)") for k, v in CN.items()}
+        rows = []
+        for r in c["tests"]:
+            p = lambda v: "<0.001" if v < 0.001 else f"{v:.3f}"
+            rows.append({"Comparison": f"{short[r['candidate']]} vs {short[r['reference']]}",
+                         "Δ accuracy (points) [95% CI]": f"{100*r['acc_diff']:+.2f} [{100*r['acc_ci_lo']:+.2f}, {100*r['acc_ci_hi']:+.2f}]",
+                         "Δ F1 [95% CI]": f"{r['f1_diff']:+.3f} [{r['f1_ci_lo']:+.3f}, {r['f1_ci_hi']:+.3f}]",
+                         "McNemar p (rep. 0, 1)": ", ".join(p(v) for v in r["mcnemar_p"]),
+                         "Holm p (primary)": "" if r.get("p_holm_primary") is None or r["p_holm_primary"] != r["p_holm_primary"] else p(r["p_holm_primary"])})
+        t["cinc_tests"] = _minus(pd.DataFrame(rows).to_markdown(index=False, disable_numparse=True)) + \
+            ("\n\n: ECG data: paired comparisons against the expert-revised labels. Differences of accuracy and challenge F1 with paired-bootstrap 95% confidence "
+             "intervals over recordings; McNemar's exact test on per-recording correctness, separately for each repetition; Holm correction over the two "
+             "pre-specified primary comparisons only. Comparisons involving the exploratory criteria or expert-label references are descriptive\n")
+    from src.data import cinc2017
+    _, y0, y3, _, _ = cinc2017.load()
+    lab = ["N", "A", "O", "~"]
+    ct = pd.crosstab(pd.Categorical([lab[i] for i in y0], lab), pd.Categorical([lab[i] for i in y3], lab), margins=True, margins_name="Total")
+    ct.index = [f"{i} (original)" if i != "Total" else "Total" for i in ct.index]
+    ct.columns = [f"{c} (revised)" if c != "Total" else "Total" for c in ct.columns]
+    t["cinc_revisions"] = ct.to_markdown(disable_numparse=True) + \
+        "\n\n: Original (version 0) against expert-revised (version 3) labels of the 8,528 ECG recordings; N normal, A atrial fibrillation, O other rhythm, ~ too noisy. Off-diagonal cells are the documented annotation errors\n"
     e = pd.read_csv(os.path.join(T, "table_error_analysis.csv"))
     e = e[e.cond.isin(["sym 0%", "asym 40%"])]
     e = pd.DataFrame({"Noise": e.cond, "Group": e.group, "Dataset": e.dataset, "n": e.n_train, "Classes": e.n_classes,
@@ -233,12 +393,16 @@ def render(ctx):
     src = re.sub(r"^TABLE:(\w+)$", tab, src, flags=re.M)
     n_tab = n
     src = re.sub(r"TABREF:(\w+)", lambda m: f"Table {tabno[m.group(1)]}", src)
+    src = re.sub(r"Table TABNUM:(\w+)", lambda m: f"Table {tabno[m.group(1)]}", src)
     # figures
     k = 0
     def fig(m):
         nonlocal k
         k += 1
         return f"![**Fig. {k}** {m.group(1)}]({os.path.join(ROOT, 'figures', m.group(2) + '.png')}){{width=6.3in}}"
+    fignames = re.findall(r"!\[.+?\]\(FIG:(\w+)\)", src)
+    fignum = {n: i + 1 for i, n in enumerate(fignames)}
+    src = re.sub(r"FIGREF:(\w+)", lambda m: f"Fig. {fignum[m.group(1)]}", src)
     src = re.sub(r"!\[(.+?)\]\(FIG:(\w+)\)", fig, src)
     # references
     used = set(cite_keys(src))

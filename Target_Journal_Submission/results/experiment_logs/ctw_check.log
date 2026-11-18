@@ -1,0 +1,6 @@
+{'dataset': 'ArrowHead', 'protocol': 'CTW paper: 5-fold pooled, fold 0, sym 30%', 'acc': 0.6976744186046512, 'reported': 0.851, 'time_s': 385.7841806411743}
+{'dataset': 'CBF', 'protocol': 'CTW paper: 5-fold pooled, fold 0, sym 30%', 'acc': 0.9516129032258065, 'reported': 0.958, 'time_s': 886.6401612758636}
+{'dataset': 'ArrowHead', 'fold': 1, 'protocol': 'CTW paper: 5-fold pooled, sym 30%', 'acc': 0.7142857142857143, 'reported': 0.851, 'time_s': 524.1369800567627}
+{'dataset': 'ArrowHead', 'fold': 2, 'protocol': 'CTW paper: 5-fold pooled, sym 30%', 'acc': 0.8809523809523809, 'reported': 0.851, 'time_s': 525.7782204151154}
+{'dataset': 'ArrowHead', 'fold': 3, 'protocol': 'CTW paper: 5-fold pooled, sym 30%', 'acc': 0.8809523809523809, 'reported': 0.851, 'time_s': 390.2492711544037}
+{'dataset': 'ArrowHead', 'fold': 4, 'protocol': 'CTW paper: 5-fold pooled, sym 30%', 'acc': 0.8571428571428571, 'reported': 0.851, 'time_s': 395.4655771255493}

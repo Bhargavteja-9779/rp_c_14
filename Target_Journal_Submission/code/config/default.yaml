@@ -47,3 +47,9 @@ methods_v2:                       # frozen after the design-set analysis (supple
   bic_iter_5:    [loo_em_bic, wide, {max_iter: 5}]
 methods_v3:                       # added in review round 3/8: fairness check for the confident-learning baseline
   conf_learning_cal: [confident_learning, wide, {calibrate: true}]
+methods_v4:                       # stage 3 (revision): new baseline and candidate extension
+  backward_ridge: [backward_ridge, wide, {quantile: 1.0}]
+  loo_em_inst:    [loo_em_inst, wide, {}]
+methods_v5:                       # stage 4 (exploratory): penalty-selection criterion
+  ridge_wide_err: [ridge_err, wide, {}]
+  ridge_wide_bal: [ridge_bal, wide, {}]

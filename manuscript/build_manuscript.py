@@ -178,8 +178,7 @@ class Ctx:
     def CTWS(self, cand, ref, cond):
         r = next(r for r in self.stats["secondary"] if r["experiment"] == "ctw" and r["candidate"] == cand
                  and r["reference"] == ref and r["cond"] == cond)
-        return (f"{_z(100 * r['mean_diff'])} points ({_wl(r['wins'], r['losses'])} over "
-                f"{r['n']} datasets)").replace("-", "−")
+        return _minus(f"{_z(100 * r['mean_diff'])} points, {_wl(r['wins'], r['losses'])} over {r['n']} datasets")
 
     def CTWX(self, key, dec=0):
         v = self.metrics["extra"]["ctw"][key]

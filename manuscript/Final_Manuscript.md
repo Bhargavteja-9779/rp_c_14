@@ -452,11 +452,23 @@ Table 10 summarises three checks of external validity for the kernel-transform p
 : **Table 11** Other classifier families trained on the same noisy labels (seeds 0–2): mean test accuracy (%)
 
 
-*[CTW comparison: results not available in this build.]*
+*A time-series-specific noisy-label method.* On the seven equal-length UCR datasets of the CTW authors' own experiment list (Table 12), CTW reaches 85.3% on clean labels, 61.3% at 40% symmetric and 64.0% at 40% asymmetric noise, against 96.2%, 68.9% and 71.7% for wide-grid ridge and 95.9%, 71.7% and 73.8% for LOO-EM (CTW versus LOO-EM at 40% asymmetric noise: −9.7 points, 1 win and 6 losses over 7 datasets; at 40% symmetric noise −10.4 points, 1 win and 6 losses over 7 datasets). Averaged over the six conditions, CTW is 10.6 points less accurate than LOO-EM and 9.5 points less accurate than wide-grid ridge. One CTW run took a median of 163 s on one CPU core, against well under a second for every ridge-based method on these datasets, a difference of more than two orders of magnitude. Seven datasets are too few for a significance test to carry much weight, and CTW was run with its published hyper-parameters rather than tuned; the comparison therefore locates the methods relative to each other on the CTW authors' own benchmark rather than establishing a general ranking. To check the re-implementation we also ran it under the CTW paper's own protocol (stratified 5-fold split of the pooled data, 30% symmetric noise), where it reached 0.952 on CBF (fold 0; published 0.958) and 0.806 on ArrowHead (mean of 5 folds, SD 0.082; published 0.851), within the published run-to-run variation; the lower accuracies on our splits therefore reflect their much smaller training sets (for example 30 series for CBF and 36 series for ArrowHead) rather than an implementation error.
+
+| Noise        | Ridge (default)   | Ridge (wide)   | LOO-EM (BIC)   | Confident learning (cal.)   | CTW   |
+|:-------------|:------------------|:---------------|:---------------|:----------------------------|:------|
+| sym 0%       | 96.2              | 96.2           | 95.9           | 95.2                        | 85.3  |
+| sym 20%      | 88.8              | 88.6           | 90.2           | 89.0                        | 76.6  |
+| sym 40%      | 71.2              | 68.9           | 71.7           | 73.4                        | 61.3  |
+| asym 20%     | 88.1              | 89.4           | 89.7           | 90.5                        | 79.7  |
+| asym 40%     | 65.9              | 71.7           | 73.8           | 70.1                        | 64.0  |
+| boundary 30% | 73.5              | 76.8           | 76.8           | 79.0                        | 67.5  |
+
+: **Table 12** Comparison with CTW (re-implemented) on the UCR datasets of the CTW paper's experiment list (ArrowHead, CBF, FaceFour, OSULeaf, Plane, Symbols, Trace; MelbournePedestrian, which has unequal-length series, is excluded); mean test accuracy (%), seeds 0, 1, 2, identical splits and noise for all methods
+
 
 ## 6.9 Computational cost
 
-Table 12 and Supplementary Fig. S3 report the time each method adds to the shared work, which is the MiniRocket transform (median 0.52 s per dataset) and one eigendecomposition (median 0.028 s). Selecting the penalty on the wide instead of the default grid costs 1 ms at the median. LOO-EM takes a median of 0.11 s (mean 0.28 s), 2.6 times the eigendecomposition; 5-fold confident learning takes 0.39 s (mean 1.04 s), 8.8 times. LOO-EM is therefore not free, as a single LOO relabelling round is (4 ms), but it is about 4 times cheaper on average than the cross-validated alternative and never refits a model. Memory is dominated by the $n\times n$ eigenvector matrix and its element-wise square. All ridge variants deploy the same linear classifier, so model size and inference cost are identical; energy use was not measured. On the largest dataset processed (Crop, 7,200 training series, two BLAS threads) the eigendecomposition takes 47 s and LOO-EM 27 s per noise condition.
+Table 13 and Supplementary Fig. S3 report the time each method adds to the shared work, which is the MiniRocket transform (median 0.52 s per dataset) and one eigendecomposition (median 0.028 s). Selecting the penalty on the wide instead of the default grid costs 1 ms at the median. LOO-EM takes a median of 0.11 s (mean 0.28 s), 2.6 times the eigendecomposition; 5-fold confident learning takes 0.39 s (mean 1.04 s), 8.8 times. LOO-EM is therefore not free, as a single LOO relabelling round is (4 ms), but it is about 4 times cheaper on average than the cross-validated alternative and never refits a model. Memory is dominated by the $n\times n$ eigenvector matrix and its element-wise square. All ridge variants deploy the same linear classifier, so model size and inference cost are identical; energy use was not measured. On the largest dataset processed (Crop, 7,200 training series, two BLAS threads) the eigendecomposition takes 47 s and LOO-EM 27 s per noise condition.
 
 | Method                          | Median time (s)   | Mean time (s)   | Median ratio to eigendecomposition   |
 |:--------------------------------|:------------------|:----------------|:-------------------------------------|
@@ -470,7 +482,7 @@ Table 12 and Supplementary Fig. S3 report the time each method adds to the share
 | LOO relabel (1 round)           | 0.004             | 0.035           | 0.18                                 |
 | LOO remove                      | 0.101             | 0.458           | 2.07                                 |
 
-: **Table 12** Wall-clock cost per run of each method beyond the shared feature transform and eigendecomposition (single CPU thread, all datasets and conditions)
+: **Table 13** Wall-clock cost per run of each method beyond the shared feature transform and eigendecomposition (single CPU thread, all datasets and conditions)
 
 
 
@@ -488,7 +500,7 @@ Sensitivity was examined on a fixed random subset of 30 datasets outside the dev
 
 ## 6.11 Error analysis
 
-Table 13 lists the datasets with the largest losses and gains of LOO-EM relative to wide-grid ridge, and Supplementary Fig. S4 plots the gain against training-set size. On clean labels the largest losses occur on Beef, PigCVP, EthanolLevel, ScreenType and Worms (losses of 3–7 points): problems on which the clean classifier is itself far from perfect (wide-grid ridge reaches 53–93% on them) or that have very few series per class (as few as 2), so that systematic confusions between similar classes look like label noise. LOO-EM changes the accuracy of 44% of datasets on clean labels at all. At 40% asymmetric noise the largest gains (15–19 points on TwoPatterns, LargeKitchenAppliances, SmoothSubspace, UWaveGestureLibraryAll and OSULeaf) occur on problems with 3–8 classes and at least 150 training series, where the classes are separable enough for the transition matrix to be identified; the largest losses (1–3 points) occur on 4 two-class problems and 1 with fewer than 60 training series. The per-dataset gain at 40% asymmetric noise correlates weakly with the training-set size (Spearman 0.20) and with clean accuracy (−0.15).
+Table 14 lists the datasets with the largest losses and gains of LOO-EM relative to wide-grid ridge, and Supplementary Fig. S4 plots the gain against training-set size. On clean labels the largest losses occur on Beef, PigCVP, EthanolLevel, ScreenType and Worms (losses of 3–7 points): problems on which the clean classifier is itself far from perfect (wide-grid ridge reaches 53–93% on them) or that have very few series per class (as few as 2), so that systematic confusions between similar classes look like label noise. LOO-EM changes the accuracy of 44% of datasets on clean labels at all. At 40% asymmetric noise the largest gains (15–19 points on TwoPatterns, LargeKitchenAppliances, SmoothSubspace, UWaveGestureLibraryAll and OSULeaf) occur on problems with 3–8 classes and at least 150 training series, where the classes are separable enough for the transition matrix to be identified; the largest losses (1–3 points) occur on 4 two-class problems and 1 with fewer than 60 training series. The per-dataset gain at 40% asymmetric noise correlates weakly with the training-set size (Spearman 0.20) and with clean accuracy (−0.15).
 
 | Noise    | Group          | Dataset                     | n    | Classes   | Ridge (wide)   | LOO-EM (BIC)   | Diff.   |
 |:---------|:---------------|:----------------------------|:-----|:----------|:---------------|:---------------|:--------|
@@ -513,7 +525,7 @@ Table 13 lists the datasets with the largest losses and gains of LOO-EM relative
 | asym 40% | largest wins   | UWaveGestureLibraryAll      | 896  | 8         | 79.5           | 95.4           | +16.0   |
 | asym 40% | largest wins   | OSULeaf                     | 200  | 6         | 69.3           | 84.8           | +15.5   |
 
-: **Table 13** Datasets with the largest losses and gains of LOO-EM (BIC) relative to wide-grid ridge (accuracy %, mean of five resamples)
+: **Table 14** Datasets with the largest losses and gains of LOO-EM (BIC) relative to wide-grid ridge (accuracy %, mean of five resamples)
 
 
 

@@ -60,27 +60,27 @@ def fig_deployment(m):
     tfe, tei = c.get("t_feat_mean", float("nan")), c.get("t_eig_mean", float("nan"))
     tem = c.get("performance", {}).get("time_s", {}).get("loo_em_bic", float("nan"))
     ntr = c.get("n_train_mean", float("nan"))
-    fig, ax = plt.subplots(figsize=(10.5, 3.9)); ax.axis("off"); ax.set_xlim(0, 1); ax.set_ylim(0, 1)
-    ax.text(0.01, 0.97, f"Training / periodic re-training (measured on {ntr:,.0f} ECG recordings, 2 CPU threads)", fontsize=8, weight="bold", color=INK, va="top")
-    _box(ax, 0.01, 0.58, 0.14, 0.26, "Archive of\nrecordings with\noperational labels\n(technicians,\noutsourced, rules)")
-    _box(ax, 0.19, 0.58, 0.14, 0.26, f"MiniRocket\nfeatures\n{tfe:.0f} s")
-    _box(ax, 0.37, 0.58, 0.16, 0.26, f"Eigendecomposition\n{tei:.0f} s\n+ LOO-EM\n{tem:.0f} s")
-    _box(ax, 0.57, 0.66, 0.17, 0.18, "Linear classifier\n(weights + scaling)", fc="#eaf6ea", ec=GREEN)
-    _box(ax, 0.57, 0.40, 0.17, 0.20, "Ranked audit list\n(most suspicious\nlabels first)", fc="#fff4e5", ec="#b35900")
-    _box(ax, 0.80, 0.40, 0.18, 0.20, "Expert review of\nthe top of the list\n→ corrected labels", fc="#fff4e5", ec="#b35900")
-    for x0, x1, y in ((0.15, 0.19, 0.71), (0.33, 0.37, 0.71)):
+    fig, ax = plt.subplots(figsize=(10.5, 4.6)); ax.axis("off"); ax.set_xlim(0, 1); ax.set_ylim(-0.02, 1.02)
+    ax.text(0.01, 1.0, f"(a) Training and periodic re-training (measured on {ntr:,.0f} ECG recordings, 2 CPU threads)", fontsize=8, weight="bold", color=INK, va="top")
+    _box(ax, 0.01, 0.62, 0.15, 0.27, "Archive of recordings\nwith operational labels\n(technicians,\noutsourced, rules)")
+    _box(ax, 0.20, 0.62, 0.14, 0.27, f"MiniRocket\nfeatures\n{tfe:.0f} s")
+    _box(ax, 0.38, 0.62, 0.16, 0.27, f"Eigendecomposition\n{tei:.0f} s\n+ LOO-EM\n{tem:.0f} s")
+    _box(ax, 0.59, 0.73, 0.17, 0.16, "Linear classifier\n(weights + scaling)", fc="#eaf6ea", ec=GREEN)
+    _box(ax, 0.59, 0.50, 0.17, 0.17, "Ranked audit list\n(most suspicious\nlabels first)", fc="#fff4e5", ec="#b35900")
+    _box(ax, 0.81, 0.50, 0.18, 0.17, "Expert review of\nthe top of the list\n→ corrected labels", fc="#fff4e5", ec="#b35900")
+    for x0, x1, y in ((0.16, 0.20, 0.755), (0.34, 0.38, 0.755)):
         _arrow(ax, x0, y, x1, y)
-    _arrow(ax, 0.53, 0.75, 0.57, 0.75); _arrow(ax, 0.53, 0.65, 0.57, 0.52)
-    _arrow(ax, 0.74, 0.50, 0.80, 0.50, color="#b35900")
-    _arrow(ax, 0.89, 0.60, 0.08, 0.84, color="#b35900", rad=0.25)
-    ax.text(0.50, 0.93, "corrected labels flow back into the archive", fontsize=6.8, color="#b35900", ha="center")
-    ax.text(0.01, 0.30, "On-line inference (per recording, 1 CPU thread)", fontsize=8, weight="bold", color=INK, va="top")
-    _box(ax, 0.01, 0.03, 0.14, 0.20, "Sensor stream\n(30-s window)")
-    _box(ax, 0.19, 0.03, 0.30, 0.20, f"MiniRocket transform + linear model\nmedian latency {lat:.0f} ms per recording")
-    _box(ax, 0.53, 0.03, 0.21, 0.20, f"Model size {kb:,.0f} kB\npeak training memory {rss/1024:.1f} GB")
-    _box(ax, 0.78, 0.03, 0.20, 0.20, "Class + calibrated\nconfidence → alarm /\nhuman follow-up", fc="#eaf6ea", ec=GREEN)
-    _arrow(ax, 0.15, 0.13, 0.19, 0.13); _arrow(ax, 0.49, 0.13, 0.53, 0.13); _arrow(ax, 0.74, 0.13, 0.78, 0.13)
-    _arrow(ax, 0.655, 0.66, 0.30, 0.23, color=GREEN, rad=0.0, lw=0.8)
+    _arrow(ax, 0.54, 0.80, 0.59, 0.81); _arrow(ax, 0.54, 0.68, 0.59, 0.60)
+    _arrow(ax, 0.76, 0.585, 0.81, 0.585, color="#b35900")
+    _arrow(ax, 0.90, 0.50, 0.085, 0.62, color="#b35900", rad=-0.18)
+    ax.text(0.47, 0.375, "corrected labels flow back into the archive; transform and decomposition need not be recomputed",
+            fontsize=6.8, color="#b35900", ha="center")
+    ax.text(0.01, 0.33, "(b) On-line inference (per recording, 1 CPU thread, using the classifier from (a))", fontsize=8, weight="bold", color=INK, va="top")
+    _box(ax, 0.01, 0.03, 0.15, 0.22, "Sensor stream\n(30-s window)")
+    _box(ax, 0.20, 0.03, 0.30, 0.22, f"MiniRocket transform + linear model\nmedian latency {lat:.0f} ms per recording")
+    _box(ax, 0.54, 0.03, 0.22, 0.22, f"Model size {kb:,.0f} kB\npeak training memory {rss/1024:.1f} GB")
+    _box(ax, 0.80, 0.03, 0.19, 0.22, "Class + calibrated\nconfidence → alarm /\nhuman follow-up", fc="#eaf6ea", ec=GREEN)
+    _arrow(ax, 0.16, 0.14, 0.20, 0.14); _arrow(ax, 0.50, 0.14, 0.54, 0.14); _arrow(ax, 0.76, 0.14, 0.80, 0.14)
     P.save(fig, "fig_deployment")
 
 
@@ -89,23 +89,27 @@ def fig_scaling():
     if not os.path.exists(p):
         return None
     d = pd.DataFrame([json.loads(l) for l in open(p)])
-    d = d[d.get("error", pd.Series([np.nan] * len(d))).isna()] if "error" in d else d
+    if "error" in d:
+        d = d[d.error.isna()]
     fig, axes = plt.subplots(1, 3, figsize=(10.5, 3.1))
-    for k, mk in ((2000, "o"), (10000, "s")):
+    for k, mk, col in ((2000, "o", "#1f77b4"), (10000, "s", "#ff7f0e")):
         s = d[d.n_kernels == k].sort_values("n")
         if s.empty:
             continue
         lab = f"{int(s.p.iloc[0]):,} features"
-        axes[0].plot(s.n, s.t_decomp, mk + "-", label=lab); axes[0].plot(s.n, s.t_loo_em_bic, mk + "--", color=axes[0].lines[-1].get_color(), alpha=.6)
-        axes[1].plot(s.n, s.peak_rss_mb / 1024, mk + "-", label=lab)
-        axes[2].plot(s.n, 100 * s.acc_ridge_wide, mk + "-", label=f"ridge, {lab}"); axes[2].plot(s.n, 100 * s.acc_loo_em_bic, mk + "--", label=f"LOO-EM, {lab}")
-        for _, r in s.iterrows():
-            if r.route == "primal":
-                axes[1].annotate("primal", (r.n, r.peak_rss_mb / 1024), fontsize=6, xytext=(2, -8), textcoords="offset points")
-    axes[0].set_ylabel("Seconds (solid: decomposition,\ndashed: LOO-EM)"); axes[1].set_ylabel("Peak resident memory (GB)"); axes[2].set_ylabel("Test accuracy (%), 30% asym. noise")
+        axes[0].plot(s.n, s.t_decomp, mk + "-", color=col, label=f"decomposition, {lab}")
+        axes[0].plot(s.n, s.t_loo_em_bic, mk + "--", color=col, alpha=.6, label=f"LOO-EM, {lab}")
+        axes[1].plot(s.n, s.peak_rss_mb / 1024, mk + "-", color=col, label=lab)
+        pr = s[s.route == "primal"]
+        axes[1].plot(pr.n, pr.peak_rss_mb / 1024, mk, ms=10, mfc="none", mec="k", mew=0.8, label="primal route" if k == 10000 else None)
+        axes[2].plot(s.n, 100 * s.acc_ridge_wide, mk + "-", color=col, label=f"ridge, {lab}")
+        axes[2].plot(s.n, 100 * s.acc_loo_em_bic, mk + "--", color=col, label=f"LOO-EM, {lab}")
+    axes[0].set_ylabel("Seconds"); axes[1].set_ylabel("Peak resident memory (GB)"); axes[2].set_ylabel("Test accuracy (%)")
     for a in axes:
         a.set_xscale("log"); a.set_xlabel("Training-set size n"); a.grid(alpha=.3)
-    axes[0].set_yscale("log"); axes[0].legend(frameon=False, fontsize=7); axes[2].legend(frameon=False, fontsize=6)
+    axes[0].set_yscale("log")
+    for a in axes:
+        a.legend(frameon=False, fontsize=6.3)
     P.save(fig, "fig_scaling")
     return d
 
