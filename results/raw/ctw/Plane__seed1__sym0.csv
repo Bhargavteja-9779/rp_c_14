@@ -1,0 +1,2 @@
+dataset,transform,seed,noise,rate,method,n_train,n_test,n_classes,true_noise,time_s,acc,bal_acc,macro_f1
+Plane,raw,1,sym,0.0,ctw,105,105,7,0.0,446.7519533634186,1.0,1.0,1.0

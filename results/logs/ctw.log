@@ -56,3 +56,9 @@ ValueError: setting an array element with a sequence. The requested array has an
 ArrowHead 0 skip
 CBF 0 skip
 FaceFour 0 444s
+Symbols 0 831s
+Plane 0 1065s
+CBF 1 472s
+ArrowHead 1 731s
+Trace 0 1624s
+FaceFour 1 1307s

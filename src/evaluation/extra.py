@@ -150,6 +150,12 @@ def run(main_df):
         for ref in ("ridge_wide", "loo_em_bic"):
             stats_rows.append(_paired_rows(both, "ctw", ref, "ctw"))
 
+    p = os.path.join(ag.R, "raw", "ctw_check.jsonl")
+    if os.path.exists(p):
+        ck = pd.DataFrame([json.loads(l) for l in open(p)])
+        out["ctw_check"] = {d: dict(n_folds=int(len(g)), mean=float(g.acc.mean()), sd=float(g.acc.std(ddof=0)),
+                                    reported=float(g.reported.iloc[0])) for d, g in ck.groupby("dataset")}
+
     # ---- revision baselines/candidate on all datasets (main_df already contains them) -------------------
     if "backward_ridge" in set(main_df.method):
         for cand in ("backward_ridge", "loo_em_inst"):

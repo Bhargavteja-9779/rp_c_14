@@ -1,0 +1,2 @@
+dataset,transform,seed,noise,rate,method,n_train,n_test,n_classes,true_noise,time_s,acc,bal_acc,macro_f1
+ArrowHead,raw,1,sym,0.4,ctw,36,175,3,0.3888888888888889,123.02437090873718,0.4057142857142857,0.43487375808950873,0.37393162393162394

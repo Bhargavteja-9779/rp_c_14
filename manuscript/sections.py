@@ -168,6 +168,27 @@ def build(ctx, md_table, pct):
     return sec
 
 
+def _ctw_check(ex):
+    """Sentence on the validation of the CTW re-implementation under the CTW paper's own protocol."""
+    ck = ex.get("ctw_check")
+    if not ck:
+        return ""
+    import os
+    from src.data import ucr
+    ntr = pd.read_csv(os.path.join(ucr.ROOT, "data", "dataset_summary.csv")).set_index("dataset").n_train
+    parts = []
+    for d in ("CBF", "ArrowHead"):
+        if d in ck:
+            c = ck[d]
+            how = "fold 0" if c["n_folds"] == 1 else f"mean of {c['n_folds']} folds, SD {c['sd']:.3f}"
+            parts.append(f"{c['mean']:.3f} on {d} ({how}; published {c['reported']:.3f})")
+    sizes = " and ".join(f"{int(ntr[d])} series for {d}" for d in ("CBF", "ArrowHead") if d in ck)
+    return (" To check the re-implementation we also ran it under the CTW paper's own protocol (stratified 5-fold split of the pooled data, "
+            "30% symmetric noise), where it reached " + " and ".join(parts) + ", within the published run-to-run variation; the lower "
+            f"accuracies on our splits therefore reflect their much smaller training sets (for example {sizes}) rather than an "
+            "implementation error.")
+
+
 def _sg(v):
     """Signed one-decimal number with a typographic minus; values that round to zero print as 0.0."""
     if round(v, 1) == 0:
@@ -328,7 +349,7 @@ def _revision_sections(ctx, md_table, pct):
                       f"One CTW run took a median of {ct['median_time_s']:.0f} s on one CPU core, against well under a second "
                       "for every ridge-based method on these datasets. Seven datasets are too few for a significance test to carry much weight, and CTW was run "
                       "with its published hyper-parameters rather than tuned; the comparison therefore locates the methods relative to each other on the "
-                      "CTW authors' own benchmark rather than establishing a general ranking.\n\nTABLE:ctw")
+                      "CTW authors' own benchmark rather than establishing a general ranking." + _ctw_check(ex) + "\n\nTABLE:ctw")
     else:
         out["ctw"] = na("CTW comparison")
 

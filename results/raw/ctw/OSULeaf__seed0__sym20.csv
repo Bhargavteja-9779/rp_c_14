@@ -1,0 +1,2 @@
+dataset,transform,seed,noise,rate,method,n_train,n_test,n_classes,true_noise,time_s,acc,bal_acc,macro_f1
+OSULeaf,raw,0,sym,0.2,ctw,200,242,6,0.2,638.6992132663727,0.8636363636363636,0.8353678477319781,0.8429514686104455
