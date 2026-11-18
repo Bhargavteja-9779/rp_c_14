@@ -129,3 +129,16 @@ def test_primal_route_equals_dual():
     Kt = gp.test_kernel(Xt)
     Zt = gp.test_features(Xt)
     assert np.allclose(gp.predict(Kt, Y, a), gp.predict_features(Zt, Y, a), atol=1e-6)
+
+
+def test_label_smoothing_changes_no_prediction():
+    """Corollary 1: label smoothing is an affine map of the targets -> identical arg-max for any penalty."""
+    X, y, Xt, _ = make(n=50, p=80)
+    g = GramRidge().fit(X)
+    K = g.test_kernel(Xt)
+    C = 3
+    onehot = np.eye(C)[y]
+    for eps in (0.1, 0.5, 0.9):
+        Ys = 2 * ((1 - eps) * onehot + eps / C) - 1
+        for a in (0.01, 1.0, 1e3):
+            assert np.array_equal(g.predict(K, one_hot_pm(y, C), a).argmax(1), g.predict(K, Ys, a).argmax(1))

@@ -95,6 +95,75 @@ class Ctx:
     def NIMB(self, b):
         return next(r for r in self.metrics["by_imbalance"] if r["imbalance_bin"].startswith(b))["n_datasets"]
 
+    # ---- real-world ECG (PhysioNet/CinC 2017) -------------------------------------------------------
+    def _c(self):
+        return self.metrics["cinc2017"]
+
+    def CINC(self, method, metric, dec=1):
+        v = self._c()["performance"][metric][method]
+        return f"{100 * v:.{dec}f}" if metric not in ("f1_nao",) else f"{v:.3f}"
+
+    def CINCD(self, method, key):
+        v = self._c()["detection"][key][method]
+        return f"{v:.2f}" if key in ("auroc",) else f"{100 * v:.1f}"
+
+    def _ct(self, cand, ref):
+        return next(r for r in self._c()["tests"] if r["candidate"] == cand and r["reference"] == ref)
+
+    def CINCT(self, cand, ref):
+        r = self._ct(cand, ref)
+        ps = ", ".join(self.p(x).replace("= ", "") for x in r["mcnemar_p"])
+        s = (f"{100 * r['acc_diff']:+.1f} accuracy points (95% CI {100 * r['acc_ci_lo']:+.1f} to {100 * r['acc_ci_hi']:+.1f}; "
+             f"McNemar p {ps} in the two repetitions) and {r['f1_diff']:+.3f} in F1 (95% CI {r['f1_ci_lo']:+.3f} to {r['f1_ci_hi']:+.3f})")
+        return s.replace("-", "−").replace("McNemar p <", "McNemar p <")
+
+    def CINCX(self, key, dec=0):
+        v = self._c()[key]
+        return f"{v:,.{dec}f}" if isinstance(v, (int, float)) else str(v)
+
+    # ---- CTW ----------------------------------------------------------------------------------------
+    def CTW(self, method, cond):
+        return f"{100 * self.metrics['extra']['ctw']['mean_accuracy'][cond][method]:.1f}"
+
+    def CTWS(self, cand, ref, cond):
+        r = next(r for r in self.stats["secondary"] if r["experiment"] == "ctw" and r["candidate"] == cand
+                 and r["reference"] == ref and r["cond"] == cond)
+        return (f"{100 * r['mean_diff']:+.1f} points ({r['wins']} wins, {r['losses']} losses over "
+                f"{r['n']} datasets)").replace("-", "−")
+
+    def CTWX(self, key, dec=0):
+        v = self.metrics["extra"]["ctw"][key]
+        return f"{v:,.{dec}f}" if isinstance(v, (int, float)) else ", ".join(map(str, v))
+
+    # ---- class-wise / calibration --------------------------------------------------------------------
+    def CW(self, metric, method, cond):
+        return f"{100 * self.metrics['extra']['classwise'][metric][cond][method]:.1f}"
+
+    def CWS(self, metric, cand, ref, cond):
+        r = next(r for r in self.stats["secondary"] if r["experiment"] == f"classwise_{metric}" and r["candidate"] == cand
+                 and r["reference"] == ref and r["cond"] == cond)
+        return (f"{100 * r['mean_diff']:+.1f} points (Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, "
+                f"{r['losses']} losses)").replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4").replace("-5", "−5").replace("-6", "−6").replace("-7", "−7").replace("-8", "−8").replace("-9", "−9")
+
+    # ---- secondary main-benchmark comparisons ----------------------------------------------------------
+    def SEC(self, exp, cand, ref, cond):
+        r = next(r for r in self.stats["secondary"] if r["experiment"] == exp and r["candidate"] == cand
+                 and r["reference"] == ref and r["cond"] == cond)
+        return (f"{100 * r['mean_diff']:+.1f} points (Holm-adjusted p {self.p(r['p_holm'])}; {r['wins']} wins, "
+                f"{r['losses']} losses)").replace("-0", "−0").replace("-1", "−1").replace("-2", "−2").replace("-3", "−3").replace("-4", "−4").replace("-5", "−5").replace("-6", "−6").replace("-7", "−7").replace("-8", "−8").replace("-9", "−9")
+
+    # ---- exact LOO, scaling -----------------------------------------------------------------------------
+    def EXL(self, cond, key, scale=1, dec=2):
+        r = next(r for r in self.metrics["extra"]["exact_loo"]["per_cond"] if r["cond"] == cond)
+        return f"{scale * r[key]:.{dec}f}"
+
+    def EXLN(self):
+        return self.metrics["extra"]["exact_loo"]["n_datasets"]
+
+    def SCL(self, n, k, key, scale=1, dec=0):
+        r = next(r for r in self.metrics["extra"]["scaling"] if r["n_req"] == n and r["n_kernels"] == k)
+        return f"{scale * r[key]:,.{dec}f}" if isinstance(r[key], (int, float)) else str(r[key])
+
     # ---- penalty ----------------------------------------------------------------------------------
     def PCT_SAT(self, cond):
         d = self.df[(self.df.method == "ridge_std") & (self.df.cond == cond)]

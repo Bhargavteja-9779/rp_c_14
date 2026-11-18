@@ -95,3 +95,14 @@ ToeSegmentation2                         9.3s
 Trace                                   12.8s 
 TwoLeadECG                              13.5s 
 UMD                                      9.8s 
+TwoPatterns                             93.6s 
+UWaveGestureLibraryAll                 114.4s 
+UWaveGestureLibraryX                   113.1s 
+UWaveGestureLibraryY                   108.8s 
+UWaveGestureLibraryZ                   125.4s 
+Wine                                    11.1s 
+Wafer                                  110.0s 
+Worms                                   20.5s 
+WordSynonyms                            31.5s 
+WormsTwoClass                           15.2s 
+Yoga                                    40.5s 

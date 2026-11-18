@@ -49,6 +49,12 @@ def report(quick=False):
     plots.make_all(df, stats)
     if not quick:
         extra.run(df)
+        from src.evaluation import realworld
+        out = realworld.run()
+        if out:
+            realworld.merge_into_results(out)
+        from src.visualization import plots_rev
+        plots_rev.make_all(json.load(open(os.path.join(ROOT, "results", "metrics.json"))))
     print(f"report written: {len(df)} result rows, {metrics['n_datasets']} datasets, {metrics['n_errors']} failed runs")
 
 
@@ -80,6 +86,12 @@ if __name__ == "__main__":
         sh(f"{PY} experiments/run_other.py --methods quant,nn_ed --seeds 0,1,2 --workers {w} --datasets $(tail -1 scripts/main108.txt)", "other.log")  # other families
         sh(f"{PY} experiments/run_sensitivity.py --workers {w}", "sensitivity.log")
         sh(f"{PY} experiments/run_uea.py --workers {w}", "uea.log")
+        sh(f"{PY} experiments/run_main.py --workers {w} --max-n 3000 --sub minirocket_v4 --methods backward_ridge,loo_em_inst", "main_v4.log")
+        sh(f"{PY} experiments/run_main.py --workers {w} --max-n 3000 --sub classwise --methods ridge_std,ridge_wide,loo_em_bic,conf_learning_cal", "classwise.log")
+        sh(f"{PY} experiments/run_cinc2017.py --repeats 0,1 --threads {w}", "cinc2017.log")         # real annotation noise
+        sh(f"{PY} experiments/run_ctw.py --workers {w}", "ctw.log")                                   # CTW re-implementation
+        sh(f"{PY} experiments/run_exact_loo.py --workers {w}", "exact_loo.log")
+        sh(f"{PY} experiments/run_scaling.py", "scaling.log")
         sh(f"{PY} experiments/run_deep.py --datasets {DEEP} --seeds 0,1,2 --conds sym:0,sym:0.3,asym:0.3 --workers {w}", "deep.log")
         report()
     else:
